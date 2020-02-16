@@ -59,7 +59,7 @@ public class Master {
 	public static void main(String[] args) {
 		Master m = new Master();
 		GUI g = new GUI(m);
-		g.showWindowStart();
+		g.displayPanelStart();
 	}
 
 }
