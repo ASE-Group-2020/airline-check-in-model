@@ -221,7 +221,6 @@ public class GUI implements ActionListener {
 			displayWindowConfirm();
 			break;
 		case "detailsback":
-			// TODO: Display flight details and over-sized baggage cost
 			displayPanelBaggage();
 			break;
 		case "detailsproceed":
