@@ -57,6 +57,9 @@ public class Master {
 	public void display() {}
 	
 	public static void main(String[] args) {
+		Master m = new Master();
+		GUI g = new GUI(m);
+		g.showWindowStart();
 	}
 
 }
