@@ -91,6 +91,9 @@ public class Flight {
 		return details;
 	}
 	
+	/**@return the flight code of the current flight*/
+	public String getFlightCode() { return flightCode; }
+	
 	/**@return a two-cell array for the travelling point of the flight: starting location, and finishing location*/
 	public String[] getTravelPoints() { return new String[] {startLocation, endLocation}; }
 	

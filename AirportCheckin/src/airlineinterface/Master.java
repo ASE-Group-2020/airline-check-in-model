@@ -6,26 +6,48 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+import exceptions.AlreadyCheckedInException;
+import exceptions.InvalidValueException;
+
 public class Master {
 	private HashMap<String, Flight> allFlights;
 	private HashMap<String, Customer> allCustomers;
 
+	/**
+	 * The Master object is responsible for managing all Flights and Customers, 
+	 * reading them from files, checking in and adding them to HashMaps.
+	 * It works together with the GUI class to display an interface for the app.
+	 */
 	public Master() {
 	}
 
-	// Needs exception
-	public void addFlight(Flight f) {
+	/**@param Flight to add to HashMap
+	 * @throws InvalidValueException if flight code is empty
+	 */
+	public void addFlight(Flight f) throws InvalidValueException {
+		if (f.getFlightCode().equals(null) || f.getFlightCode().contentEquals("")) 
+			throw new InvalidValueException("flight code");
+		else allFlights.put(f.getFlightCode(), f);
 	}
 
-	// Probably not needed
-	// Needs exception
+	
+	/** @param Flight to remove from HashMap. Does nothing if specified Flight doesn't exist. */
 	public void removeFlight(Flight f) {
+		allFlights.remove(f.getFlightCode(), f);
 	}
 
 	// Called during startup (reading from file) and with GUI
 	// Needs exception
-	public void checkIn(Customer c, float weight, float volume) {
-
+	/**
+	 * Checks in a customer.
+	 * 
+	 * @param Customer object
+	 * @param his baggage weight 
+	 * @param his baggage volume
+	 * @throws AlreadyCheckedInException if customer has been checked in before
+	 */
+	public void checkIn(Customer c, float weight, float volume) throws AlreadyCheckedInException {
+		
 	}
 
 	public void addFlightsFromFile(String filePath) {
@@ -57,6 +79,9 @@ public class Master {
 		}
 	}
 
+	/**
+	 * @param filePath
+	 */
 	public void addCustomersFromFile(String filePath) {
 		try { 														// open input stream
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
