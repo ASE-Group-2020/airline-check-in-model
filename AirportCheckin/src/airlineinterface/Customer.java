@@ -8,6 +8,9 @@ public class Customer implements Comparable<Customer> {
 	private boolean isBookedIn;
 	private float baggageWeight, baggageVolume;
 	
+	//needed for calculating booking fee
+	private float isVolume, isWeight;
+	
 	@SuppressWarnings("unused")
 	private Customer() {}
 	
@@ -40,6 +43,8 @@ public class Customer implements Comparable<Customer> {
 		lastName = _lastName;
 		flightCode = _flightCode;
 		isBookedIn = _booked;
+		isVolume = _volume;
+		isWeight = _weight;
 		
 		if (_booked)
 		{
@@ -90,6 +95,12 @@ public class Customer implements Comparable<Customer> {
 	
 	/**@return the customer's unique reference code*/
 	public String getRefCode() { return refCode; }
+	
+	/**@return the baggage weight*/
+	public float getWeight() { return isWeight; }
+	
+	/**@return the baggage volume*/
+	public float getVolume() { return isVolume; }
 	
 	/**@return an array of the following attributes (in order):<br>
 	 * weight of customer's baggage<br>

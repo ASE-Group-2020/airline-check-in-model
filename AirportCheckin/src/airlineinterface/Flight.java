@@ -12,6 +12,10 @@ public class Flight {
 	private int capacity;
 	private float maxWeight, maxVolume;
 	
+	//variables that are useful for the report
+	private int currentCapacity;
+	private float currentWeight, currentVolume;
+	
 	@SuppressWarnings("unused")
 	private Flight() {}
 	
@@ -57,13 +61,16 @@ public class Flight {
 	 * Adds a new customer to the flight's passenger list.
 	 * 
 	 * @param c the new customer to add to the flight
-	 * @return if the input customer is a new entry, this method returns True. If this customer does already exist, this method will take no action and return false.
 	 * @throws InvalidValueException when the customer's flight code does not match with this flight's code (i.e the customer is trying to check into the wrong flight)
 	 */
-	public boolean addCustomer(Customer c) throws InvalidValueException
+	public void addCustomer(Customer c) throws InvalidValueException
 	{
 		if (!c.getFlightCode().equals(flightCode)) throw new InvalidValueException("customer does not belong to this flight");
-		return customers.add(c);
+		customers.add(c);										//Add customer to TreeSet of customer on flight
+		currentCapacity = currentCapacity + 1;					//Add one additional passengers to the flight
+		float[] baggageDetails = c.getBaggageDetails();			//Get an array which holds the 2 values: checked in baggage weight and volume
+	    currentWeight = currentWeight + baggageDetails[0];		//Add baggage weight to the flight
+	    currentVolume = currentVolume + baggageDetails[1];		//Add baggage volume to the flight
 	}
 	
 	/**
@@ -91,12 +98,12 @@ public class Flight {
 		return details;
 	}
 	
-	/**@return the flight code of the current flight*/
-	public String getFlightCode() { return flightCode; }
-	
-	/**@return a two-cell array for the travelling point of the flight: starting location, and finishing location*/
+	/**@return a two-cell array for the traveling point of the flight: starting location, and finishing location*/
 	public String[] getTravelPoints() { return new String[] {startLocation, endLocation}; }
 	
 	/**@return the name of the company providing the flight*/
 	public String getCarrier() { return carrier; }
+	
+	/**@return the name of the flight code of the flight*/
+	public String getFlightCode() { return flightCode; }
 }

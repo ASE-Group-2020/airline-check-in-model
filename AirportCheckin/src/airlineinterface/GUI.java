@@ -15,6 +15,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import exceptions.InvalidValueException;
+
 public class GUI implements ActionListener {
 
 	private final static String STARTPANEL = "START";
@@ -31,6 +33,7 @@ public class GUI implements ActionListener {
 	private JLabel lBaggageError, lFlightInfo, lDetails, lFeeDetails;
 
 	private Customer currentCustomer = null;
+	private Flight customerFlight = null;
 	private float currentWeight, currentVolume;
 
 	public GUI(Master m) {
@@ -38,7 +41,7 @@ public class GUI implements ActionListener {
 		// Frame
 		frame = new JFrame("Check-in");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(300, 300);
+		frame.setSize(500, 500);
 		// Constraints
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
@@ -93,7 +96,7 @@ public class GUI implements ActionListener {
 		bDetailsBack.addActionListener(this);
 		bDetailsBack.setActionCommand("detailsback");
 		JLabel lFeeInfo = new JLabel("Total amount payable for baggage fees:");
-		lFeeDetails = new JLabel("£[ . . money . . ]");
+		lFeeDetails = new JLabel("ï¿½[ . . money . . ]");
 		JButton bDetailsProceed = new JButton("Proceed");
 		bDetailsProceed.addActionListener(this);
 		bDetailsProceed.setActionCommand("detailsproceed");
@@ -161,31 +164,46 @@ public class GUI implements ActionListener {
 		lFeeDetails.setText(getBaggageFeeDetails());
 		cards.show(container, DETAILSPANEL);
 	}
-	
+
+	/*
+	 * Create String giving the customer and customers flight information. Calls
+	 * getFlight(String) from master to get the flight that the customer will be
+	 * boarding, returns object Flight.
+	 */
 	private String getFlightDetails() {
+		System.out.println("in getFlightDetails!!");
 		String sFlightInfo = "";
 		if (currentCustomer != null) {
 			sFlightInfo += String.format("Name:\t%s %s", currentCustomer.getFirstName(), currentCustomer.getLastName());
 			String sFlightCode = currentCustomer.getFlightCode();
 			sFlightInfo += String.format("\nFlight code:\t%s", sFlightCode);
-			
-			// TODO: get flight from flight code
+
 			/*
-			Flight f = m.getFlight(sFlightCode);
-			String[] sTravelPoints = f.getTravelPoints();
+			 * IF sFlightCode DOESN'T EXSIST IN allFlights HashMap, return is NULL. A NULL
+			 * RETURN WILL CRASH THE CODE, NEED TO FIND A WAY TO HANDLE THAT.
+			 */
+			customerFlight = m.getFlight(sFlightCode); // what is this? (David)
+
+			String[] sTravelPoints = customerFlight.getTravelPoints();
 			sFlightInfo += String.format("\nDeparture:\t%s\tArrival:\t%s", sTravelPoints[0], sTravelPoints[1]);
-			sFlightInfo += String.format("\nCarrier:\t%s", f.getCarrier());
-			*/
+			sFlightInfo += String.format("\nCarrier:\t%s", customerFlight.getCarrier());
+
 		} else {
 			sFlightInfo += "[Error: No flight details to display]";
 		}
 		return sFlightInfo;
 	}
+
+	/*
+	 * Create String giving the baggage oversize & overvolume fee. Calls
+	 * getOversizefee(Customer, float, float) from master to get the float.
+	 */
 	private String getBaggageFeeDetails() {
 		String sBaggageInfo = "";
 		sBaggageInfo += String.format("Weight: %skg\tVolume: %sl", currentWeight, currentVolume);
-		// TODO: Oversize fee
-		// sBaggageInfo += String.format("\nOversize fee: £%s", m.getOversizeFee(currentWeight, currentVolume));
+		sBaggageInfo += String.format("\nOversize fee: ï¿½%s",
+				m.getOversizeFee(currentCustomer, currentWeight, currentVolume));
+		System.out.println("the sBaggageInfo String looks like this: \n" + sBaggageInfo);
 		return sBaggageInfo;
 	}
 
@@ -198,7 +216,16 @@ public class GUI implements ActionListener {
 			// if no valid customer
 			String customerCode = tfBookingRef.getText();
 			String customerLastName = tfLastName.getText();
-			currentCustomer = null;
+
+			/*
+			 * IF customerCode && customerCode DOESN'T EXSIST IN allCustomer HashMap, return
+			 * is NULL. A NULL RETURN WILL CAUSE POROBLMES IN THE CODE, NEED TO FIND A WAY
+			 * TO HANDLE THAT.
+			 */
+			// TODO: handle null customer
+			currentCustomer = m.getCustomer(customerCode, customerLastName);
+			System.out.println(
+					"the current customer is: " + currentCustomer.getFirstName() + " " + currentCustomer.getLastName());
 			displayPanelBaggage();
 			break;
 		case "baggageback":
@@ -225,7 +252,13 @@ public class GUI implements ActionListener {
 			break;
 		case "detailsproceed":
 			// TODO: check in customer, change outcome based on check-in success
-			m.checkIn(currentCustomer, currentWeight, currentVolume);
+			System.out.println("customerFlight.getCarrier(): " + customerFlight.getCarrier());
+			try {
+				m.checkIn(currentCustomer, customerFlight, currentWeight, currentVolume);
+			} catch (InvalidValueException e1) {
+				System.out.println(
+						"There is an issue with one of the input types for checkIn(Customer, Flight, Float,Float)");
+			}
 			displayPanelStart();
 			break;
 		}
