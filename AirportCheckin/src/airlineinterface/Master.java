@@ -19,24 +19,46 @@ public class Master {
 	 * It works together with the GUI class to display an interface for the app.
 	 */
 	public Master() {
+		// declare the HashMaps in the constructor else you can get null pointer exception
+		allFlights = new HashMap<String, Flight>();
+		allCustomers = new HashMap<String, Customer>();
 	}
 	
-	public Customer getCustomer(String customerCode, String customerLastName) {
-		System.out.println("In getCustomer");
-		for(Customer C : allCustomers.values())
-		{
-			String currentRefCode = C.getRefCode();
-			System.out.println("the checked refCode: " + customerCode + "\t the RefCode of the customer in the HashMap: " + currentRefCode  );
-			String currentLastName = C.getLastName(); 
-			System.out.println("the checked LastName: " + customerLastName + "\t the LastName of the customer in the HashMap: " + currentLastName  );
-			//Check that the current customer matches the last name and refCode that's entered 
-			if(currentRefCode.equals(customerCode) && currentLastName.equals(customerLastName)) {
-				return C;
-			}
-		}
-		// if there are no matches return null
-		return null; 
+	/* Method which returns a Flight object by searching the
+	*  allflights HashMap for the flight with a specific flightCode.
+	*/ 
+	public Flight getFlight(String flightCode) {
+		 // this if statement allows programmers to handle no-existing or wrong flight codes.
+		 if(allFlights.containsKey(flightCode)) return allFlights.get(flightCode);
+		 else {
+			 return null; //if returns null the GUI will handle the exception
+		 }
 	}
+	
+	/* Method which returns a Customer object by searching the
+	*  allCustomers HashMap for the flight with a specific flightCode.
+	*/ 
+	public Customer getCustomer(String customerCode, String customerLastName) {
+		// this if statement allows programmers to handle no-existing or wrong customerCode.
+		 if(allCustomers.containsKey(customerCode)){
+			 	Customer C = allCustomers.get(customerCode);
+				/* Check that the current customer has entered a last name and refCode that matches
+			 	*  This is an extra layer of security
+			 	*/
+				if(C.getLastName().equals(customerLastName)) {
+					return C; 
+				}
+				else {
+					//TODO 
+					return null; // deals with the customer having a name that doesn't match the entered referenceCode 
+				}
+		 }	
+		 else {
+			 //TODO
+			 return null; // deals with the reference code not existing in the hashmap
+		 }
+	}
+		
 	
 	// Called during startup (reading from file) and with GUI
 		// Needs exception
@@ -52,31 +74,37 @@ public class Master {
 	 * @param his baggage volume
 	 * @throws AlreadyCheckedInException if customer has been checked in before
 	 */
-	public void checkIn(Customer c, Flight f, float weight, float volume) throws InvalidValueException {
+	public void checkIn(Customer c, Flight f, float weight, float volume) throws InvalidValueException, AlreadyCheckedInException {
+		c.setCheckedIn(weight,volume);
 		f.addCustomer(c);
 	}
 	
-	//We return the oversize and overweight fee as a float. It's calculated with a small flat fee + (current - booked) x 2  
-	public float getOversizeFee(Customer currentCustomer, float currentWeight,float currentVolume) {
-		if (currentCustomer.getWeight() < currentWeight && currentCustomer.getVolume() < currentVolume){
-			System.out.println("case 1");
-			System.out.println("#################################################################################################");
-			System.out.println("the current customer is: " + currentCustomer.getFirstName() + " " + currentCustomer.getLastName());
-			System.out.println("the current baggageWeight is: " + currentWeight + "\t the current baggageVolume is: " + currentVolume);
-			System.out.println("the getWeight baggageWeight is: " + currentCustomer.getWeight() + "\t the getVolume baggageVolume is: " + currentCustomer.getVolume());
-			System.out.println("#################################################################################################");
-			return (currentWeight-currentCustomer.getWeight())*2+(currentVolume-currentCustomer.getVolume())*2+5;
+	// Look for the weight/volume braket your object fits in. This is a pretty odd way to do Oversize fees..
+	public float getOversizeFee(float currentWeight,float currentVolume) {
+		if (currentWeight < 15 && currentVolume < 20) {
+			return 0;
 		}
-		else if (currentCustomer.getWeight() < currentWeight) {
-			return (currentWeight-currentCustomer.getWeight())*2+5;
+		else if (currentWeight < 25 && currentVolume < 35) {
+			return 10;
 		}				
-		else if(currentCustomer.getVolume() < currentVolume){
-			return (currentVolume-currentCustomer.getVolume())*2+5;
+		else if(currentWeight < 45 && currentVolume < 55) {
+			return 20;
 		}
-		else {
-			return 0; //It should never get here 
+		else if(currentWeight < 100 && currentVolume < 120) {
+			return 40;
 		}
+		else if(currentWeight < 150 && currentVolume < 180) {
+			return 60;
+		}
+		else if(currentWeight < 200 && currentVolume < 260) {
+			return 80;
+		}
+		// this is the maximum weight and volume an individual is allowed to possess. Beyond 200kg 
 		
+		//TODO how to handle strange number or values.. 
+		else {
+			return 404404; //set to a number that shouldn't ever be possible or looks reasonable
+		}
 	}
 	
 	//JUST USED FOR TESTING

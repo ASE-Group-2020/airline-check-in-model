@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import exceptions.AlreadyCheckedInException;
 import exceptions.InvalidValueException;
 
 public class GUI implements ActionListener {
@@ -183,6 +184,8 @@ public class GUI implements ActionListener {
 			 * RETURN WILL CRASH THE CODE, NEED TO FIND A WAY TO HANDLE THAT.
 			 */
 			customerFlight = m.getFlight(sFlightCode); // what is this? (David)
+			// The customer and flight obj are associated by the FlightCode that they both possess.
+			// This line of code retrieves the flight obj linked to that customer. (to whom ever asked the question)
 
 			String[] sTravelPoints = customerFlight.getTravelPoints();
 			sFlightInfo += String.format("\nDeparture:\t%s\tArrival:\t%s", sTravelPoints[0], sTravelPoints[1]);
@@ -201,8 +204,8 @@ public class GUI implements ActionListener {
 	private String getBaggageFeeDetails() {
 		String sBaggageInfo = "";
 		sBaggageInfo += String.format("Weight: %skg\tVolume: %sl", currentWeight, currentVolume);
-		sBaggageInfo += String.format("\nOversize fee: �%s",
-				m.getOversizeFee(currentCustomer, currentWeight, currentVolume));
+		sBaggageInfo += String.format("\nOversize fee: %s",
+				m.getOversizeFee(currentWeight, currentVolume));
 		System.out.println("the sBaggageInfo String looks like this: \n" + sBaggageInfo);
 		return sBaggageInfo;
 	}
@@ -258,6 +261,9 @@ public class GUI implements ActionListener {
 			} catch (InvalidValueException e1) {
 				System.out.println(
 						"There is an issue with one of the input types for checkIn(Customer, Flight, Float,Float)");
+			} catch (AlreadyCheckedInException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 			displayPanelStart();
 			break;
