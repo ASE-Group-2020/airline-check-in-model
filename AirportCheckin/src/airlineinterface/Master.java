@@ -38,9 +38,20 @@ public class Master {
 	/* Method which returns a Customer object by searching the
 	*  allCustomers HashMap for the flight with a specific flightCode.
 	*/ 
-	public Customer getCustomer(String customerCode, String customerLastName) {
+	public Customer getCustomer(String customerCode, String customerLastName) throws InvalidValueException {
 		// this if statement allows programmers to handle no-existing or wrong customerCode.
-		 if(allCustomers.containsKey(customerCode)){
+		for(char c : customerCode.toCharArray()) {
+		    if(!Character.isDigit(c)) {
+		        throw new InvalidValueException("the reference code of a Customer must contain only numbers.");
+		    }
+		}
+		 // this if statement allows programmers to handle no-existing or wrong customer name.
+	    for(char c2 : customerLastName.toCharArray()) {
+		    if(!Character.isLetter(c2)) {
+		        throw new InvalidValueException("the customer last name must contain only letters.");
+		    }
+		}
+		if(allCustomers.containsKey(customerCode)){
 			 	Customer C = allCustomers.get(customerCode);
 				/* Check that the current customer has entered a last name and refCode that matches
 			 	*  This is an extra layer of security
@@ -58,6 +69,7 @@ public class Master {
 			 return null; // deals with the reference code not existing in the hashmap
 		 }
 	}
+	
 		
 	
 	// Called during startup (reading from file) and with GUI
@@ -80,7 +92,7 @@ public class Master {
 	}
 	
 	// Look for the weight/volume braket your object fits in. This is a pretty odd way to do Oversize fees..
-	public float getOversizeFee(float currentWeight,float currentVolume) {
+	public float getOversizeFee(float currentWeight,float currentVolume) throws InvalidValueException {
 		if (currentWeight < 15 && currentVolume < 20) {
 			return 0;
 		}
@@ -102,9 +114,8 @@ public class Master {
 		// this is the maximum weight and volume an individual is allowed to possess. Beyond 200kg 
 		
 		//TODO how to handle strange number or values.. 
-		else {
-			return 404404; //set to a number that shouldn't ever be possible or looks reasonable
-		}
+		else
+			throw new InvalidValueException("the baggage shouldn't be more than 200 Kg in weight or 260 L in volume.");
 	}
 	
 	//JUST USED FOR TESTING
@@ -113,8 +124,8 @@ public class Master {
 		 * Creation of some dummy customers to test the code, can be deleted later
 		 */	
 		//String _code, String _firstName, String _lastName, String _flightCode, boolean _booked, float _weight, float _volume
-		allCustomers.put("123", new Customer("123", "Adam", "Smith", "LON123", false, 5,  5));
-		allCustomers.put("456", new Customer("456", "Marie", "Curie", "LON123", false, 15,  1));
+		allCustomers.put("123", new Customer("123", "adam", "smith", "LON123", false, 5,  5));
+		allCustomers.put("456", new Customer("456", "maire", "curie", "LON123", false, 15,  1));
 		
 		/*
 		 * Creation of some dummy flights to test the code, can be deleted later

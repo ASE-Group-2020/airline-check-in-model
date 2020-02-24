@@ -1,5 +1,6 @@
 package airlineinterface;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -7,7 +8,7 @@ import exceptions.InvalidValueException;
 
 public class Flight {
 	
-	private TreeSet<Customer> customers;
+	private HashSet<Customer> customers;
 	private String startLocation, endLocation, flightCode, carrier;
 	private int capacity;
 	private float maxWeight, maxVolume;
@@ -54,7 +55,7 @@ public class Flight {
 		capacity = maxPassengers;
 		this.maxWeight = maxWeight;
 		this.maxVolume = maxVolume;
-		customers = new TreeSet<Customer>();
+		customers = new HashSet<Customer>();
 	}
 	
 	/**

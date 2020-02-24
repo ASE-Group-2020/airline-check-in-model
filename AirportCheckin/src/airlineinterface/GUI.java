@@ -36,7 +36,10 @@ public class GUI implements ActionListener {
 	private Customer currentCustomer = null;
 	private Flight customerFlight = null;
 	private float currentWeight, currentVolume;
-
+	
+	// label variables
+	private JLabel lInfo;
+	
 	public GUI(Master m) {
 		this.m = m;
 		// Frame
@@ -49,7 +52,7 @@ public class GUI implements ActionListener {
 		// Start panel
 		pStart = new JPanel(new GridBagLayout());
 		JLabel lCheckIn = new JLabel("Check In");
-		JLabel lInfo = new JLabel("[ . . . . . . . . information . . . . . . . . ]");
+		lInfo = new JLabel("[ . . . . . . . . information . . . . . . . . ]");
 		JLabel lLastName = new JLabel("Last Name:");
 		tfLastName = new JTextField("");
 		JLabel lBookingRef = new JLabel("Booking reference code:");
@@ -160,7 +163,7 @@ public class GUI implements ActionListener {
 		cards.show(container, BAGGAGEPANEL);
 	}
 
-	public void displayWindowConfirm() {
+	public void displayWindowConfirm() throws InvalidValueException {
 		lDetails.setText(getFlightDetails());
 		lFeeDetails.setText(getBaggageFeeDetails());
 		cards.show(container, DETAILSPANEL);
@@ -184,15 +187,20 @@ public class GUI implements ActionListener {
 			 * RETURN WILL CRASH THE CODE, NEED TO FIND A WAY TO HANDLE THAT.
 			 */
 			customerFlight = m.getFlight(sFlightCode); // what is this? (David)
+			if (customerFlight == null){
+				sFlightInfo += "[Error: No flight details to display]";
+			}
+			else {
 			// The customer and flight obj are associated by the FlightCode that they both possess.
 			// This line of code retrieves the flight obj linked to that customer. (to whom ever asked the question)
 
 			String[] sTravelPoints = customerFlight.getTravelPoints();
 			sFlightInfo += String.format("\nDeparture:\t%s\tArrival:\t%s", sTravelPoints[0], sTravelPoints[1]);
 			sFlightInfo += String.format("\nCarrier:\t%s", customerFlight.getCarrier());
+			}
 
 		} else {
-			sFlightInfo += "[Error: No flight details to display]";
+			sFlightInfo += "[Error: No Customer details to display]";
 		}
 		return sFlightInfo;
 	}
@@ -201,11 +209,10 @@ public class GUI implements ActionListener {
 	 * Create String giving the baggage oversize & overvolume fee. Calls
 	 * getOversizefee(Customer, float, float) from master to get the float.
 	 */
-	private String getBaggageFeeDetails() {
+	private String getBaggageFeeDetails() throws InvalidValueException {
 		String sBaggageInfo = "";
 		sBaggageInfo += String.format("Weight: %skg\tVolume: %sl", currentWeight, currentVolume);
-		sBaggageInfo += String.format("\nOversize fee: %s",
-				m.getOversizeFee(currentWeight, currentVolume));
+		sBaggageInfo += String.format("\nOversize fee: %s", m.getOversizeFee(currentWeight, currentVolume));
 		System.out.println("the sBaggageInfo String looks like this: \n" + sBaggageInfo);
 		return sBaggageInfo;
 	}
@@ -213,25 +220,53 @@ public class GUI implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
+		System.out.println("in actionPerformed \n the current action is: " + action);
 		switch (action) {
 		case "checkin":
+			System.out.println("in check in my dude");
 			// TODO: Get customer object from master, show customer details, and show error
 			// if no valid customer
 			String customerCode = tfBookingRef.getText();
 			String customerLastName = tfLastName.getText();
+			//customerLastName.toLowerCase(); // Names will be changed to all lower case, as this is what they are in input file 
 
 			/*
 			 * IF customerCode && customerCode DOESN'T EXSIST IN allCustomer HashMap, return
-			 * is NULL. A NULL RETURN WILL CAUSE POROBLMES IN THE CODE, NEED TO FIND A WAY
-			 * TO HANDLE THAT.
+			 * is NULL. If error occures restarts displayPAnelStart with info on error to help end user.
 			 */
-			// TODO: handle null customer
-			currentCustomer = m.getCustomer(customerCode, customerLastName);
-			System.out.println(
-					"the current customer is: " + currentCustomer.getFirstName() + " " + currentCustomer.getLastName());
+	
+			try {
+				System.out.println("In currentCustomer");
+				currentCustomer = m.getCustomer(customerCode, customerLastName);
+			} catch (InvalidValueException e2) {
+				// catches invalid format of name or customerReference 
+				lInfo.setText("["+e2.getMessage() +"]");  
+				lInfo.setForeground(Color.red);
+				displayPanelStart();
+				break;
+			}
+			
+			//This deals with the customer returning null because it wasn't found in HashMap or the last name doesn't match.
+			if (currentCustomer == null) {
+				lInfo.setText("[ No customer could be found with this reference code and last name ]");
+				lInfo.setForeground(Color.red);
+				displayPanelStart();
+				break;
+			}
+			if (currentCustomer.isCheckedIn()) {
+				 lInfo.setText("[ The customer has already check in ]");
+				 lInfo.setForeground(Color.red);
+				 displayPanelStart();
+				 break;
+			 }
+			
 			displayPanelBaggage();
 			break;
+			
 		case "baggageback":
+			//rest label
+			lInfo.setText("[ . . . . . . . . information . . . . . . . . ]");
+			lInfo.setForeground(Color.black);
 			displayPanelStart();
 			break;
 		case "baggageproceed":
@@ -248,7 +283,15 @@ public class GUI implements ActionListener {
 				lBaggageError.setVisible(true);
 				return;
 			}
-			displayWindowConfirm();
+			//rest label
+			lInfo.setText("[ . . . . . . . . information . . . . . . . . ]");
+			lInfo.setForeground(Color.black);
+			try {
+				displayWindowConfirm();
+			} catch (InvalidValueException e2) {
+				lBaggageError.setText("Weight and volume can't be above 200 Kg or 260 Liters.");
+				lBaggageError.setVisible(true);
+			}
 			break;
 		case "detailsback":
 			displayPanelBaggage();
@@ -259,10 +302,10 @@ public class GUI implements ActionListener {
 			try {
 				m.checkIn(currentCustomer, customerFlight, currentWeight, currentVolume);
 			} catch (InvalidValueException e1) {
-				System.out.println(
+				System.err.println(
 						"There is an issue with one of the input types for checkIn(Customer, Flight, Float,Float)");
 			} catch (AlreadyCheckedInException e1) {
-				// TODO Auto-generated catch block
+				System.err.println("The customer has already booked in, this exception shouldn't have been possible at this stage of the GUI");
 				e1.printStackTrace();
 			}
 			displayPanelStart();

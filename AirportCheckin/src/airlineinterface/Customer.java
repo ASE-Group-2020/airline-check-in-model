@@ -98,9 +98,6 @@ public class Customer implements Comparable<Customer> {
 	 * */
 	public float[] getBaggageDetails() { return new float[] {baggageWeight, baggageVolume}; }
 	
-	/**UNKNOWN - DOES NOTHING ATM*/
-	public void display() {}
-	
 	/**Compares two customers by their reference codes (which should be unique)*/
 	public int compareTo(Customer other) { return refCode.compareTo(other.getRefCode()); }
 }
