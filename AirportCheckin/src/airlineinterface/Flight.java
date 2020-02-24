@@ -64,14 +64,15 @@ public class Flight {
 	 * @param c the new customer to add to the flight
 	 * @throws InvalidValueException when the customer's flight code does not match with this flight's code (i.e the customer is trying to check into the wrong flight)
 	 */
-	public void addCustomer(Customer c) throws InvalidValueException
+	public boolean addCustomer(Customer c) throws InvalidValueException
 	{
 		if (!c.getFlightCode().equals(flightCode)) throw new InvalidValueException("customer does not belong to this flight");
-		customers.add(c);										//Add customer to TreeSet of customer on flight
+		boolean b = customers.add(c);										//Add customer to TreeSet of customer on flight
 		currentCapacity = currentCapacity + 1;					//Add one additional passengers to the flight
 		float[] baggageDetails = c.getBaggageDetails();			//Get an array which holds the 2 values: checked in baggage weight and volume
 	    currentWeight = currentWeight + baggageDetails[0];		//Add baggage weight to the flight
 	    currentVolume = currentVolume + baggageDetails[1];		//Add baggage volume to the flight
+	    return b;
 	}
 	
 	/**
