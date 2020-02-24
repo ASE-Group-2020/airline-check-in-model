@@ -66,7 +66,7 @@ public class DatasetCreator
 	/**Used by the IdFromNumber() method to output a consistent number of digits for each id string*/
 	static int limitLength;
 	/**Used by NewID() method to distribute new IDs for new passengers*/
-	static int currentCustomerIndex = -1;
+	static int currentCustomerIndex = 0;
 	/**Used by the Spec enum to create random weight, volume and passenger numbers, as well as assigning random flight codes to passengers*/
 	static Random r;
 	
