@@ -2,8 +2,11 @@ package airlineinterface;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import exceptions.AlreadyCheckedInException;
@@ -24,6 +27,14 @@ public class Master {
 		allCustomers = new HashMap<String, Customer>();
 	}
 	
+	
+	/**
+	 * @return the allCustomers HashMap's size
+	 */
+	public int getCustomerDatasetSize() {
+		return allCustomers.size();
+	}
+	
 	/* Method which returns a Flight object by searching the
 	*  allflights HashMap for the flight with a specific flightCode.
 	*/ 
@@ -39,17 +50,16 @@ public class Master {
 	*  allCustomers HashMap for the flight with a specific flightCode.
 	*/ 
 	public Customer getCustomer(String customerCode, String customerLastName) throws InvalidValueException {
-		
-		// this if statement allows programmers to handle no-existing or wrong customerCode.
+		// this if statement allows programmers to handle non-existing or wrong customerCode.
 		for(char c : customerCode.toCharArray()) {
 		    if(!Character.isDigit(c)) {
-		        throw new InvalidValueException("the reference code of a Customer must contain only numbers.");
+		        throw new InvalidValueException("The reference code of a customer must contain only numbers.");
 		    }
 		}
 		 // this if statement allows programmers to handle no-existing or wrong customer name.
 	    for(char c2 : customerLastName.toCharArray()) {
 		    if(!Character.isLetter(c2)) {
-		        throw new InvalidValueException("the customer last name must contain only letters.");
+		        throw new InvalidValueException("The customer's last name must contain only letters.");
 		    }
 		}
 		if(allCustomers.containsKey(customerCode)){
@@ -57,19 +67,21 @@ public class Master {
 				/* Check that the current customer has entered a last name and refCode that matches
 			 	*  This is an extra layer of security
 			 	*/
-			 	
 			 	// we compare the String of the method input the a String from a field in Customer.
 				if(C.getLastName().toLowerCase().equals(customerLastName.toLowerCase())) { 
 					// the .toLowerCase() is there ^ because we don't care about case-sensitivity. This makes the comparisant easier.
+					System.out.println("getCustomer in Master - last name is " + C.getLastName());
 					return C; 
 				}
 				else {
 					//TODO 
+					System.out.println("getCustomer in Master - customer doesnt match refcode");
 					return null; // deals with the customer having a name that doesn't match the entered referenceCode 
 				}
 		 }	
 		 else {
 			 //TODO
+			 System.out.println("getCustomer in Master - refcode not in hashmap");
 			 return null; // deals with the reference code not existing in the hashmap
 		 }
 	}
@@ -95,7 +107,7 @@ public class Master {
 		f.addCustomer(c);
 	}
 	
-	// Look for the weight/volume braket your object fits in. This is a pretty odd way to do Oversize fees..
+	// Look for the weight/volume bracket your object fits in. This is a pretty odd way to do Oversize fees..
 	public float getOversizeFee(float currentWeight,float currentVolume) throws InvalidValueException {
 		if (currentWeight < 15 && currentVolume < 20) {
 			return 0;
@@ -117,26 +129,9 @@ public class Master {
 		}
 		// this is the maximum weight and volume an individual is allowed to possess. Beyond 200kg 
 		
-		//TODO how to handle strange number or values.. 
+		//TODO how to handle strange number or values.. ---> you need a formula here to unify the values, what if it has one value low, the other high ??
 		else
 			throw new InvalidValueException("the baggage shouldn't be more than 200 Kg in weight or 260 L in volume.");
-	}
-	
-	//JUST USED FOR TESTING
-	public void addObjectsMaps() throws InvalidValueException {
-		/*
-		 * Creation of some dummy customers to test the code, can be deleted later
-		 */	
-		//String _code, String _firstName, String _lastName, String _flightCode, boolean _booked, float _weight, float _volume
-		allCustomers.put("123", new Customer("123", "adam", "smith", "LON123", false, 5,  5));
-		allCustomers.put("456", new Customer("456", "maire", "curie", "LON123", false, 15,  1));
-		
-		/*
-		 * Creation of some dummy flights to test the code, can be deleted later
-		 */
-		//String departure, String destination, String flightRef, String carrier, int maxPassengers, float maxWeight, float maxVolume
-		allFlights.put("LON123" , new Flight("LON", "EDI", "LON123", "RayanAir", 300, 10000, 300000));
-		
 	}
 
 	/**@param Flight to add to HashMap
@@ -155,6 +150,10 @@ public class Master {
 	}
 	
 
+	/** A method that adds flights info from a csv file. The fields are as follows: source, destination, 
+	 * fright ref code, company, max amount of passengers, max bagage weight, max baggage volume 
+	 * @param the path to the .csv file
+	 */
 	public void addFlightsFromFile(String filePath) {
 		try { 														// open input stream
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
@@ -173,12 +172,14 @@ public class Master {
 
 			reader.close(); // close reader
 		} catch (Exception e) {
-			if (e instanceof FileNotFoundException)
-				System.out.println("Error: File not found.");
+			if (e instanceof FileNotFoundException) {
+				System.err.println("Error: Flight info file not found. Exiting...");
+				System.exit(0);
+			}
 			else if (e instanceof IOException)
-				System.out.println("Error: I/O error.");
+				System.err.println("Error: I/O error.");
 			else {
-				System.out.println("General error! Give the following information to the devs...");
+				System.err.println("General error! Give the following information to the devs...");
 				e.printStackTrace();
 			}
 		}
@@ -196,8 +197,9 @@ public class Master {
 		allCustomers.remove(C.getRefCode(), C);
 	}
 
-	/**
-	 * @param filePath
+	/** A method that adds customer info from a csv file. The fields are as follows: customer code, first name, 
+	 * last name, flight code, check in status, baggage weight, baggage volume 
+	 * @param the path to the .csv file
 	 */
 	public void addCustomersFromFile(String filePath) {
 		try { 														// open input stream
@@ -206,23 +208,32 @@ public class Master {
 			
 			while ((line = reader.readLine()) != null) { 			// go through every line in the file
 				String[] customerDetails = line.trim().split(","); 	// split the line and trim empty space, push results to small array
-				Customer currCustomer = new Customer(customerDetails[0], 
-						customerDetails[1], customerDetails[2], 
-						customerDetails[3],
-						Boolean.parseBoolean(customerDetails[4]), 
-						Float.parseFloat(customerDetails[5]),
-						Float.parseFloat(customerDetails[6])); 		// one-liner to initialize Customer object with data from current file line
-				allCustomers.put(customerDetails[3], currCustomer); // the key is the unique customer reservation id (flight code), value is currCustomer being added
+				//System.out.println(Arrays.toString(customerDetails)); <- debug
+				if(customerDetails.length == 7) {					// handle partial data - only take data from full fields, ignore partial data!	
+					Customer currCustomer = new Customer(customerDetails[0], 
+							customerDetails[1], customerDetails[2], 
+							customerDetails[3],
+							Boolean.parseBoolean(customerDetails[4]), 
+							Float.parseFloat(customerDetails[5]),
+							Float.parseFloat(customerDetails[6])); 	// one-liner to initialize Customer object with data from current file line
+					allCustomers.put(customerDetails[0].toString(), currCustomer); // the key is the unique customer reservation id (flight code), value is currCustomer being added
+				}
+				else {
+					System.err.println("Corrupted data found at line" + Arrays.toString(customerDetails) + "! Aborting...");
+					break;											// break at corrupted data, let someone know that it's corrupted!
+				}
 			}
-
+			
 			reader.close(); // close reader
 		} catch (Exception e) {
-			if (e instanceof FileNotFoundException)
-				System.out.println("Error: File not found.");
+			if (e instanceof FileNotFoundException) {
+				System.err.println("Error: Customer info file not found. Exiting...");
+				System.exit(0);
+			}
 			else if (e instanceof IOException)
-				System.out.println("Error: I/O error.");
+				System.err.println("Error: I/O error.");
 			else {
-				System.out.println("General error! Give the following information to the devs...");
+				System.err.println("General error! Give the following information to the devs...");
 				e.printStackTrace();
 			}
 		}
@@ -234,11 +245,11 @@ public class Master {
 
 	public static void main(String[] args) {
 		Master m = new Master();
-		
-		try {
-			m.addObjectsMaps(); //USED FOR TESTING
-		}
-		catch(InvalidValueException e) {System.out.println("INVALID VALUE FOUND AT TESTING OBJ MAPS (DAVID)");}
+		m.addFlightsFromFile("dataFlight.csv"); // put files in main folder
+		m.addCustomersFromFile("dataCustomer.csv");
+		System.out.println(m.allCustomers.get("000001"));
+		System.out.println(m.allCustomers.get("1"));
+		System.out.println(m.allCustomers.get("0000001"));
 		
 		GUI g = new GUI(m);
 		g.displayPanelStart();
