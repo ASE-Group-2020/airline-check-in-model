@@ -1,5 +1,6 @@
 package tests;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import airlineinterface.*;
@@ -24,7 +25,7 @@ class FlightTest {
 		assertThrows(InvalidValueException.class, () -> { new Flight("departure", null		   , "flightRef", "carrier",  1,  2,  3); });
 		assertThrows(InvalidValueException.class, () -> { new Flight("departure", "destination", null		, "carrier",  1,  2,  3); });
 		assertThrows(InvalidValueException.class, () -> { new Flight("departure", "destination", "flightRef", null	   ,  1,  2,  3); });
-	}
+	}  
 	
 	@Test
 	// tests that new customers are added to the flight passenger list, indicates when a passenger has already been added to the flight,

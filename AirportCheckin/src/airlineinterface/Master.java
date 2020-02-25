@@ -31,7 +31,7 @@ public class Master {
 		 // this if statement allows programmers to handle no-existing or wrong flight codes.
 		 if(allFlights.containsKey(flightCode)) return allFlights.get(flightCode);
 		 else {
-			 return null; //if returns null the GUI will handle the exception
+			 return null; //if returns null the GUI will handle the exception   
 		 }
 	}
 	
@@ -39,6 +39,7 @@ public class Master {
 	*  allCustomers HashMap for the flight with a specific flightCode.
 	*/ 
 	public Customer getCustomer(String customerCode, String customerLastName) throws InvalidValueException {
+		
 		// this if statement allows programmers to handle no-existing or wrong customerCode.
 		for(char c : customerCode.toCharArray()) {
 		    if(!Character.isDigit(c)) {
@@ -56,7 +57,10 @@ public class Master {
 				/* Check that the current customer has entered a last name and refCode that matches
 			 	*  This is an extra layer of security
 			 	*/
-				if(C.getLastName().equals(customerLastName)) {
+			 	
+			 	// we compare the String of the method input the a String from a field in Customer.
+				if(C.getLastName().toLowerCase().equals(customerLastName.toLowerCase())) { 
+					// the .toLowerCase() is there ^ because we don't care about case-sensitivity. This makes the comparisant easier.
 					return C; 
 				}
 				else {
@@ -178,6 +182,18 @@ public class Master {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void addCustomer(Customer C) throws InvalidValueException {
+		if (C.getRefCode().equals(null) || C.getRefCode().contentEquals("")) 
+			throw new InvalidValueException("flight code");
+		else allCustomers.put(C.getRefCode(), C);
+	}
+
+	
+	/** @param Flight to remove from HashMap. Does nothing if specified Flight doesn't exist. */
+	public void removeCustomer(Customer C) {
+		allCustomers.remove(C.getRefCode(), C);
 	}
 
 	/**

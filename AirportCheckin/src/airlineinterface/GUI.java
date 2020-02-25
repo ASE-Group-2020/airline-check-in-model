@@ -228,13 +228,11 @@ public class GUI implements ActionListener {
 			// if no valid customer
 			String customerCode = tfBookingRef.getText();
 			String customerLastName = tfLastName.getText();
-			//customerLastName.toLowerCase(); // Names will be changed to all lower case, as this is what they are in input file 
 
 			/*
 			 * IF customerCode && customerCode DOESN'T EXSIST IN allCustomer HashMap, return
 			 * is NULL. If error occures restarts displayPAnelStart with info on error to help end user.
 			 */
-	
 			try {
 				System.out.println("In currentCustomer");
 				currentCustomer = m.getCustomer(customerCode, customerLastName);
@@ -253,6 +251,7 @@ public class GUI implements ActionListener {
 				displayPanelStart();
 				break;
 			}
+			//This checks if the customer has already checked in. If so it makes no sense to carry on in the GUI.
 			if (currentCustomer.isCheckedIn()) {
 				 lInfo.setText("[ The customer has already check in ]");
 				 lInfo.setForeground(Color.red);
@@ -264,7 +263,7 @@ public class GUI implements ActionListener {
 			break;
 			
 		case "baggageback":
-			//rest label
+			//rest label, this is the label in the GUI that explains what stopped user from checking in (if there is a failure) 
 			lInfo.setText("[ . . . . . . . . information . . . . . . . . ]");
 			lInfo.setForeground(Color.black);
 			displayPanelStart();
@@ -308,7 +307,7 @@ public class GUI implements ActionListener {
 				System.err.println("The customer has already booked in, this exception shouldn't have been possible at this stage of the GUI");
 				e1.printStackTrace();
 			}
-			displayPanelStart();
+			displayPanelStart(); 
 			break;
 		}
 	}
