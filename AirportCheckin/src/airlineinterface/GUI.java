@@ -33,11 +33,16 @@ public class GUI implements ActionListener {
 	private CardLayout cards;
 	private JTextField tfLastName, tfBookingRef, tfWeight, tfVolume;
 	private JPanel pStart, pBaggage, pDetails;
-	private JLabel lBaggageError, lFlightInfo, lDetails, lFeeDetails, lCheckInError;
+	private JLabel lBaggageError, lFlightInfo, lDetails, lFeeDetails;
 
 	private Customer currentCustomer = null;
 	private Flight customerFlight = null;
 	private float currentWeight, currentVolume;
+
+	// label variables
+	private JLabel lInfo;
+
+	private String padding; // helper variable to ensure dynamic padding with accordance to allCustomers HashMap size
 
 	public GUI(Master m) {
 		this.m = m;
@@ -57,9 +62,7 @@ public class GUI implements ActionListener {
 		// Start panel
 		pStart = new JPanel(new GridBagLayout());
 		JLabel lCheckIn = new JLabel("Check In");
-		JLabel lCheckInInfo = new JLabel("Enter your last name and booking reference below.");
-		lCheckInError = new JLabel("");
-		lCheckInError.setForeground(Color.red);
+		lInfo = new JLabel("[ . . . . . . . . information . . . . . . . . ]");
 		JLabel lLastName = new JLabel("Last Name:");
 		tfLastName = new JTextField("");
 		JLabel lBookingRef = new JLabel("Booking reference code:");
@@ -68,13 +71,12 @@ public class GUI implements ActionListener {
 		bCheckIn.addActionListener(this);
 		bCheckIn.setActionCommand("checkin");
 		addComponent(pStart, lCheckIn, 0, 0);
-		addComponent(pStart, lCheckInInfo, 0, 1, 2, 1);
-		addComponent(pStart, lCheckInError, 0, 2, 2, 1);
-		addComponent(pStart, lLastName, 0, 3);
-		addComponent(pStart, tfLastName, 1, 3, 120);
-		addComponent(pStart, lBookingRef, 0, 4);
-		addComponent(pStart, tfBookingRef, 1, 4, 120);
-		addComponent(pStart, bCheckIn, 0, 5);
+		addComponent(pStart, lInfo, 0, 1, 2, 1);
+		addComponent(pStart, lLastName, 0, 2);
+		addComponent(pStart, tfLastName, 1, 2, 120);
+		addComponent(pStart, lBookingRef, 0, 3);
+		addComponent(pStart, tfBookingRef, 1, 3, 120);
+		addComponent(pStart, bCheckIn, 0, 4);
 		// Baggage panel
 		pBaggage = new JPanel(new GridBagLayout());
 		lFlightInfo = new JLabel("[ . . . . . . . . flight info . . . . . . . . ]");
@@ -108,7 +110,7 @@ public class GUI implements ActionListener {
 		bDetailsBack.addActionListener(this);
 		bDetailsBack.setActionCommand("detailsback");
 		JLabel lFeeInfo = new JLabel("Total amount payable for baggage fees:");
-		lFeeDetails = new JLabel("[ . . money . . ]");
+		lFeeDetails = new JLabel("ï¿½[ . . money . . ]");
 		JButton bDetailsProceed = new JButton("Proceed");
 		bDetailsProceed.addActionListener(this);
 		bDetailsProceed.setActionCommand("detailsproceed");
@@ -130,11 +132,9 @@ public class GUI implements ActionListener {
 		 * if the hashmap keys start from 1, otherwise might have edge case scenario
 		 * where values are 0-9, therefore a size of 10 but have padding of 1, not 2 :)
 		 */
-		// padding = "%0" + String.valueOf(m.getCustomerDatasetSize()/10).length() +
-		// "d";
+		padding = "%0" + String.valueOf(m.getCustomerDatasetSize()/10).length() + "d";
 	}
 
-	// Helper method for adding a component to a panel
 	private void addComponent(JPanel p, JComponent c, int x, int y) {
 		GridBagConstraints con = new GridBagConstraints();
 		con.fill = GridBagConstraints.BOTH;
@@ -143,8 +143,6 @@ public class GUI implements ActionListener {
 		p.add(c, con);
 	}
 
-	// Helper method for adding a component to a panel - used for text fields to
-	// ensure they are wide
 	private void addComponent(JPanel p, JComponent c, int x, int y, int padx) {
 		GridBagConstraints con = new GridBagConstraints();
 		con.fill = GridBagConstraints.BOTH;
@@ -154,8 +152,6 @@ public class GUI implements ActionListener {
 		p.add(c, con);
 	}
 
-	// Helper method for adding a component to a panel where the component covers
-	// multiple rows/columns
 	private void addComponent(JPanel p, JComponent c, int x, int y, int width, int height) {
 		GridBagConstraints con = new GridBagConstraints();
 		con.fill = GridBagConstraints.BOTH;
@@ -166,55 +162,24 @@ public class GUI implements ActionListener {
 		p.add(c, con);
 	}
 
-	/**
-	 * Clears the details for the current customer from the gui.
-	 */
-	public void clearDetails() {
-		// Remove current customer
+	public void displayPanelStart() {
 		currentCustomer = null;
-		// Remove all values entered in text fields
 		tfBookingRef.setText("");
 		tfLastName.setText("");
 		tfWeight.setText("");
 		tfVolume.setText("");
-		// Remove all customer details
-		lFlightInfo.setText("");
-		lDetails.setText("");
-		lFeeDetails.setText("");
-	}
-
-	/**
-	 * Displays the check in panel in the gui.
-	 */
-	public void displayPanelStart() {
-		// Clear customer-specific details
-		clearDetails();
-		// Hide error message
-		lCheckInError.setVisible(false);
 		cards.show(container, STARTPANEL);
 		frame.setVisible(true);
 	}
 
-	/**
-	 * Displays the flight details and baggage entry panel in the gui.
-	 */
+	// Note - Customer c not in class diagram
 	public void displayPanelBaggage() {
-		// Display flight details
-		lFlightInfo.setText(getFlightDetails());
-		// Hide baggage error message
 		lBaggageError.setVisible(false);
+		lFlightInfo.setText(getFlightDetails());
 		cards.show(container, BAGGAGEPANEL);
 	}
 
-	/**
-	 * Displays the confirmation panel in the gui as long as the baggage values are
-	 * accepted.
-	 * 
-	 * @throws InvalidValueException if the baggage was rejected.
-	 */
-	// TODO: refactor to remove exception here?
 	public void displayWindowConfirm() throws InvalidValueException {
-		// Display flight and baggage fee details
 		lDetails.setText(getFlightDetails());
 		lFeeDetails.setText(getBaggageFeeDetails());
 		cards.show(container, DETAILSPANEL);
@@ -225,165 +190,154 @@ public class GUI implements ActionListener {
 	 * getFlight(String) from master to get the flight that the customer will be
 	 * boarding, returns object Flight.
 	 */
-	/**
-	 * Creates the String used to display flight details.
-	 * 
-	 * @return flight details String
-	 */
 	private String getFlightDetails() {
-		// Create multiline label with HTML
+		//System.out.println("in getFlightDetails!!");
 		String sFlightInfo = "<html>";
 		if (currentCustomer != null) {
-			// Customer name
 			sFlightInfo += String.format("Name:\t%s %s", currentCustomer.getFirstName(), currentCustomer.getLastName());
 			String sFlightCode = currentCustomer.getFlightCode();
-			// Flight code
 			sFlightInfo += String.format("<br>Flight code:\t%s", sFlightCode);
-			// Get the relevant flight from the code
-			customerFlight = m.getFlight(sFlightCode);
+
+			/*
+			 * IF sFlightCode DOESN'T EXSIST IN allFlights HashMap, return is NULL. A NULL
+			 * RETURN WILL CRASH THE CODE, NEED TO FIND A WAY TO HANDLE THAT.
+			 */
+			customerFlight = m.getFlight(sFlightCode); // what is this? (David)
 			if (customerFlight == null) {
-				// If the flight doesn't exist display an error message
-				sFlightInfo += "<br>Error: No flight details to display";
+				sFlightInfo += "[Error: No flight details to display]";
 			} else {
-				// Display departure, arrival, and carrier
+				// The customer and flight obj are associated by the FlightCode that they both
+				// possess.
+				// This line of code retrieves the flight obj linked to that customer. (to whom
+				// ever asked the question)
+
 				String[] sTravelPoints = customerFlight.getTravelPoints();
-				sFlightInfo += String.format("<br>Departure: %s<br>Arrival: %s", sTravelPoints[0], sTravelPoints[1]);
-				sFlightInfo += String.format("<br>Carrier: %s", customerFlight.getCarrier());
+				sFlightInfo += String.format("<br>Departure:\t%s\tArrival:\t%s", sTravelPoints[0], sTravelPoints[1]);
+				sFlightInfo += String.format("<br>Carrier:\t%s", customerFlight.getCarrier());
 			}
 
 		} else {
-			// If the customer isn't found display an error
-			// Currently this shouldn't occur
-			sFlightInfo += "Error: No Customer details to display";
+			sFlightInfo += "[Error: No Customer details to display]";
 		}
 		return sFlightInfo;
 	}
 
-	/**
-	 * Creates the String used to display the baggage fee.
-	 * 
-	 * @return the baggage fee String.
-	 * @throws InvalidValueException if the oversize fee doesn't accept the baggage
-	 *                               weight or volume.
+	/*
+	 * Create String giving the baggage oversize & overvolume fee. Calls
+	 * getOversizefee(Customer, float, float) from master to get the float.
 	 */
-	// TODO: refactor this elsewhere?
 	private String getBaggageFeeDetails() throws InvalidValueException {
-		// Multiline comment with HTML
 		String sBaggageInfo = "<html>";
-		// Display weight and volume
 		sBaggageInfo += String.format("Weight: %skg<br>Volume: %sl", currentWeight, currentVolume);
-		// Display fee
 		sBaggageInfo += String.format("<br>Oversize fee: £%s", m.getOversizeFee(currentWeight, currentVolume));
+		//System.out.println("the sBaggageInfo String looks like this: \n" + sBaggageInfo);
 		return sBaggageInfo;
 	}
 
-	/**
-	 * Called whenever a button in the gui is pressed.
-	 */
-	// TODO: refactor to break down?
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// Find which button was pressed (use command String)
 		String action = e.getActionCommand();
-		// Switch to the correct button command
+		//System.out.println("in actionPerformed \n the current action is: " + action);
 		switch (action) {
 		case "checkin":
-			// Check in button was pressed
+			//System.out.println("in check in my dude");
+			// TODO: Get customer object from master, show customer details, and show error
+			// if no valid customer
 
-			// Get customer reference code and customer surname
+			//String customerCode = String.format(padding, Integer.parseInt(tfBookingRef.getText().trim())); // <-- padding code, uncomment line to use
 			String customerCode = tfBookingRef.getText().trim();
+			System.out.println(customerCode);
 			String customerLastName = tfLastName.getText().trim();
-			// Get the relevant customer from Master
+			System.out.println(customerLastName);
+
+			/*
+			 * IF customerCode && customerCode DOESN'T EXSIST IN allCustomer HashMap, return
+			 * is NULL. If error occurs restarts displayPAnelStart with info on error to
+			 * help end user.
+			 */
+
 			try {
+				System.out.println("In currentCustomer");
 				currentCustomer = m.getCustomer(customerCode, customerLastName);
+				System.out.println(currentCustomer);
 			} catch (InvalidValueException e2) {
-				// If InvalidValueException is thrown then the text fields had incorrect values
-				// Display a meaningful error message
-				lCheckInError.setText("<html>Last name must be purely alphabetical characters"
-						+ "<br>Booking code must be purely numerical values");
-				lCheckInError.setVisible(true);
-				clearDetails();
+				// catches invalid format of name or customerReference
+				lInfo.setText("[" + e2.getMessage() + "]");
+				lInfo.setForeground(Color.red);
+				displayPanelStart();
 				break;
 			}
-			// If the customer returned as null then there isn't a customer with these details
+
+			// This deals with the customer returning null because it wasn't found in
+			// HashMap or the last name doesn't match.
 			if (currentCustomer == null) {
-				// Display a meaningful error message
-				lCheckInError.setText("No customer could be found with this reference code and last name");
-				lCheckInError.setVisible(true);
-				clearDetails();
+				lInfo.setText("[ No customer could be found with this reference code and last name ]");
+				lInfo.setForeground(Color.red);
+				displayPanelStart();
 				break;
 			}
-			// Don't allow a customer to check in twice
+			//This checks if the customer has already checked in. If so it makes no sense to carry on in the GUI.
 			if (currentCustomer.isCheckedIn()) {
-				// Display a meaningful error message
-				lCheckInError.setText("This customer has already check in");
-				lCheckInError.setVisible(true);
-				clearDetails();
+				lInfo.setText("[ The customer has already check in ]");
+				lInfo.setForeground(Color.red);
+				displayPanelStart();
 				break;
 			}
-			// Move to the next panel
+
 			displayPanelBaggage();
 			break;
 
 		case "baggageback":
-			// Back button on baggage entering panel returns to start panel
+			//rest label, this is the label in the GUI that explains what stopped user from checking in (if there is a failure) 
+			lInfo.setText("Enter your last name and booking reference below.");
+			lInfo.setForeground(Color.black);
 			displayPanelStart();
 			break;
 		case "baggageproceed":
-			// Proceed button on baggage entering panel
-			// Try to parse the weight and volume as floats
 			try {
 				currentWeight = Float.parseFloat(tfWeight.getText());
 				currentVolume = Float.parseFloat(tfVolume.getText());
-				// If either value is -ve display an error 
 				if (currentWeight < 0 || currentVolume < 0) {
 					lBaggageError.setText("Weight and volume must be positive.");
 					lBaggageError.setVisible(true);
 					return;
 				}
 			} catch (NumberFormatException ex) {
-				// If parsing the values failed with NumberFormatException a non-numeric character was entered
-				// Display a meaningful message
 				lBaggageError.setText("Weight and volume must be valid numbers.");
 				lBaggageError.setVisible(true);
 				return;
 			}
-			// Move to the next window
-			// TODO: refactor this to not handle with try/catch here?
+			// rest label
+			lInfo.setText("Enter your last name and booking reference below.");
+			lInfo.setForeground(Color.black);
 			try {
 				displayWindowConfirm();
 			} catch (InvalidValueException e2) {
-				// InvaludValueException occurs if the baggage was rejected
 				lBaggageError.setText("Weight and volume can't be above 200 Kg or 260 Liters.");
 				lBaggageError.setVisible(true);
 			}
 			break;
 		case "detailsback":
-			// Back button on details confirmation panel returns to baggage
 			displayPanelBaggage();
 			break;
 		case "detailsproceed":
-			// Proceed button on details page finalises customer check-in
+			// TODO: check in customer, change outcome based on check-in success
+			System.out.println("customerFlight.getCarrier(): " + customerFlight.getCarrier());
 			try {
-				// Check in the customer
 				m.checkIn(currentCustomer, customerFlight, currentWeight, currentVolume);
 			} catch (InvalidValueException e1) {
-				// If InvalidValueException is thrown something was wrong with the baggage 
 				System.err.println(
-						"There is an issue with one of the input types for checkIn(Customer, Flight, Float, Float)");
+						"There is an issue with one of the input types for checkIn(Customer, Flight, Float,Float)");
 			} catch (AlreadyCheckedInException e1) {
-				// If AlreadyCheckedInException is thrown then the customer was already checked in
-				// This shouldn't be possible currently
 				System.err.println(
 						"The customer has already booked in, this exception shouldn't have been possible at this stage of the GUI");
 				e1.printStackTrace();
 			}
-			// Return to start panel
-			displayPanelStart();
+			displayPanelStart(); 
 			break;
 		}
 	}
-
+	
 	private void exitProcedure() {
 		m.display();
 		System.exit(0);
