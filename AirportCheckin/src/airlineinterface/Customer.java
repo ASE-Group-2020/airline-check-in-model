@@ -5,7 +5,7 @@ import exceptions.*;
 public class Customer implements Comparable<Customer> {
 	
 	private String refCode, firstName, lastName, flightCode;
-	private boolean isCheckedIn;
+	private boolean isCheckedIn = false;
 	private float baggageWeight, baggageVolume;
 	
 	@SuppressWarnings("unused")
@@ -23,7 +23,7 @@ public class Customer implements Comparable<Customer> {
 	 * @param _volume volume of the customer's baggage
 	 * @throws InvalidValueException when any of the input values are either empty, null or if the integer values are below zero
 	 */
-	public Customer(String _code, String _firstName, String _lastName, String _flightCode, boolean _checkedIn, float _weight, float _volume) throws InvalidValueException
+	public Customer(String _code, String _firstName, String _lastName, String _flightCode) throws InvalidValueException
 	{
 		// ensures all input data is valid
 		if (_code == null)		  	throw new InvalidValueException("_code must not be null");
@@ -39,21 +39,6 @@ public class Customer implements Comparable<Customer> {
 		firstName = _firstName;
 		lastName = _lastName;
 		flightCode = _flightCode;
-		isCheckedIn = _checkedIn;
-
-		
-		if (_checkedIn)
-		{
-			if (_weight < 0) throw new InvalidValueException("_weight must not be less than zero");
-			if (_volume < 0) throw new InvalidValueException("_volume must not be less than zero");
-			baggageWeight = _weight;
-			baggageVolume = _volume;
-		}
-		else // if the customer hasn't been checked in, they haven't checked in any baggage onto their flights yet, so for now both are zero
-		{
-			baggageWeight = 0;
-			baggageVolume = 0;
-		}
 	}
 	
 	/**

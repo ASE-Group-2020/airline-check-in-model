@@ -224,13 +224,30 @@ public class Master {
 			while ((line = reader.readLine()) != null) { 			// go through every line in the file
 				String[] customerDetails = line.trim().split(","); 	// split the line and trim empty space, push results to small array
 				//System.out.println(Arrays.toString(customerDetails)); <- debug
-				if(customerDetails.length == 7) {					// handle partial data - only take data from full fields, ignore partial data!	
-					Customer currCustomer = new Customer(customerDetails[0], 
-							customerDetails[1], customerDetails[2], 
-							customerDetails[3],
-							Boolean.parseBoolean(customerDetails[4]), 
-							Float.parseFloat(customerDetails[5]),
-							Float.parseFloat(customerDetails[6])); 	// one-liner to initialize Customer object with data from current file line
+				Customer currCustomer;
+				if(customerDetails.length == 7) {					// handle partial data - only take data from full fields, ignore partial data!
+					try {
+						currCustomer = new Customer(customerDetails[0], 
+								customerDetails[1], customerDetails[2], 
+								customerDetails[3]);	// one-liner to initialize Customer object with data from current file line
+					} catch (InvalidValueException e) {
+						// Customer failed to be created - skip to next line
+						continue;
+					}
+					if (Boolean.parseBoolean(customerDetails[4])) {
+						Flight f = allFlights.get(customerDetails[3]);
+						try {
+							checkIn(currCustomer, f, Float.parseFloat(customerDetails[5]), Float.parseFloat(customerDetails[6]));
+						} catch (NumberFormatException e) {
+							// Weight or volume wasn't a number
+							// Check in failed but customer is still otherwise valid
+							System.out.println("Weight or volume was negative:"+System.lineSeparator() + Arrays.deepToString(customerDetails));
+						} catch (InvalidValueException e) {
+							// Weight or volume was negative
+							// Check in failed but customer is still otherwise valid
+							System.out.println("Weight or volume was negative:"+System.lineSeparator() + Arrays.deepToString(customerDetails));
+						}
+					}
 					allCustomers.put(customerDetails[0].toString(), currCustomer); // the key is the unique customer reservation id (flight code), value is currCustomer being added
 				}
 				else {

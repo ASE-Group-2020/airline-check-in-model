@@ -22,10 +22,10 @@ class MasterTest {
 	@BeforeEach
 	void setup() throws InvalidValueException {
 		m = new Master();
-		adamCust = new Customer("123", "adam", "smith", "LON-EDI-0", false, 82,  112);
-		marieCust = new Customer("456", "maire", "curie", "LON-EDI-0", false, 60,  24);
-		damienCust = new Customer("789", "damien", "Le Court", "LON-EDI-0", false, 23,  1);
-		paulCust = new Customer("1011", "Paul", "Dr.Jean-Francois", "LON-EDI-0", false, 0,  0);
+		adamCust = new Customer("123", "adam", "smith", "LON-EDI-0");//, false, 82,  112);
+		marieCust = new Customer("456", "maire", "curie", "LON-EDI-0");//, false, 60,  24);
+		damienCust = new Customer("789", "damien", "Le Court", "LON-EDI-0");//, false, 23,  1);
+		paulCust = new Customer("1011", "Paul", "Dr.Jean-Francois", "LON-EDI-0");
 		m.addCustomer(adamCust);
 		m.addCustomer(marieCust);
 		m.addCustomer(damienCust);

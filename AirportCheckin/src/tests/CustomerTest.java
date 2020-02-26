@@ -13,18 +13,16 @@ class CustomerTest {
 	// tests that the Customer constructor only accepts valid variables and throws an InvalidValueException when an invalid value is given
 	void constructorTest()
 	{
-		try { new Customer("code", "first", "last", "flightCode", true, 1, 0); } catch (InvalidValueException e) { fail("these values should be valid"); }		
-		assertThrows(InvalidValueException.class, () -> { new Customer(""	 , "first", "last", "flightCode", true,  1,  0); }); // empty code
-		assertThrows(InvalidValueException.class, () -> { new Customer("code", ""	  , "last", "flightCode", true,  1,  0); }); // empty firstName
-		assertThrows(InvalidValueException.class, () -> { new Customer("code", "first", ""	  , "flightCode", true,  1,  0); }); // empty lastName
-		assertThrows(InvalidValueException.class, () -> { new Customer("code", "first", "last", ""			, true,  1,  0); }); // empty flightCode
-		assertThrows(InvalidValueException.class, () -> { new Customer("code", "first", "last", "flightCode", true, -1,  0); }); // negative weight
-		assertThrows(InvalidValueException.class, () -> { new Customer("code", "first", "last", "flightCode", true,  1, -1); }); // negative volume
+		try { new Customer("code", "first", "last", "flightCode"); } catch (InvalidValueException e) { fail("these values should be valid"); }		
+		assertThrows(InvalidValueException.class, () -> { new Customer(""	 , "first", "last", "flightCode"); }); // empty code
+		assertThrows(InvalidValueException.class, () -> { new Customer("code", ""	  , "last", "flightCode"); }); // empty firstName
+		assertThrows(InvalidValueException.class, () -> { new Customer("code", "first", ""	  , "flightCode"); }); // empty lastName
+		assertThrows(InvalidValueException.class, () -> { new Customer("code", "first", "last", ""			); }); // empty flightCode
 		
-		assertThrows(InvalidValueException.class, () -> { new Customer(null	 , "first", "last", "flightCode", true,  1,  0); }); // empty code
-		assertThrows(InvalidValueException.class, () -> { new Customer("code", null	  , "last", "flightCode", true,  1,  0); }); // empty firstName
-		assertThrows(InvalidValueException.class, () -> { new Customer("code", "first", null  , "flightCode", true,  1,  0); }); // empty lastName
-		assertThrows(InvalidValueException.class, () -> { new Customer("code", "first", "last", null		, true,  1,  0); }); // empty flightCode
+		assertThrows(InvalidValueException.class, () -> { new Customer(null	 , "first", "last", "flightCode"); }); // empty code
+		assertThrows(InvalidValueException.class, () -> { new Customer("code", null	  , "last", "flightCode"); }); // empty firstName
+		assertThrows(InvalidValueException.class, () -> { new Customer("code", "first", null  , "flightCode"); }); // empty lastName
+		assertThrows(InvalidValueException.class, () -> { new Customer("code", "first", "last", null		); }); // empty flightCode
 	}
 	
 	@Test
@@ -34,7 +32,7 @@ class CustomerTest {
 	{
 		try
 		{
-			Customer c = new Customer("code", "first", "last", "flightCode", false, 0, 0);
+			Customer c = new Customer("code", "first", "last", "flightCode");
 			assertFalse(c.isCheckedIn());
 			
 			assertThrows(InvalidValueException.class, () -> { c.setCheckedIn(-1,  1); });

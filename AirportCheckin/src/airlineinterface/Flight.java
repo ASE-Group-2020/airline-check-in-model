@@ -87,13 +87,18 @@ public class Flight {
 	/**@return the flight's current flight attributes of all the customers in the following order: current number of passengers, the total weight of luggage, and the total volume of luggage*/
 	public float[] getCustomerSumAttributes()
 	{
-		float[] details = new float[] { customers.size(), 0, 0};
+		float[] details = new float[] { 0, 0, 0};
 		Iterator<Customer> iter = customers.iterator();
 		while (iter.hasNext())
 		{
-			float[] customerDetails = iter.next().getBaggageDetails();
-			details[1] += customerDetails[0];
-			details[2] += customerDetails[1];
+			Customer c = iter.next();
+			if (c.isCheckedIn())
+			{
+				float[] customerDetails = c.getBaggageDetails();
+				details[0] += 1;
+				details[1] += customerDetails[0];
+				details[2] += customerDetails[1];
+			}
 		}
 		return details;
 	}
