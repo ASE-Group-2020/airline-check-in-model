@@ -2,8 +2,6 @@ package airlineinterface;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.TreeSet;
-
 import exceptions.InvalidValueException;
 
 public class Flight {

@@ -44,7 +44,8 @@ public class Master {
 		 // this if statement allows programmers to handle no-existing or wrong flight codes.
 		 if(allFlights.containsKey(flightCode)) return allFlights.get(flightCode);
 		 else {
-			 return null; //if returns null the GUI will handle the exception   
+			 return null; //(based on coursework sheet) should never happen as we assume the input files for flight and customer objects has no mistakes.
+			 			
 		 }
 	}
 	
@@ -53,17 +54,24 @@ public class Master {
 	*/ 
 	public Customer getCustomer(String customerCode, String customerLastName) throws InvalidValueException {
 		// this if statement allows programmers to handle non-existing or wrong customerCode.
-		for(char c : customerCode.toCharArray()) {
-		    if(!Character.isDigit(c)) {
-		        throw new InvalidValueException("The reference code of a customer must contain only numbers.");
-		    }
-		}
-		 // this if statement allows programmers to handle no-existing or wrong customer name.
-	    for(char c2 : customerLastName.toCharArray()) {
-		    if(!Character.isLetter(c2)) {
+		if(customerCode.equals("")) {
+	    	 throw new InvalidValueException("The customer's code can't be an empty strimix ng.");
+	    }
+	    if(!customerCode.chars().allMatch(Character::isDigit)) {
+	        throw new InvalidValueException("The reference code of a customer must contain only numbers.");
+	    }
+	    
+		// this if statement allows programmers to handle no-existing or wrong customer name.
+	    if(customerLastName.equals("")) {
+	    	 throw new InvalidValueException("The customer's last name can't be an empty string.");
+	    }
+	    
+	    String tempCustomerLastName = customerLastName.replace("-", ""); // temporarily remove "-" from our string it's valid in the Last name format.
+	    tempCustomerLastName = tempCustomerLastName.replace(".", ""); // temporarily remove "." from our string it's valid in the Last name format.
+	    tempCustomerLastName = tempCustomerLastName.replace(" ", ""); // temporarily remove " " from our string it's valid in the Last name format.
+		if(!tempCustomerLastName.chars().allMatch(Character::isLetter)){
 		        throw new InvalidValueException("The customer's last name must contain only letters.");
 		    }
-		}
 		if(allCustomers.containsKey(customerCode)){
 			 	Customer C = allCustomers.get(customerCode);
 				/* Check that the current customer has entered a last name and refCode that matches
@@ -78,13 +86,13 @@ public class Master {
 				else {
 					//TODO 
 					System.out.println("getCustomer in Master - customer doesnt match refcode");
-					return null; // deals with the customer having a name that doesn't match the entered referenceCode 
+					return null; // GUI deals with the customer having a name that doesn't match the entered referenceCode 
 				}
 		 }	
 		 else {
 			 //TODO
 			 System.out.println("getCustomer in Master - refcode not in hashmap");
-			 return null; // deals with the reference code not existing in the hashmap
+			 return null; // GUI deals with the reference code not existing in the HashMap
 		 }
 	}
 	
@@ -121,14 +129,17 @@ public class Master {
 		else if(currentWeight < 45 && currentVolume < 55) {
 			return 20;
 		}
-		else if(currentWeight < 100 && currentVolume < 120) {
+		else if(currentWeight < 70 && currentVolume < 90) {
 			return 40;
 		}
-		else if(currentWeight < 150 && currentVolume < 180) {
+		else if(currentWeight < 100 && currentVolume < 120) {
 			return 60;
 		}
-		else if(currentWeight < 200 && currentVolume < 260) {
+		else if(currentWeight < 150 && currentVolume < 180) {
 			return 80;
+		}
+		else if(currentWeight <= 200 && currentVolume <= 260) {
+			return 100;
 		}
 		// this is the maximum weight and volume an individual is allowed to possess. Beyond 200kg 
 		
@@ -189,8 +200,9 @@ public class Master {
 	}
 	
 	public void addCustomer(Customer C) throws InvalidValueException {
+		//somewhat pointless as the customer constructor throws exceptions in this case
 		if (C.getRefCode().equals(null) || C.getRefCode().contentEquals("")) 
-			throw new InvalidValueException("flight code");
+			throw new InvalidValueException("customer code");
 		else allCustomers.put(C.getRefCode(), C);
 	}
 
