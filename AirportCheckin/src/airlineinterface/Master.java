@@ -80,7 +80,7 @@ public class Master {
 			 	// we compare the String of the method input the a String from a field in Customer.
 				if(C.getLastName().toLowerCase().equals(customerLastName.toLowerCase())) { 
 					// the .toLowerCase() is there ^ because we don't care about case-sensitivity. This makes the comparisant easier.
-					System.out.println("getCustomer in Master - last name is " + C.getLastName());
+					//System.out.println("getCustomer in Master - last name is " + C.getLastName());
 					return C; 
 				}
 				else {
@@ -254,7 +254,9 @@ public class Master {
 		}
 	}
 
-	// Output info for each flight somehow
+	/* Output info for each flight to a report text file, could improve by making
+	 * only the flights with checked-in people to be written instead of all flights. 
+	 */
 	public void display() {
 		try {
 		      File report = new File("report.txt");

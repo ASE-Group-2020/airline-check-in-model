@@ -191,7 +191,7 @@ public class GUI implements ActionListener {
 	 * boarding, returns object Flight.
 	 */
 	private String getFlightDetails() {
-		System.out.println("in getFlightDetails!!");
+		//System.out.println("in getFlightDetails!!");
 		String sFlightInfo = "<html>";
 		if (currentCustomer != null) {
 			sFlightInfo += String.format("Name:\t%s %s", currentCustomer.getFirstName(), currentCustomer.getLastName());
@@ -230,17 +230,17 @@ public class GUI implements ActionListener {
 		String sBaggageInfo = "<html>";
 		sBaggageInfo += String.format("Weight: %skg<br>Volume: %sl", currentWeight, currentVolume);
 		sBaggageInfo += String.format("<br>Oversize fee: £%s", m.getOversizeFee(currentWeight, currentVolume));
-		System.out.println("the sBaggageInfo String looks like this: \n" + sBaggageInfo);
+		//System.out.println("the sBaggageInfo String looks like this: \n" + sBaggageInfo);
 		return sBaggageInfo;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
-		System.out.println("in actionPerformed \n the current action is: " + action);
+		//System.out.println("in actionPerformed \n the current action is: " + action);
 		switch (action) {
 		case "checkin":
-			System.out.println("in check in my dude");
+			//System.out.println("in check in my dude");
 			// TODO: Get customer object from master, show customer details, and show error
 			// if no valid customer
 
