@@ -7,6 +7,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -46,7 +48,13 @@ public class GUI implements ActionListener {
 		this.m = m;
 		// Frame
 		frame = new JFrame("Check-in");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent event) {
+				exitProcedure();
+			}
+		});
 		frame.setSize(500, 500);
 		// Constraints
 		GridBagConstraints c = new GridBagConstraints();
@@ -184,11 +192,11 @@ public class GUI implements ActionListener {
 	 */
 	private String getFlightDetails() {
 		System.out.println("in getFlightDetails!!");
-		String sFlightInfo = "";
+		String sFlightInfo = "<html>";
 		if (currentCustomer != null) {
 			sFlightInfo += String.format("Name:\t%s %s", currentCustomer.getFirstName(), currentCustomer.getLastName());
 			String sFlightCode = currentCustomer.getFlightCode();
-			sFlightInfo += String.format("\nFlight code:\t%s", sFlightCode);
+			sFlightInfo += String.format("<br>Flight code:\t%s", sFlightCode);
 
 			/*
 			 * IF sFlightCode DOESN'T EXSIST IN allFlights HashMap, return is NULL. A NULL
@@ -204,8 +212,8 @@ public class GUI implements ActionListener {
 				// ever asked the question)
 
 				String[] sTravelPoints = customerFlight.getTravelPoints();
-				sFlightInfo += String.format("\nDeparture:\t%s\tArrival:\t%s", sTravelPoints[0], sTravelPoints[1]);
-				sFlightInfo += String.format("\nCarrier:\t%s", customerFlight.getCarrier());
+				sFlightInfo += String.format("<br>Departure:\t%s\tArrival:\t%s", sTravelPoints[0], sTravelPoints[1]);
+				sFlightInfo += String.format("<br>Carrier:\t%s", customerFlight.getCarrier());
 			}
 
 		} else {
@@ -219,9 +227,9 @@ public class GUI implements ActionListener {
 	 * getOversizefee(Customer, float, float) from master to get the float.
 	 */
 	private String getBaggageFeeDetails() throws InvalidValueException {
-		String sBaggageInfo = "";
-		sBaggageInfo += String.format("Weight: %skg\tVolume: %sl", currentWeight, currentVolume);
-		sBaggageInfo += String.format("\nOversize fee: %s", m.getOversizeFee(currentWeight, currentVolume));
+		String sBaggageInfo = "<html>";
+		sBaggageInfo += String.format("Weight: %skg<br>Volume: %sl", currentWeight, currentVolume);
+		sBaggageInfo += String.format("<br>Oversize fee: £%s", m.getOversizeFee(currentWeight, currentVolume));
 		System.out.println("the sBaggageInfo String looks like this: \n" + sBaggageInfo);
 		return sBaggageInfo;
 	}
@@ -281,7 +289,7 @@ public class GUI implements ActionListener {
 
 		case "baggageback":
 			//rest label, this is the label in the GUI that explains what stopped user from checking in (if there is a failure) 
-			lInfo.setText("[ . . . . . . . . information . . . . . . . . ]");
+			lInfo.setText("Enter your last name and booking reference below.");
 			lInfo.setForeground(Color.black);
 			displayPanelStart();
 			break;
@@ -300,7 +308,7 @@ public class GUI implements ActionListener {
 				return;
 			}
 			// rest label
-			lInfo.setText("[ . . . . . . . . information . . . . . . . . ]");
+			lInfo.setText("Enter your last name and booking reference below.");
 			lInfo.setForeground(Color.black);
 			try {
 				displayWindowConfirm();
@@ -328,6 +336,11 @@ public class GUI implements ActionListener {
 			displayPanelStart(); 
 			break;
 		}
+	}
+	
+	private void exitProcedure() {
+		m.display();
+		System.exit(0);
 	}
 
 }
