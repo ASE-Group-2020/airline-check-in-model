@@ -175,6 +175,10 @@ public class Master {
 			
 			while ((line = reader.readLine()) != null) { 			// go through every line in the file
 				String[] flightDetails = line.trim().split(","); 	// split the line and trim empty space, push results to small array
+				if (Integer.parseInt(flightDetails[4]) < 0) System.err.println("Nonsensical flight capacity: "+System.lineSeparator() +  Arrays.deepToString(flightDetails));
+				if (Integer.parseInt(flightDetails[5]) < 0) System.err.println("Nonsensical baggage weight: "+System.lineSeparator() +  Arrays.deepToString(flightDetails));
+				if (Integer.parseInt(flightDetails[6]) < 0) System.err.println("Nonsensical baggage volume: "+System.lineSeparator() +  Arrays.deepToString(flightDetails));
+
 				Flight currFlight = new Flight(flightDetails[0], 
 						flightDetails[1], flightDetails[2], 
 						flightDetails[3],
@@ -183,9 +187,10 @@ public class Master {
 						Float.parseFloat(flightDetails[6])); 		// one-liner to initialize Flight object with data from current file line
 				allFlights.put(flightDetails[2], currFlight); 		// the key is the unique flight id (flight code), value is currFlight being added
 			}
-
-			reader.close(); // close reader
-		} catch (Exception e) {
+			reader.close(); 										// close reader
+		}
+			
+		 catch (Exception e) {
 			if (e instanceof FileNotFoundException) {
 				System.err.println("Error: Flight info file not found. Exiting...");
 				System.exit(0);
