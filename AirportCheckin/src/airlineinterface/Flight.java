@@ -100,6 +100,24 @@ public class Flight {
 		return details;
 	}
 	
+	/**@return a textual representation of the current flight's details: checked-in customers and baggage info*/
+	public String toString() {
+		String output = "";
+		String overweight = "No";
+		
+		if (maxWeight < currentWeight || maxVolume < currentVolume) overweight="Yes";
+		
+		for (Customer c : customers) {
+			output = output + c.toString() + System.lineSeparator();
+		}
+		return "Checked-in customers: " + System.lineSeparator() + output + System.lineSeparator() +
+		"Current baggage weight: " + currentWeight + System.lineSeparator() +
+		"Current baggage volume: " + currentVolume + System.lineSeparator() +
+		"Max baggage weight: " + maxWeight + System.lineSeparator() +
+		"Max baggage volume: " + maxVolume + System.lineSeparator() + 
+		"Baggage out of bounds?: " + overweight + System.lineSeparator();
+	}
+	
 	/**@return a two-cell array for the traveling point of the flight: starting location, and finishing location*/
 	public String[] getTravelPoints() { return new String[] {startLocation, endLocation}; }
 	

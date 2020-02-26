@@ -92,6 +92,9 @@ public class Customer implements Comparable<Customer> {
 	/**@return the customer's unique reference code*/
 	public String getRefCode() { return refCode; }
 	
+	/**@return a string representation of the customer's ref code and names*/
+	public String toString() {return refCode + " " + firstName + " " + lastName;}
+	
 	/**@return an array of the following attributes (in order):<br>
 	 * weight of customer's baggage<br>
 	 * volume of customer's baggage

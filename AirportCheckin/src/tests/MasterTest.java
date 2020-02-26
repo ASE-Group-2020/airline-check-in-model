@@ -44,7 +44,7 @@ class MasterTest {
 		assertEquals(m.getCustomer("789", "Ceasar"),null,"The method has failed to retrieve a Customer");
 		assertEquals(m.getCustomer("123", "ImNotSmith"),null,"the method has faild to return a null "
 				+ "when the last name doesn't match an exsiting customerKey");
-		#assertEquals()
+		
 	}
 	
 	@Test

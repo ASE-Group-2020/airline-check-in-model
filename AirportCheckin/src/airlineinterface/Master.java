@@ -1,13 +1,15 @@
 package airlineinterface;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import exceptions.AlreadyCheckedInException;
 import exceptions.InvalidValueException;
@@ -105,6 +107,7 @@ public class Master {
 	public void checkIn(Customer c, Flight f, float weight, float volume) throws InvalidValueException, AlreadyCheckedInException {
 		c.setCheckedIn(weight,volume);
 		f.addCustomer(c);
+		// can remove customer from Customers HashMap to conserve space :)
 	}
 	
 	// Look for the weight/volume bracket your object fits in. This is a pretty odd way to do Oversize fees..
@@ -241,18 +244,38 @@ public class Master {
 
 	// Output info for each flight somehow
 	public void display() {
+		try {
+		      File report = new File("report.txt");
+		      if (report.createNewFile()) {
+		        System.out.println("File created: " + report.getName());
+		      } else {
+		        System.out.println("File already exists.");
+		      }
+		      //report.delete(); <- do we want to clear previous logs?
+		      
+		      BufferedWriter writer = new BufferedWriter(new FileWriter(report));
+		      writer.append("---------------BEGIN REPORT: " + java.time.LocalDateTime.now() + "---------------");
+		      writer.newLine();
+		      for (Entry<String, Flight> flight : allFlights.entrySet()) {
+		    	  writer.append("--------" + System.lineSeparator() + flight);
+		    	  writer.newLine();
+		      }
+		      writer.close();
+		      
+		    } catch (IOException e) {
+		      System.out.println("An error occurred when trying to create the report file.");
+		      e.printStackTrace();
+		    }
 	}
 
 	public static void main(String[] args) {
 		Master m = new Master();
 		m.addFlightsFromFile("dataFlight.csv"); // put files in main folder
 		m.addCustomersFromFile("dataCustomer.csv");
-		System.out.println(m.allCustomers.get("000001"));
-		System.out.println(m.allCustomers.get("1"));
-		System.out.println(m.allCustomers.get("0000001"));
 		
 		GUI g = new GUI(m);
 		g.displayPanelStart();
+		//m.display();
 	}
 
 }
