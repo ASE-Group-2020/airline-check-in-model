@@ -36,7 +36,7 @@ public class GUI implements ActionListener {
 	private JLabel lBaggageError, lFlightInfo, lDetails, lFeeDetails, lCheckInError;
 
 	private Customer currentCustomer = null;
-	private Flight customerFlight = null;
+	private Flight currentFlight = null;
 	private float currentWeight, currentVolume;
 
 	/**
@@ -117,12 +117,12 @@ public class GUI implements ActionListener {
 		JButton bDetailsProceed = new JButton("Proceed");
 		bDetailsProceed.addActionListener(this);
 		bDetailsProceed.setActionCommand("detailsproceed");
-		addComponent(pDetails, lDetailsTitle, 0, 0);
-		addComponent(pDetails, lDetails, 0, 1);
-		addComponent(pDetails, bDetailsBack, 0, 2);
-		addComponent(pDetails, lFeeInfo, 0, 3);
-		addComponent(pDetails, lFeeDetails, 0, 4);
-		addComponent(pDetails, bDetailsProceed, 0, 5);
+		addComponent(pDetails, lDetailsTitle, 0, 0, 2, 1);
+		addComponent(pDetails, lDetails, 0, 1, 2, 1);
+		addComponent(pDetails, lFeeInfo, 0, 2, 2, 1);
+		addComponent(pDetails, lFeeDetails, 0, 3, 2, 1);
+		addComponent(pDetails, bDetailsBack, 0, 4);
+		addComponent(pDetails, bDetailsProceed, 1, 4);
 		// Master container
 		container = frame.getContentPane();
 		cards = new CardLayout();
@@ -175,8 +175,9 @@ public class GUI implements ActionListener {
 	 * Clears the details for the current customer from the gui.
 	 */
 	public void clearDetails() {
-		// Remove current customer
+		// Remove current customer and flight
 		currentCustomer = null;
+		currentFlight = null;
 		// Remove all values entered in text fields
 		tfBookingRef.setText("");
 		tfLastName.setText("");
@@ -218,7 +219,7 @@ public class GUI implements ActionListener {
 	 * @throws InvalidValueException if the baggage was rejected.
 	 */
 	// TODO: refactor to remove exception here?
-	public void displayWindowConfirm() throws InvalidValueException {
+	public void displayPanelConfirm() throws InvalidValueException {
 		// Display flight and baggage fee details
 		lDetails.setText(getFlightDetails());
 		lFeeDetails.setText(getBaggageFeeDetails());
@@ -245,15 +246,15 @@ public class GUI implements ActionListener {
 			// Flight code
 			sFlightInfo += String.format("<br>Flight code:\t%s", sFlightCode);
 			// Get the relevant flight from the code
-			customerFlight = m.getFlight(sFlightCode);
-			if (customerFlight == null) {
+			currentFlight = m.getFlight(sFlightCode);
+			if (currentFlight == null) {
 				// If the flight doesn't exist display an error message
 				sFlightInfo += "<br>Error: No flight details to display";
 			} else {
 				// Display departure, arrival, and carrier
-				String[] sTravelPoints = customerFlight.getTravelPoints();
+				String[] sTravelPoints = currentFlight.getTravelPoints();
 				sFlightInfo += String.format("<br>Departure: %s<br>Arrival: %s", sTravelPoints[0], sTravelPoints[1]);
-				sFlightInfo += String.format("<br>Carrier: %s", customerFlight.getCarrier());
+				sFlightInfo += String.format("<br>Carrier: %s", currentFlight.getCarrier());
 			}
 
 		} else {
@@ -356,7 +357,7 @@ public class GUI implements ActionListener {
 			// Move to the next window
 			// TODO: refactor this to not handle with try/catch here?
 			try {
-				displayWindowConfirm();
+				displayPanelConfirm();
 			} catch (InvalidValueException e2) {
 				// InvaludValueException occurs if the baggage was rejected
 				lBaggageError.setText("Weight and volume can't be above 200 Kg or 260 Liters.");
@@ -371,7 +372,7 @@ public class GUI implements ActionListener {
 			// Proceed button on details page finalises customer check-in
 			try {
 				// Check in the customer
-				m.checkIn(currentCustomer, customerFlight, currentWeight, currentVolume);
+				m.checkIn(currentCustomer, currentFlight, currentWeight, currentVolume);
 			} catch (InvalidValueException e1) {
 				// If InvalidValueException is thrown something was wrong with the baggage 
 				System.err.println(
