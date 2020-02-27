@@ -39,10 +39,10 @@ class FlightTest {
 			Customer c2 = new Customer("2", "first2", "last2", "flightRef");
 			Customer c3 = new Customer("3", "first3", "last3", "invalidFlightRef");
 			
-			assertTrue(f.addCustomer(c1));
-			assertTrue(f.addCustomer(c2));
-			assertFalse(f.addCustomer(c1));
-			assertThrows(InvalidValueException.class, () -> { f.addCustomer(c3); });
+			assertTrue(f.addCustomer(c1, 0));
+			assertTrue(f.addCustomer(c2, 0));
+			assertFalse(f.addCustomer(c1, 0));
+			assertThrows(InvalidValueException.class, () -> { f.addCustomer(c3, 0); });
 		}
 		catch (InvalidValueException e) { fail("these values should be valid"); }
 	}
@@ -59,11 +59,11 @@ class FlightTest {
 			Customer c3 = new Customer("3", "first3", "last3", "flightRef");
 			Customer c4 = new Customer("4", "first4", "last4", "flightRef");
 			
-			f.addCustomer(c1);
+			f.addCustomer(c1, 0);
 			c1.setCheckedIn(1, 1);
-			f.addCustomer(c2);
+			f.addCustomer(c2, 0);
 			c2.setCheckedIn(2, 2);
-			f.addCustomer(c3); 
+			f.addCustomer(c3, 0); 
 			c3.setCheckedIn(3, 2);
 			float[] details1 = f.getCustomerSumAttributes();
 			assertTrue(details1.length == 3, "getCustomerSumAttributes() must output an array of length 3");
@@ -71,7 +71,7 @@ class FlightTest {
 			assertEquals(6,details1[1]); // total weight of customer's baggage
 			assertEquals(5,details1[2]); // total volume of customer's baggage
 			
-			f.addCustomer(c4);
+			f.addCustomer(c4, 0);
 			float[] details2 = f.getCustomerSumAttributes();
 			assertTrue(details2.length == 3, "getCustomerSumAttributes() must output an array of length 3");
 			assertEquals(3,details2[0]); // how many passengers are there

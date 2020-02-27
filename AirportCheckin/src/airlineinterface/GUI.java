@@ -37,7 +37,7 @@ public class GUI implements ActionListener {
 
 	private Customer currentCustomer = null;
 	private Flight currentFlight = null;
-	private float currentWeight, currentVolume;
+	private float currentWeight, currentVolume, currentFee;
 
 	/**
 	 * The GUI object is used for user interaction with the stored data.
@@ -274,12 +274,14 @@ public class GUI implements ActionListener {
 	 */
 	// TODO: refactor this elsewhere?
 	private String getBaggageFeeDetails() throws InvalidValueException {
+		// Get fee
+		currentFee = m.getOversizeFee(currentWeight, currentVolume);
 		// Multiline comment with HTML
 		String sBaggageInfo = "<html>";
 		// Display weight and volume
 		sBaggageInfo += String.format("Weight: %skg<br>Volume: %sl", currentWeight, currentVolume);
 		// Display fee
-		sBaggageInfo += String.format("<br>Oversize fee: £%s", m.getOversizeFee(currentWeight, currentVolume));
+		sBaggageInfo += String.format("<br>Oversize fee: £%s", currentFee);
 		return sBaggageInfo;
 	}
 
@@ -309,7 +311,7 @@ public class GUI implements ActionListener {
 						+ "<br>Booking code must be purely numerical values");
 				lCheckInError.setVisible(true);
 				clearDetails();
-				break;
+				return;
 			}
 			// If the customer returned as null then there isn't a customer with these details
 			if (currentCustomer == null) {
@@ -317,7 +319,7 @@ public class GUI implements ActionListener {
 				lCheckInError.setText("No customer could be found with this reference code and last name");
 				lCheckInError.setVisible(true);
 				clearDetails();
-				break;
+				return;
 			}
 			// Don't allow a customer to check in twice
 			if (currentCustomer.isCheckedIn()) {
@@ -325,16 +327,15 @@ public class GUI implements ActionListener {
 				lCheckInError.setText("This customer has already check in");
 				lCheckInError.setVisible(true);
 				clearDetails();
-				break;
+				return;
 			}
 			// Move to the next panel
 			displayPanelBaggage();
-			break;
-
+			return;
 		case "baggageback":
 			// Back button on baggage entering panel returns to start panel
 			displayPanelStart();
-			break;
+			return;
 		case "baggageproceed":
 			// Proceed button on baggage entering panel
 			// Try to parse the weight and volume as floats
@@ -360,19 +361,20 @@ public class GUI implements ActionListener {
 				displayPanelConfirm();
 			} catch (InvalidValueException e2) {
 				// InvaludValueException occurs if the baggage was rejected
+				// TODO: add getter methods to obtain the maximum values from Master
 				lBaggageError.setText("Weight and volume can't be above 200 Kg or 260 Liters.");
 				lBaggageError.setVisible(true);
 			}
-			break;
+			return;
 		case "detailsback":
 			// Back button on details confirmation panel returns to baggage
 			displayPanelBaggage();
-			break;
+			return;
 		case "detailsproceed":
 			// Proceed button on details page finalises customer check-in
 			try {
 				// Check in the customer
-				m.checkIn(currentCustomer, currentFlight, currentWeight, currentVolume);
+				m.checkIn(currentCustomer, currentFlight, currentWeight, currentVolume, currentFee);
 			} catch (InvalidValueException e1) {
 				// If InvalidValueException is thrown something was wrong with the baggage 
 				System.err.println(
@@ -386,7 +388,7 @@ public class GUI implements ActionListener {
 			}
 			// Return to start panel
 			displayPanelStart();
-			break;
+			return;
 		}
 	}
 

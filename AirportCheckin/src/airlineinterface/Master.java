@@ -112,9 +112,9 @@ public class Master {
 	 * @param his baggage volume
 	 * @throws AlreadyCheckedInException if customer has been checked in before
 	 */
-	public void checkIn(Customer c, Flight f, float weight, float volume) throws InvalidValueException, AlreadyCheckedInException {
+	public void checkIn(Customer c, Flight f, float weight, float volume, float fee) throws InvalidValueException, AlreadyCheckedInException {
 		c.setCheckedIn(weight,volume);
-		f.addCustomer(c);
+		f.addCustomer(c, fee);
 		// can remove customer from Customers HashMap to conserve space :)
 	}
 	
@@ -241,7 +241,10 @@ public class Master {
 					if (Boolean.parseBoolean(customerDetails[4])) {
 						Flight f = allFlights.get(customerDetails[3]);
 						try {
-							checkIn(currCustomer, f, Float.parseFloat(customerDetails[5]), Float.parseFloat(customerDetails[6]));
+							float weight = Float.parseFloat(customerDetails[5]);
+							float volume = Float.parseFloat(customerDetails[6]);
+							float fee = getOversizeFee(weight, volume);
+							checkIn(currCustomer, f, weight, volume, fee);
 						} catch (NumberFormatException e) {
 							// Weight or volume wasn't a number
 							// Check in failed but customer is still otherwise valid
@@ -249,7 +252,7 @@ public class Master {
 						} catch (InvalidValueException e) { 
 							// Weight or volume was negative
 							// Check in failed but customer is still otherwise valid
-							System.out.println("Weight or volume was negative:"+System.lineSeparator() + Arrays.deepToString(customerDetails));
+							System.out.println("Weight or volume was negative or over limit:"+System.lineSeparator() + Arrays.deepToString(customerDetails));
 						}
 					}
 					allCustomers.put(customerDetails[0].toString(), currCustomer); // the key is the unique customer reservation id (flight code), value is currCustomer being added
