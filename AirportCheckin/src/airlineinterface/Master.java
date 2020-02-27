@@ -255,11 +255,11 @@ public class Master {
 							System.out.println("Weight or volume was negative or over limit:"+System.lineSeparator() + Arrays.deepToString(customerDetails));
 						}
 					}
-					allCustomers.put(customerDetails[0].toString(), currCustomer); // the key is the unique customer reservation id (flight code), value is currCustomer being added
+					allCustomers.put(customerDetails[0], currCustomer); // the key is the unique customer reservation id (flight code), value is currCustomer being added
 				}
 				else {
-					System.err.println("Corrupted data found at line" + Arrays.toString(customerDetails) + "! Aborting...");
-					break;											// break at corrupted data, let someone know that it's corrupted!
+					System.out.println("Corrupted data found at line" + Arrays.toString(customerDetails) + "! Skipping...");
+					continue;											// break at corrupted data, let someone know that it's corrupted!
 				}
 			}
 			
