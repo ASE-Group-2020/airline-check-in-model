@@ -176,9 +176,8 @@ public class Master {
 			while ((line = reader.readLine()) != null) { 			// go through every line in the file
 				String[] flightDetails = line.trim().split(","); 	// split the line and trim empty space, push results to small array
 				if (Integer.parseInt(flightDetails[4]) < 0) System.err.println("Nonsensical flight capacity: "+System.lineSeparator() +  Arrays.deepToString(flightDetails));
-				if (Integer.parseInt(flightDetails[5]) < 0) System.err.println("Nonsensical baggage weight: "+System.lineSeparator() +  Arrays.deepToString(flightDetails));
-				if (Integer.parseInt(flightDetails[6]) < 0) System.err.println("Nonsensical baggage volume: "+System.lineSeparator() +  Arrays.deepToString(flightDetails));
-
+				if (Float.parseFloat(flightDetails[5]) < 0) System.err.println("Nonsensical baggage weight: "+System.lineSeparator() +  Arrays.deepToString(flightDetails));
+				if (Float.parseFloat(flightDetails[6]) < 0) System.err.println("Nonsensical baggage volume: "+System.lineSeparator() +  Arrays.deepToString(flightDetails));
 				Flight currFlight = new Flight(flightDetails[0], 
 						flightDetails[1], flightDetails[2], 
 						flightDetails[3],
@@ -247,7 +246,7 @@ public class Master {
 							// Weight or volume wasn't a number
 							// Check in failed but customer is still otherwise valid
 							System.out.println("Weight or volume was negative:"+System.lineSeparator() + Arrays.deepToString(customerDetails));
-						} catch (InvalidValueException e) {
+						} catch (InvalidValueException e) { 
 							// Weight or volume was negative
 							// Check in failed but customer is still otherwise valid
 							System.out.println("Weight or volume was negative:"+System.lineSeparator() + Arrays.deepToString(customerDetails));
