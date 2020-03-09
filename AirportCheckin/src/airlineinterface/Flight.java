@@ -13,7 +13,7 @@ public class Flight {
 	
 	//variables that are useful for the report
 	private int currentCapacity;
-	private float currentWeight, currentVolume;
+	private float currentWeight, currentVolume, totalFee;
 	
 	@SuppressWarnings("unused")
 	private Flight() {}
@@ -62,7 +62,7 @@ public class Flight {
 	 * @param c the new customer to add to the flight
 	 * @throws InvalidValueException when the customer's flight code does not match with this flight's code (i.e the customer is trying to check into the wrong flight)
 	 */
-	public boolean addCustomer(Customer c) throws InvalidValueException
+	public boolean addCustomer(Customer c, float oversizeFee) throws InvalidValueException
 	{
 		if (!c.getFlightCode().equals(flightCode)) throw new InvalidValueException("customer does not belong to this flight");
 		boolean b = customers.add(c);										//Add customer to TreeSet of customer on flight
@@ -70,6 +70,7 @@ public class Flight {
 		float[] baggageDetails = c.getBaggageDetails();			//Get an array which holds the 2 values: checked in baggage weight and volume
 	    currentWeight = currentWeight + baggageDetails[0];		//Add baggage weight to the flight
 	    currentVolume = currentVolume + baggageDetails[1];		//Add baggage volume to the flight
+	    totalFee += oversizeFee;
 	    return b;
 	}
 	
@@ -105,20 +106,30 @@ public class Flight {
 	
 	/**@return a textual representation of the current flight's details: checked-in customers and baggage info*/
 	public String toString() {
-		String output = "";
 		String overweight = "No";
-		
+		String overCapacity = "No";
+
 		if (maxWeight < currentWeight || maxVolume < currentVolume) overweight="Yes";
+		if (currentCapacity > capacity) overCapacity="Yes";
 		
-		for (Customer c : customers) {
+		/*for (Customer c : customers) {
 			output = output + c.toString() + System.lineSeparator();
-		}
-		return "Checked-in customers: " + System.lineSeparator() + output + System.lineSeparator() +
-		"Current baggage weight: " + currentWeight + System.lineSeparator() +
-		"Current baggage volume: " + currentVolume + System.lineSeparator() +
-		"Max baggage weight: " + maxWeight + System.lineSeparator() +
-		"Max baggage volume: " + maxVolume + System.lineSeparator() + 
-		"Baggage out of bounds?: " + overweight + System.lineSeparator();
+		}*/
+		return "Checked-in customers: " + currentCapacity + "/" + capacity + System.lineSeparator() +
+				"Current baggage weight: " + currentWeight + System.lineSeparator() +
+				"Current baggage volume: " + currentVolume + System.lineSeparator() +
+				"Max baggage weight: " + maxWeight + System.lineSeparator() +
+				"Max baggage volume: " + maxVolume + System.lineSeparator() + 
+				"Over passenger capacity?: " + overCapacity + System.lineSeparator() +
+				"Baggage out of bounds?: " + overweight + System.lineSeparator() +
+				"Total oversize fee: " + totalFee + System.lineSeparator();
+		/*"Checked-in customers: " + System.lineSeparator() + output + System.lineSeparator() +
+				"Current baggage weight: " + currentWeight + System.lineSeparator() +
+				"Current baggage volume: " + currentVolume + System.lineSeparator() +
+				"Max baggage weight: " + maxWeight + System.lineSeparator() +
+				"Max baggage volume: " + maxVolume + System.lineSeparator() + 
+				"Baggage out of bounds?: " + overweight + System.lineSeparator() +
+				"Total oversize fee: " + totalFee + System.lineSeparator();*/
 	}
 	
 	/**@return a two-cell array for the traveling point of the flight: starting location, and finishing location*/
