@@ -44,7 +44,7 @@ public class Simulator {
 					try {
 						currCustomer = new Customer(customerDetails[0], 
 								customerDetails[1], customerDetails[2], 
-								customerDetails[3]);	// one-liner to initialize Customer object with data from current file line
+								customerDetails[3], customerDetails[5], customerDetails[6]);	// one-liner to initialize Customer object with data from current file line
 					} catch (InvalidValueException e) {
 						// Customer failed to be created - skip to next line
 						continue;
