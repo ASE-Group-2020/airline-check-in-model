@@ -44,8 +44,7 @@ public class Master {
 		 // this if statement allows programmers to handle no-existing or wrong flight codes.
 		 if(allFlights.containsKey(flightCode)) return allFlights.get(flightCode);
 		 else {
-			 return null; //(based on coursework sheet) should never happen as we assume the input files for flight and customer objects has no mistakes.
-			 			
+			 return null; //(based on coursework sheet) should never happen as we assume the input files for flight and customer objects has no mistakes.	 			
 		 }
 	}
 	
