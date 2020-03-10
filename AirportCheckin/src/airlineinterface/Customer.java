@@ -23,7 +23,7 @@ public class Customer implements Comparable<Customer> {
 	 * @param _volume volume of the customer's baggage
 	 * @throws InvalidValueException when any of the input values are either empty, null or if the integer values are below zero
 	 */
-	public Customer(String _code, String _firstName, String _lastName, String _flightCode) throws InvalidValueException
+	public Customer(String _code, String _firstName, String _lastName, String _flightCode, float _weight, float _volume) throws InvalidValueException
 	{
 		// ensures all input data is valid
 		if (_code == null)		  	throw new InvalidValueException("_code must not be null");
@@ -34,11 +34,15 @@ public class Customer implements Comparable<Customer> {
 		if (_firstName.equals("")) 	throw new InvalidValueException("_firstName must not be empty");
 		if (_lastName.equals(""))  	throw new InvalidValueException("_lastName must not be empty");
 		if (_flightCode.equals(""))	throw new InvalidValueException("_flightCode must not be empty");
+		if (_weight < 0) 			throw new InvalidValueException("_code must not be null");
+		if (_volume < 0) 			throw new InvalidValueException("_code must not be null");
 		
 		refCode = _code;
 		firstName = _firstName;
 		lastName = _lastName;
 		flightCode = _flightCode;
+		baggageWeight = _weight;
+		baggageVolume = _volume;
 	}
 	
 	/**
@@ -49,17 +53,10 @@ public class Customer implements Comparable<Customer> {
 	 * @throws AlreadyCheckedInException if the customer has already been checked into the system 
 	 * @throws InvalidValueException if the input weight or volume values are invalid (similar to the customer constructor check)
 	 */
-	public void setCheckedIn(float _weight, float _volume) throws AlreadyCheckedInException, InvalidValueException
+	public void setCheckedIn() throws AlreadyCheckedInException, InvalidValueException
 	{
-		if (isCheckedIn) { throw new AlreadyCheckedInException(firstName + " " + lastName); }
-		else
-		{
-			if (_weight < 0) throw new InvalidValueException("_weight must not be less than zero");
-			if (_volume < 0) throw new InvalidValueException("_volume must not be less than zero");
-			isCheckedIn = true;
-			baggageWeight = _weight;
-			baggageVolume = _volume;
-		}
+		if (isCheckedIn) throw new AlreadyCheckedInException(firstName + " " + lastName);
+		else isCheckedIn = true;
 	}
 	
 	/**@return if the customer has been booked in yet*/

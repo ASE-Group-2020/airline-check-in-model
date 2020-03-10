@@ -111,8 +111,8 @@ public class Master {
 	 * @param his baggage volume
 	 * @throws AlreadyCheckedInException if customer has been checked in before
 	 */
-	public void checkIn(Customer c, Flight f, float weight, float volume, float fee) throws InvalidValueException, AlreadyCheckedInException {
-		c.setCheckedIn(weight,volume);
+	public void checkIn(Customer c, Flight f, float fee) throws InvalidValueException, AlreadyCheckedInException {
+		c.setCheckedIn();
 		f.addCustomer(c, fee);
 		// can remove customer from Customers HashMap to conserve space :)
 	}
@@ -219,6 +219,7 @@ public class Master {
 	 * last name, flight code, check in status, baggage weight, baggage volume 
 	 * @param the path to the .csv file
 	 */
+	/*
 	public void addCustomersFromFile(String filePath) {
 		try { 														// open input stream
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
@@ -276,6 +277,7 @@ public class Master {
 			}
 		}
 	}
+	*/
 
 	/* Output info for each flight to a report text file, could improve by making
 	 * only the flights with checked-in people to be written instead of all flights. 
@@ -305,14 +307,12 @@ public class Master {
 		    }
 	}
 
-	public static void main(String[] args) {
-		Master m = new Master();
-		m.addFlightsFromFile("dataFlight.csv"); // put files in main folder
-		m.addCustomersFromFile("dataCustomer.csv");
-		
-		GUI g = new GUI(m);
-		g.displayPanelStart();
-		//m.display();
-	}
+//	public static void main(String[] args) {
+//		Master m = new Master();
+//		m.addFlightsFromFile("dataFlight.csv"); // put files in main folder
+//		m.addCustomersFromFile("dataCustomer.csv");
+//
+//		//m.display();
+//	}
 
 }
