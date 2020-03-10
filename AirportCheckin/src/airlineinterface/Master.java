@@ -306,14 +306,12 @@ public class Master {
 		    }
 	}
 
-	public static void main(String[] args) {
-		Master m = new Master();
-		m.addFlightsFromFile("dataFlight.csv"); // put files in main folder
-		m.addCustomersFromFile("dataCustomer.csv");
-		
-		GUI g = new GUI(m);
-		g.displayPanelStart();
-		//m.display();
-	}
+//	public static void main(String[] args) {
+//		Master m = new Master();
+//		m.addFlightsFromFile("dataFlight.csv"); // put files in main folder
+//		m.addCustomersFromFile("dataCustomer.csv");
+//
+//		//m.display();
+//	}
 
 }

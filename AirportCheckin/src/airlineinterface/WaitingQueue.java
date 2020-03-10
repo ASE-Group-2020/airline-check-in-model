@@ -17,24 +17,25 @@ public class WaitingQueue implements Runnable {
 
 	@Override
 	public void run() {
-		// TODO: simulate adding people from list to queue as they arrive
+		System.out.println("In run");
+		try { Thread.sleep(3000); } catch (InterruptedException e1) {}
+		while (!notArrived.isEmpty()) {
+			waiting.add(notArrived.remove(0));
+			try { Thread.sleep(1000); } catch (InterruptedException e) {}
+			System.out.println("Just added someone");
+		}
 	}
 	
 	// Adds every given customer to the not-arrived list, then shuffles
 	public void addCustomersToList(List<Customer> customers) {
+		System.out.println("Adding customers to notArrived");
 		notArrived.addAll(customers);
 		Collections.shuffle(notArrived);
+		System.out.println("notArrives length: " + notArrived.size());
 	}
-	
-	// True if list has elements, false otherwise
-	// TODO: make thread-safe
-	public boolean hasNext() {
-		return !waiting.isEmpty();
-	}
-	
+
 	// Pop and return customer - null if empty
-	// TODO: make thread-safe
-	public Customer getNext() {
+	public synchronized Customer getNext() {
 		return waiting.poll();
 	}
 
