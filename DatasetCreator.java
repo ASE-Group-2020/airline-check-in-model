@@ -43,13 +43,13 @@ public class DatasetCreator
 		/**Used to randomly generate the maximum weight capacity of an airliner*/
 		FlightWeight(500, 5000),
 		/**Used to randomly generate the maximum storage volume of an airliner*/
-		FlightVolume(400, 4000),
+		FlightVolume(1500, 5000),
 		/**Used to alter the percentage chance of a random boolean calculation for whether or not a passenger as checked into the airport*/
 		CheckIn(0.5f,1),
 		/**Used to randomly generate the weight of a passenger's baggage*/
 		CustomerWeight(0, 30),
 		/**Used to randomly generate the volume of a passenger's baggage*/
-		CustomerVolume(0, 0.5f);
+		CustomerVolume(0, 40f);
 		
 		float min, max;
 		private Spec(float a, float b) { min = a; max = b; }
@@ -75,8 +75,8 @@ public class DatasetCreator
 	/**Resets the DatasetCreator object with specified default variables*/
 	public static void Reset()
 	{
-		flightCount = 8000;
-		customerCount = 1000000;
+		flightCount = 2;
+		customerCount = 20;
 		places 	   = new String[] {"Edinburgh", "Londom", "Berlin", "Dubai", "Stockholm", "Costa Rica", "Phuket", "Tahiti", "Paris", "Maldives", "Rio de Janeiro", "Santorini"};
 		placeCodes = new String[] {"EDN"      , "LDN"   , "BLN"   , "DBI"  , "SKM"	    , "CRA"		  , "RKT"   , "THI"	  , "PRI"  , "MLD"	   , "RDJ"			 , "STI"};
 		carriers   = new String[] {"EasyJet", "British Airways", "Virgin", "Ryanair", "BlueJet", "Delta Air Lines", "Frontier Airlines", "United Airlines"};
@@ -90,7 +90,7 @@ public class DatasetCreator
 	}
 	
 	/**Uses default variables in Reset() method to produce new Flight and Customer data, and print them into two separate data files in the form of .txt files.*/
-	public static void main()
+	public static void main(String[] args)
 	{
 		Reset();
 		
@@ -100,7 +100,7 @@ public class DatasetCreator
 		// generates and writes each new flight entry to file individually
 		try
 		{
-			FileWriter flightDataWriter = new FileWriter("dataFlight.txt");		
+			FileWriter flightDataWriter = new FileWriter("dataFlight.csv");		
 			for (int I = 0; I < flightCount; I++)
 			{	
 				flightDataWriter.write(NewFlight() + "\n");
@@ -111,7 +111,7 @@ public class DatasetCreator
 		// generates and writes each new customer entry to file individually
 		try
 		{
-			FileWriter customerDataWriter = new FileWriter("dataCustomer.txt");
+			FileWriter customerDataWriter = new FileWriter("dataCustomer.csv");
 			for (int I = 0; I < customerCount; I++)
 			{			
 				customerDataWriter.write(NewCustomer() + "\n");
@@ -154,12 +154,8 @@ public class DatasetCreator
 		boolean checkedIn = Spec.CheckIn.RandomBoolWithThreshold();
 		float weight;
 		float volume;
-		if (checkedIn)
-		{
-			weight = Spec.CustomerWeight.RandomMinMax();
-			volume = Spec.CustomerVolume.RandomMinMax();
-		}
-		else { weight = 0; volume = 0; }
+		weight = Spec.CustomerWeight.RandomMinMax();
+		volume = Spec.CustomerVolume.RandomMinMax();
 		
 		return
 			NewID() + "," + 
