@@ -9,57 +9,70 @@ public class Desk extends Thread{
 	private static HashMap<String, Flight> allFlights; // each desk holds a static reference to all flights
 	private WaitingQueue queue;
 	private boolean deskExists = true;
+	private String deskName; 
 	
 	/* Constructor that takes in a queue object
-	*  Will start a method that loops endlessly.
-	*  IE: all people have been checked in, it will pause.
-	*  Else if will check-in people.
+	*  and the sting object is the desk identifier.
 	*/
-	public Desk(WaitingQueue queue) {
+	public Desk(WaitingQueue queue, String deskName) {
 		this.queue = queue;   //Will the queue update after desk initialisation or is it static? Additionalu how to deal with multiple desks trying to grab the same customer.
-
+		this.deskName = deskName;
 		
 	}
 	// this method extends thread. objectDesk.start()will begin this thread
 	public void run() {
+	Logger.instance().log("Starting simulation of " + deskName);
 	//TODO: create a conditional statement that kills/pauses the desk. Do we want a deconstructor? 
 			// Conditional statement to keep the desk check-in working.
 			while(deskExists) {
-				if(queue.hasNext() == true) {  //TODO depends on the queue object how we check if it isn't empty 
-					startCheckIn(queue); // method that handles checking in customers in queue
+				Customer c = queue.getNext(); // Returns null customer object is queue is empty
+				if(!(c == null)) {  //TODO depends on the queue object how we check if it isn't empty 
+					Logger.instance().log(" ##DESK##  A new customer " + c.getFirstName()+" "+
+				c.getLastName()+" has moved from the queue to checkin at " + deskName);
+					timeDelay(3000); // 3 second delay for pesron to move to help desk
+					try { startCheckIn(queue,c);} catch (InvalidValueException e) {System.out.println(e.getMessage());} 
 				}
 				else {
 					try {
-					sleep(2000); 
+					Thread.sleep(2000); 
 					}catch(InterruptedException e) {
-						
+						System.out.println(e.getMessage());
 					}
 				
 				}
 			}
+			Logger.instance().log(" ##DESK##  The "+ deskName+" has stopped accepting customers.");
 	}
 	
 	/* Takes in the customer at the front of the queue
 	 * using .peek(), else TODO a custom method from queue class.
 	 */
-	// .hasNext returns a boolean if the queue has customers
-	private void startCheckIn(WaitingQueue queue) {
+	private void startCheckIn(WaitingQueue queue, Customer currCustomer) throws InvalidValueException {
 		//TODO add randomness to speeds
-		sleep(8000); // 8 second delay for peson to move to help desk
-		Customer currCustomer = queue.peek(); // Get the first customer in the queue
-		sleep(15000); // 15 second delay for peson to get baggae fee
-		float currCustomerFee = getOversizeFee(currCustomer.getWeight,currCustomer.getVolume) // Get the bagge fee of the first customer
-		sleep(8000); // 8 second delay for peson to confirm checkin and move out the way
+		
+		timeDelay(6000); // 6 second delay for person to get baggage fee
+		float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],currCustomer.getBaggageDetails()[1]); // Get the bagge fee of the first customer
+		// Log the customers baggage fee
+		Logger.instance().log(" ##DESK##  The baggage fee of "+currCustomerFee+ " was collected from " + currCustomer.getFirstName()+" "+
+				currCustomer.getLastName()+" at "+ deskName);
+		timeDelay(3000); // 3 seconds to confirm check in and leave desk;
 		checkIn(currCustomer, currCustomerFee); // Checks in a customer
 	}
-	private void timeDelay() {
-		//TODO creates a time delay thats used on each check in <- Thread.sleep(2000);
+	private void timeDelay(int milisec) {
+		try {
+			Thread.sleep(milisec); 
+			}catch(InterruptedException e) {
+				System.out.println(e.getMessage() + " failed to interupt thread for "+ milisec+" miliseconds.");
+			}
 	}
 	
-	private void checkIn(Customer c,float fee) {
+	private void checkIn(Customer currCustomer,float baggageFee) {
 		try {
-			c.setCheckedIn(weight,volume);
-			addCustomerToFlight(c, c.getFlightCode());
+			addCustomerToFlight(currCustomer, currCustomer.getFlightCode(), baggageFee); //add customer to their selected flight 
+			currCustomer.setCheckedIn(); //Change boolean flag in customer object
+			// Log that the customer has finished checking in.
+			Logger.instance().log(" ##DESK##  "+ currCustomer.getFirstName()+" "+
+					currCustomer.getLastName()+" has finished checking in");
 		} catch (AlreadyCheckedInException e) {
 			System.out.println("Customer has already been checked in! Desk/CheckIn()");
 		} catch (InvalidValueException e) {
@@ -100,14 +113,18 @@ public class Desk extends Thread{
 			throw new InvalidValueException("the baggage shouldn't be more than 200 Kg in weight or 260 L in volume.");
 	}
 	
-	private void addCustomerToFlight(Customer c, String flightCode) {
+	private void addCustomerToFlight(Customer currCustomer, String flightCode, float baggageFee) {
 		Flight currFlight = allFlights.get(flightCode);
 		try {
-			currFlight.addCustomer( c, getOversizeFee(c.getBaggageDetails()[0], c.getBaggageDetails()[1]) );
+			currFlight.addCustomer( currCustomer,baggageFee);
+			// Log that the customer has been added to the flight
+			Logger.instance().log(" ##DESK##  "+ currCustomer.getFirstName()+" "+
+					currCustomer.getLastName()+" has been added to "+ currFlight.getFlightCode());
 		} catch (InvalidValueException e) {
 			System.out.println("Invalid value of customer baggage details found at Desk/addCustomerToFlight()");
 			e.printStackTrace();
 		}
+		
 	}
 	
 	

@@ -17,7 +17,7 @@ public class Simulator {
 		// Create queue
 		WaitingQueue q = new WaitingQueue();
 		// TODO: create desk(s)
-		Desk desk = new Desk(q);
+		Desk desk = new Desk(q, "desk 1");
 		// TODO: create flight(s)
 
 		// Load customers from file
@@ -27,8 +27,8 @@ public class Simulator {
 		
 		Thread threadQueue = new Thread(q);
 		threadQueue.start();
-		// Thread threadDesk = new Thread(desk);
-		// threadDesk.start();
+		Thread threadDesk = new Thread(desk);
+		threadDesk.start();
 	}
 
 	public static ArrayList<Customer> addCustomersFromFile(String filePath) {
