@@ -1,12 +1,23 @@
 package airlineinterface;
 
 import java.util.HashMap;
+import java.util.List;
+
 import exceptions.AlreadyCheckedInException;
 import exceptions.InvalidValueException;
-import java.lang.Thread;
 
-public class Desk extends Thread{
-	private static HashMap<String, Flight> allFlights; // each desk holds a static reference to all flights
+public class Desk implements Runnable {
+	
+	// Statics
+	private static HashMap<String, Flight> allFlights = new HashMap<String, Flight>(); // each desk holds a static reference to all flights
+	
+	public static void addFlights(List<Flight> flights) {
+		for (Flight f : flights) {
+			allFlights.put(f.getFlightCode(), f);
+		}
+	}
+	
+	// Instance-specific
 	private WaitingQueue queue;
 	private boolean deskExists = true;
 	private String deskName; 
