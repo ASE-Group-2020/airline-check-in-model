@@ -23,7 +23,7 @@ public class Simulator {
 		Desk desk = new Desk(q, "desk 1");
 		
 		// Add flights
-		Desk.addFlights(addFlightsFromFile("dataFlights.csv"));
+		Desk.addFlights(addFlightsFromFile("dataFlight.csv"));
 		// Add customers
 		q.addCustomersToList(addCustomersFromFile("dataCustomer.csv"));
 
