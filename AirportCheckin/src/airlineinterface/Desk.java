@@ -15,6 +15,7 @@ public class Desk implements Runnable {
 	private WaitingQueue queue;
 	private String deskName;
 	private boolean deskExists = true;
+	private float speed;
 	
 
 	public static void addFlights(List<Flight> flights) {
@@ -27,6 +28,10 @@ public class Desk implements Runnable {
 	 * TODO: Will the queue update after desk initialisation (answer: yes)? 
 	 * Additionally, how to deal with multiple desks trying to grab the same customer?
 	 */
+	
+	/* Constructor that takes in a queue object
+	*  and the sting object is the desk identifier.
+	*/
 	public Desk(WaitingQueue queue, String deskName) {
 		this.queue = queue; 
 		this.deskName = deskName;
@@ -44,7 +49,7 @@ public class Desk implements Runnable {
 		Logger.instance().log("Starting simulation of " + deskName);
 
 		// While (queue OR list are NOT empty) and (deskExists is turned on) i.e the terminal is working ... do ...
-		while ( (!queue.notArrived.isEmpty() || !queue.waiting.isEmpty()) && deskExists ) {
+		while ( (!queue.getnotArrived().isEmpty() || !queue.getWaiting().isEmpty()) && deskExists ) {
 			Customer c = queue.getNext(); 		// Returns null customer object is queue is empty
 			if (!(c == null)) { 				// TODO depends on the queue object how we check if it isn't empty
 				Logger.instance().log(" ##DESK##  A new customer " 
