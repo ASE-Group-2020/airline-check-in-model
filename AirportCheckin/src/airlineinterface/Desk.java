@@ -21,6 +21,7 @@ public class Desk implements Runnable {
 	private WaitingQueue queue;
 	private boolean deskExists = true;
 	private String deskName; 
+	public float speed;
 	
 	/* Constructor that takes in a queue object
 	*  and the sting object is the desk identifier.
@@ -44,12 +45,7 @@ public class Desk implements Runnable {
 					try { startCheckIn(queue,c);} catch (InvalidValueException e) {System.out.println(e.getMessage());} 
 				}
 				else {
-					try {
-					Thread.sleep(2000); 
-					}catch(InterruptedException e) {
-						System.out.println(e.getMessage());
-					}
-				
+					timeDelay(2000);
 				}
 			}
 			Logger.instance().log(" ##DESK##  The "+ deskName+" has stopped accepting customers.");

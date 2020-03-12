@@ -7,11 +7,11 @@ import java.util.Queue;
 
 public class WaitingQueue implements Runnable {
 
-	Queue<Customer> waiting;
+	private Queue<Customer> waiting;
 	List<Customer> notArrived;
 
 	public WaitingQueue() {
-		waiting = new LinkedList<Customer>();
+		setWaiting(new LinkedList<Customer>());
 		notArrived = new LinkedList<Customer>();
 	}
 
@@ -21,9 +21,9 @@ public class WaitingQueue implements Runnable {
 		try { Thread.sleep(3000); } catch (InterruptedException e1) {}
 		Logger.instance().log("People have started arriving at the airport");
 		while (!notArrived.isEmpty()) {
-			waiting.add(notArrived.remove(0));
+			getWaiting().add(notArrived.remove(0));
 			// Logging
-			Customer c = ((LinkedList<Customer>) waiting).peekLast();
+			Customer c = ((LinkedList<Customer>) getWaiting()).peekLast();
 			Logger.instance().log("  " + c.getFirstName() + " " + c.getLastName() + " arrived at the airport");
 			try { Thread.sleep(1000); } catch (InterruptedException e) {}
 		}
@@ -40,7 +40,15 @@ public class WaitingQueue implements Runnable {
 
 	// Pop and return customer - null if empty
 	public synchronized Customer getNext() {
-		return waiting.poll();
+		return getWaiting().poll();
+	}
+
+	public Queue<Customer> getWaiting() {
+		return waiting;
+	}
+
+	public void setWaiting(Queue<Customer> waiting) {
+		this.waiting = waiting;
 	}
 
 }
