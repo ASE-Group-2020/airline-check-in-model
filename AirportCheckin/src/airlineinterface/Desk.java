@@ -9,15 +9,17 @@ import exceptions.InvalidValueException;
 public class Desk implements Runnable {
 
 	// Statics - each desk holds a static reference to all flights
-	private static HashMap<String, Flight> allFlights = new HashMap<String, Flight>(); 
+	private static HashMap<String, Flight> allFlights = new HashMap<String, Flight>();
 	
-	//Instance-specific
+	// Instance-specific
 	private WaitingQueue queue;
 	private String deskName;
-	private boolean deskExists = true;
-	private float speed;
+	private boolean deskExists = true;		// Connect to terminal to control opening/closing desks via setter method
+	private int simSpeed;
 	
-
+	
+	/* No need to synchronise this, the HashMap will be made concurrent..? 
+	 */
 	public static void addFlights(List<Flight> flights) {
 		for (Flight f : flights) {
 			allFlights.put(f.getFlightCode(), f);
@@ -42,8 +44,11 @@ public class Desk implements Runnable {
 	 * deconstructor?
 	 * 
 	 * Done. Nah, just check if there's people in the list and queue.
-	 * Run one desk per thread. This is the cleanest way to do it, as long as the collections
-	 * are thread-safe.
+	 * Run one desk method (desk task) per thread. This is the cleanest way to do it, as long as the collections
+	 * are thread-safe. The print statements and logger are essential to the work of the program and need to 
+	 * happen in order with the operations if we are to be able to measure the program's viability without endless
+	 * testing and patches. The potential speed-up from making synchronised calls to individual parts of the methods,
+	 * instead of the whole method is negligible.
 	 */ 
 	public synchronized void run() {
 		Logger.instance().log("Starting simulation of " + deskName);
@@ -57,62 +62,51 @@ public class Desk implements Runnable {
 									+ c.getLastName()
 									+ " has moved from the queue to check in at " 
 									+ deskName);
-				timeDelay(3000); 				// 3 second delay for person to move to help desk
+				sleep(3000*simSpeed); 				// 3 second delay for person to move to help desk
 				try {startCheckIn(queue, c);}
 				catch (InvalidValueException e) {System.out.println(e.getMessage());}
 			}
 			else {
-				try {Thread.sleep(2000);} 		// Sleep until
-				catch (InterruptedException e) {System.out.println(e.getMessage());}
+				sleep(2000*simSpeed);
 			}
 		}
 		
 		Logger.instance().log(" ##DESK##  The " + deskName + " has stopped accepting customers.");
 	}
 
-	/* Takes in the customer at the front of the queue using .peek(), else TODO a
-	 * custom method from queue class.
-	 * TODO: Add randomness to speeds
+	/* Takes in the customer at the front of the queue using .peek(), else 
+	 * TODO a custom method from queue class.
+	 * TODO: Add randomness to speeds?
 	 */
-	private void startCheckIn(WaitingQueue queue, Customer currCustomer) throws InvalidValueException {
-		timeDelay(6000); // 6 second delay for person to get baggage fee
+	private synchronized void startCheckIn(WaitingQueue queue, Customer currCustomer) throws InvalidValueException {
+		sleep(6000*simSpeed); 															// 6 second delay for person to get baggage fee
 		float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],
-											currCustomer.getBaggageDetails()[1]); // Get the baggage fee of the first customer
+											currCustomer.getBaggageDetails()[1]); 		// Get the baggage fee of the first customer
 		// Log the customer's baggage fee
 		Logger.instance().log(" ##DESK##  The baggage fee of "
 									+ currCustomerFee + " was collected from "
 									+ currCustomer.getFirstName()
 									+ " " + currCustomer.getLastName() 
 									+ " at " + deskName);
-		timeDelay(3000); // 3 seconds to confirm check in and leave desk;
-		checkIn(currCustomer, currCustomerFee); // Checks in a customer
+		sleep(3000*simSpeed); 															// 3 seconds to confirm check in and leave desk;
+		checkIn(currCustomer, currCustomerFee); 										// Check in a customer
 	}
 
-	private void timeDelay(int millisec) {
+	private synchronized void checkIn(Customer currCustomer, float baggageFee) {
 		try {
-			Thread.sleep(millisec);
-		} 
-		catch (InterruptedException e) {
-			System.out.println(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds.");
-		}
-	}
-
-	private void checkIn(Customer currCustomer, float baggageFee) {
-		try {
-			addCustomerToFlight(currCustomer, currCustomer.getFlightCode(), baggageFee); // add customer to their selected flight
-			currCustomer.setCheckedIn(); // Change boolean flag in customer object
-			// Log that the customer has finished checking in.
+			addCustomerToFlight(currCustomer, currCustomer.getFlightCode(), baggageFee);// Add customer to their selected flight
+			currCustomer.setCheckedIn(); 												// Change boolean flag in customer object
 			Logger.instance().log(" ##DESK##  " 
 									+ currCustomer.getFirstName() + " " 
 									+ currCustomer.getLastName()
-									+ " has finished checking in");
+									+ " has finished checking in"); 					// Log that the customer has finished checking in.
 		} 
 		catch (AlreadyCheckedInException e) {System.out.println("Customer has already been checked in! Desk/CheckIn()");} 
 		catch (InvalidValueException e) {System.out.println("Invalid value passed at Desk/CheckIn().");} 
 		catch (Exception e) {e.printStackTrace();}
 	}
 
-	public float getOversizeFee(float currentWeight, float currentVolume) throws InvalidValueException {
+	public synchronized float getOversizeFee(float currentWeight, float currentVolume) throws InvalidValueException {
 		if (currentWeight < 15 && currentVolume < 20) {
 			return 0;
 		} else if (currentWeight < 25 && currentVolume < 35) {
@@ -128,28 +122,44 @@ public class Desk implements Runnable {
 		} else if (currentWeight <= 200 && currentVolume <= 260) {
 			return 100;
 		}
-		// This is the maximum weight and volume an individual is allowed to possess.
-		// Beyond 200kg
+		// This is the maximum weight and volume an individual is allowed to possess, beyond 200kg
 
 		// FYI, it does.  - Well allrighty then.
 		else throw new InvalidValueException("the baggage shouldn't be more than 200kg in weight or 260 litres in volume.");
 	}
 
-	private void addCustomerToFlight(Customer currCustomer, String flightCode, float baggageFee) {
+	private synchronized void addCustomerToFlight(Customer currCustomer, String flightCode, float baggageFee) {
 		Flight currFlight = allFlights.get(flightCode);
 		try {
 			currFlight.addCustomer(currCustomer, baggageFee);
-			// Log that the customer has been added to the flight
+			
 			Logger.instance().log(" ##DESK##  " 
 									+ currCustomer.getFirstName() + " " 
 									+ currCustomer.getLastName()
 									+ " has been added to " 
-									+ currFlight.getFlightCode());
+									+ currFlight.getFlightCode());						// Log the customer added to the flight
 		} catch (InvalidValueException e) {
 			System.out.println("Invalid value of customer baggage details found at Desk/addCustomerToFlight()");
 			e.printStackTrace();
 		}
 
 	}
+	
+	private synchronized void sleep(int millisec) {
+		try {
+			Thread.sleep(millisec);
+		} 
+		catch (InterruptedException e) {
+			System.out.println(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds.");
+		}
+	}
+	
+	public int getSimSpeed() {
+		return simSpeed;
+	}
 
+	public void setSimSpeed(int simSpeed) {
+		this.simSpeed = simSpeed;
+	}
+	
 }

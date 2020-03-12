@@ -14,23 +14,18 @@ import exceptions.InvalidValueException;
 public class Simulator {
 
 	public static void main(String[] args) {
-		// Start logger
-		Logger.instance().resetTimer();
-
-		// Create queue
-		WaitingQueue q = new WaitingQueue();
-		// TODO: create desk(s)
-		Desk desk = new Desk(q, "desk 1");
+		Logger.instance().resetTimer();									// Start logger
 		
-		// Add flights
-		Desk.addFlights(addFlightsFromFile("dataFlight.csv"));
-		// Add customers
-		q.addCustomersToList(addCustomersFromFile("dataCustomer.csv"));
+		WaitingQueue q = new WaitingQueue();							// Create queue
+		Desk desk = new Desk(q, "desk 1");								// Create desk(s)
+		
+		
+		Desk.addFlights(addFlightsFromFile("dataFlight.csv"));			// Add flights
+		q.addCustomersToList(addCustomersFromFile("dataCustomer.csv"));	// Add customer
 
 		Logger.instance().log("Starting simulation");
 		
-		// Start threads
-		Thread threadQueue = new Thread(q);
+		Thread threadQueue = new Thread(q);								// Start threads
 		threadQueue.start();
 		Thread threadDesk = new Thread(desk);
 		threadDesk.start();
@@ -38,29 +33,28 @@ public class Simulator {
 
 	public static List<Customer> addCustomersFromFile(String filePath) {
 		ArrayList<Customer> allCustomers = new ArrayList<Customer>();
-		try { // open input stream
+		try { 															// open input stream
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
-			String line = ""; // store current line
+			String line = ""; 											// store current line
 
-			while ((line = reader.readLine()) != null) { // go through every line in the file
-				String[] customerDetails = line.trim().split(","); // split the line and trim empty space, push results
-																	// to small array
+			while ((line = reader.readLine()) != null) { 				// go through every line in the file
+				String[] customerDetails = line.trim().split(","); 		// split the line and trim empty space, push results to small array
 				// System.out.println(Arrays.toString(customerDetails)); <- debug
 				Customer currCustomer;
-				if (customerDetails.length == 7) { // handle partial data - only take data from full fields, ignore
-													// partial data!
+				if (customerDetails.length == 7) { 						// handle partial data - only take data from full fields, ignore partial data!
 					try {
 						float cWeight = 0, cVol = 0;
 						try {
 							cWeight = Float.parseFloat(customerDetails[5]);
 							cVol = Float.parseFloat(customerDetails[6]);
-						} catch (NumberFormatException e) {
-						}
-						currCustomer = new Customer(customerDetails[0], customerDetails[1], customerDetails[2],
-								customerDetails[3], cWeight, cVol); // one-liner to initialize Customer object with data
-																	// from current file line
+						} catch (NumberFormatException e) {/* HELLO, SHOULD ANYTHING BE DONE HERE????? */}
+						currCustomer = new Customer(customerDetails[0],
+													customerDetails[1], 
+													customerDetails[2],
+													customerDetails[3], 
+													cWeight, cVol); 	// one-liner to initialise Customer object with data from current file line
 					} catch (InvalidValueException e) {
-						// Customer failed to be created - skip to next line
+						// Customer failed to be created - skip to next line (WHY NO NOTIFICATION???)
 						continue;
 					}
 					if (!Boolean.parseBoolean(customerDetails[4])) {
@@ -69,10 +63,10 @@ public class Simulator {
 				} else {
 					System.out.println(
 							"Corrupted data found at line" + Arrays.toString(customerDetails) + "! Skipping...");
-					continue; // break at corrupted data, let someone know that it's corrupted!
+					continue; 											// break at corrupted data, let someone know that it's corrupted!
 				}
 			}
-			reader.close(); // close reader
+			reader.close(); 											// close reader
 		} catch (
 
 		Exception e) {
@@ -89,26 +83,49 @@ public class Simulator {
 		return allCustomers;
 	}
 	
+	/* In a real environment this would be a connection to a DB but making it multithreaded would be beneficial 
+	 * and to show we know what we are supposed to be doing/learning. Here is the plan: 
+	 *  - Allocate a big buffer object, read a chunk, parse back from the end to find the last EOL char,
+	 * copy the last bit of the buffer into a temp string, shove a null into the buffer at the EOL+1, 
+	 * queue off the buffer reference, immediately create a new one, copy in the temp string first, 
+	 * then fill up the rest of the buffer and repeat until EOF. Repeat until done. Use a pool of 
+	 * threads to parse/process the buffers. You have to queue up whole chunks of valid lines. 
+	 * Queueing off single lines will result in the thread communications taking longer than the parsing.
+	 * This would result in out-of-order chunk processing but we don't care about that.
+	 * 
+	 * Is it worth it though??? I/O works faster sequentially (HDDs definitely do, which most companies still 
+	 * use on their servers)!
+	 * 
+	 * How to separate the processing from the file reading, though..? That could be threaded and made faster...
+	 */
 	public static List<Flight> addFlightsFromFile(String filePath) {
 		List<Flight> allFlights = new ArrayList<Flight>();
-		try { 														// open input stream
+		try { 															// open input stream
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
-			String line = ""; 										// store current line
+			String line = ""; 											// store current line
 			
-			while ((line = reader.readLine()) != null) { 			// go through every line in the file
-				String[] flightDetails = line.trim().split(","); 	// split the line and trim empty space, push results to small array
-				if (Integer.parseInt(flightDetails[4]) < 0) System.err.println("Nonsensical flight capacity: "+System.lineSeparator() +  Arrays.deepToString(flightDetails));
-				if (Float.parseFloat(flightDetails[5]) < 0) System.err.println("Nonsensical baggage weight: "+System.lineSeparator() +  Arrays.deepToString(flightDetails));
-				if (Float.parseFloat(flightDetails[6]) < 0) System.err.println("Nonsensical baggage volume: "+System.lineSeparator() +  Arrays.deepToString(flightDetails));
+			while ((line = reader.readLine()) != null) { 				// go through every line in the file
+				String[] flightDetails = line.trim().split(","); 		// split the line and trim empty space, push results to small array
+				
+				if (Integer.parseInt(flightDetails[4]) < 0) 
+					System.err.println("Nonsensical flight capacity: "+System.lineSeparator() 
+													+  Arrays.deepToString(flightDetails));
+				if (Float.parseFloat(flightDetails[5]) < 0) 
+					System.err.println("Nonsensical baggage weight: "+System.lineSeparator() 
+													+  Arrays.deepToString(flightDetails));
+				if (Float.parseFloat(flightDetails[6]) < 0) 
+					System.err.println("Nonsensical baggage volume: "+System.lineSeparator() 
+													+  Arrays.deepToString(flightDetails));
+				
 				Flight currFlight = new Flight(flightDetails[0], 
 						flightDetails[1], flightDetails[2], 
 						flightDetails[3],
 						Integer.parseInt(flightDetails[4]), 
 						Float.parseFloat(flightDetails[5]),
-						Float.parseFloat(flightDetails[6])); 		// one-liner to initialize Flight object with data from current file line
-				allFlights.add(currFlight); 		// the key is the unique flight id (flight code), value is currFlight being added
+						Float.parseFloat(flightDetails[6])); 			// one-liner to initialise Flight object with data from current file line
+				allFlights.add(currFlight); 							// the key is the unique flight id (flight code), value is currFlight being added
 			}
-			reader.close(); 										// close reader
+			reader.close(); 											// close reader
 		}
 			
 		 catch (Exception e) {
