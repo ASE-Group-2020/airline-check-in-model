@@ -62,12 +62,12 @@ public class Desk implements Runnable {
 									+ c.getLastName()
 									+ " has moved from the queue to check in at " 
 									+ deskName);
-				sleep(3000*simSpeed); 				// 3 second delay for person to move to help desk
+				Simulator.sleep(3000*simSpeed); 				// 3 second delay for person to move to help desk
 				try {startCheckIn(queue, c);}
 				catch (InvalidValueException e) {System.out.println(e.getMessage());}
 			}
 			else {
-				sleep(2000*simSpeed);
+				Simulator.sleep(2000*simSpeed);
 			}
 		}
 		
@@ -79,7 +79,7 @@ public class Desk implements Runnable {
 	 * TODO: Add randomness to speeds?
 	 */
 	private synchronized void startCheckIn(WaitingQueue queue, Customer currCustomer) throws InvalidValueException {
-		sleep(6000*simSpeed); 															// 6 second delay for person to get baggage fee
+		Simulator.sleep(6000*simSpeed); 															// 6 second delay for person to get baggage fee
 		float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],
 											currCustomer.getBaggageDetails()[1]); 		// Get the baggage fee of the first customer
 		// Log the customer's baggage fee
@@ -88,7 +88,7 @@ public class Desk implements Runnable {
 									+ currCustomer.getFirstName()
 									+ " " + currCustomer.getLastName() 
 									+ " at " + deskName);
-		sleep(3000*simSpeed); 															// 3 seconds to confirm check in and leave desk;
+		Simulator.sleep(3000*simSpeed); 															// 3 seconds to confirm check in and leave desk;
 		checkIn(currCustomer, currCustomerFee); 										// Check in a customer
 	}
 
@@ -145,15 +145,7 @@ public class Desk implements Runnable {
 
 	}
 	
-	private synchronized void sleep(int millisec) {
-		try {
-			Thread.sleep(millisec);
-		} 
-		catch (InterruptedException e) {
-			System.out.println(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds.");
-		}
-	}
-	
+
 	public int getSimSpeed() {
 		return simSpeed;
 	}

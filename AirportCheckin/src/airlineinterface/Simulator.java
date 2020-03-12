@@ -7,11 +7,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import exceptions.InvalidValueException;
 
 // Runs main, sets up everything by loading in CSV files
 public class Simulator {
+	
+	private static boolean randomness;
 
 	public static void main(String[] args) {
 		Logger.instance().resetTimer();									// Start logger
@@ -96,7 +99,7 @@ public class Simulator {
 	 * Is it worth it though??? I/O works faster sequentially (HDDs definitely do, which most companies still 
 	 * use on their servers)!
 	 * 
-	 * How to separate the processing from the file reading, though..? That could be threaded and made faster...
+	 * How to separate the processing from the file reading, though..? That could be threaded and made faster... Make the processing multi-threaded.
 	 */
 	public static List<Flight> addFlightsFromFile(String filePath) {
 		List<Flight> allFlights = new ArrayList<Flight>();
@@ -142,5 +145,21 @@ public class Simulator {
 		}
 		return allFlights;
 	}
+	
+	public synchronized static void sleep(int millisec) {
+		try {
+			if (randomness) {
+				Random r = new Random();
+				Thread.sleep((int) (millisec * (0.5 + r.nextFloat())));
+			} else {
+				Thread.sleep(millisec);
+			}
+			
+		} 
+		catch (InterruptedException e) {
+			System.out.println(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds.");
+		}
+	}
+	
 
 }
