@@ -10,6 +10,7 @@ public class WaitingQueue implements Runnable {
 
 	private Queue<Customer> waiting;
 	private List<Customer> notArrived;
+	public boolean active = true;
 
 	public WaitingQueue() {
 		setWaiting(new LinkedList<Customer>());
@@ -18,25 +19,25 @@ public class WaitingQueue implements Runnable {
 
 	@Override
 	public void run() {
-		Logger.instance().log("Starting queue simulation");
+		Logger.instance().MainLog("Starting queue simulation");
 		try { Thread.sleep(3000); } catch (InterruptedException e1) {}
-		Logger.instance().log("People have started arriving at the airport");
-		while (!notArrived.isEmpty()) {
+		Logger.instance().MainLog("People have started arriving at the airport");
+		while (!notArrived.isEmpty() && active) {
 			getWaiting().add(notArrived.remove(0));
 			// Logging
 			Customer c = ((LinkedList<Customer>) getWaiting()).peekLast();
-			Logger.instance().log("  " + c.getFirstName() + " " + c.getLastName() + " arrived at the airport");
+			Logger.instance().PassengerJoinedQueue(c);
 			try { Thread.sleep(1000); } catch (InterruptedException e) {}
 		}
-		Logger.instance().log("Everyone has arrived");
+		Logger.instance().MainLog("Everyone has arrived");
 	}
 
 	// Adds every given customer to the not-arrived list, then shuffles
 	public void addCustomersToList(List<Customer> customers) {
-		Logger.instance().log("Adding customers to notArrived");
+		Logger.instance().MainLog("Adding customers to notArrived");
 		notArrived.addAll(customers);
 		Collections.shuffle(notArrived);
-		Logger.instance().log("notArrives length: " + notArrived.size());
+		Logger.instance().MainLog("notArrives length: " + notArrived.size());
 	}
 
 	// Pop and return customer - null if empty

@@ -14,7 +14,7 @@ public class Desk implements Runnable {
 	// Instance-specific
 	private WaitingQueue queue;
 	private String deskName;
-	private boolean deskExists = true;		// Connect to terminal to control opening/closing desks via setter method
+	public boolean deskExists = true;		// Connect to terminal to control opening/closing desks via setter method
 	private int simSpeed;
 	
 	
@@ -51,17 +51,13 @@ public class Desk implements Runnable {
 	 * instead of the whole method is negligible.
 	 */ 
 	public synchronized void run() {
-		Logger.instance().log("Starting simulation of " + deskName);
+		Logger.instance().MainLog("Starting simulation of " + deskName);
 
 		// While (queue OR list are NOT empty) and (deskExists is turned on) i.e the terminal is working ... do ...
 		while ( (!queue.getnotArrived().isEmpty() || !queue.getWaiting().isEmpty()) && deskExists ) {
 			Customer c = queue.getNext(); 		// Returns null customer object is queue is empty
 			if (!(c == null)) { 				// TODO depends on the queue object how we check if it isn't empty
-				Logger.instance().log(" ##DESK##  A new customer " 
-									+ c.getFirstName() + " " 
-									+ c.getLastName()
-									+ " has moved from the queue to check in at " 
-									+ deskName);
+				Logger.instance().PassengerMovedToDesk(c, deskName);
 				Simulator.sleep(3000*simSpeed); 				// 3 second delay for person to move to help desk
 				try {startCheckIn(queue, c);}
 				catch (InvalidValueException e) {System.out.println(e.getMessage());}
@@ -71,7 +67,7 @@ public class Desk implements Runnable {
 			}
 		}
 		
-		Logger.instance().log(" ##DESK##  The " + deskName + " has stopped accepting customers.");
+		Logger.instance().MainLog(" ##DESK##  The " + deskName + " has stopped accepting customers.");
 	}
 
 	/* Takes in the customer at the front of the queue using .peek(), else 
@@ -82,12 +78,6 @@ public class Desk implements Runnable {
 		Simulator.sleep(6000*simSpeed); 															// 6 second delay for person to get baggage fee
 		float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],
 											currCustomer.getBaggageDetails()[1]); 		// Get the baggage fee of the first customer
-		// Log the customer's baggage fee
-		Logger.instance().log(" ##DESK##  The baggage fee of "
-									+ currCustomerFee + " was collected from "
-									+ currCustomer.getFirstName()
-									+ " " + currCustomer.getLastName() 
-									+ " at " + deskName);
 		Simulator.sleep(3000*simSpeed); 															// 3 seconds to confirm check in and leave desk;
 		checkIn(currCustomer, currCustomerFee); 										// Check in a customer
 	}
@@ -95,11 +85,8 @@ public class Desk implements Runnable {
 	private synchronized void checkIn(Customer currCustomer, float baggageFee) {
 		try {
 			addCustomerToFlight(currCustomer, currCustomer.getFlightCode(), baggageFee);// Add customer to their selected flight
-			currCustomer.setCheckedIn(); 												// Change boolean flag in customer object
-			Logger.instance().log(" ##DESK##  " 
-									+ currCustomer.getFirstName() + " " 
-									+ currCustomer.getLastName()
-									+ " has finished checking in"); 					// Log that the customer has finished checking in.
+			currCustomer.setCheckedIn(); 												// Change boolean flag in customer object					
+			// Log that the customer has finished checking in.
 		} 
 		catch (AlreadyCheckedInException e) {System.out.println("Customer has already been checked in! Desk/CheckIn()");} 
 		catch (InvalidValueException e) {System.out.println("Invalid value passed at Desk/CheckIn().");} 
@@ -133,11 +120,7 @@ public class Desk implements Runnable {
 		try {
 			currFlight.addCustomer(currCustomer, baggageFee);
 			
-			Logger.instance().log(" ##DESK##  " 
-									+ currCustomer.getFirstName() + " " 
-									+ currCustomer.getLastName()
-									+ " has been added to " 
-									+ currFlight.getFlightCode());						// Log the customer added to the flight
+			Logger.instance().PassengerCheckedIn(currCustomer, currFlight, deskName, baggageFee);						// Log the customer added to the flight
 		} catch (InvalidValueException e) {
 			System.out.println("Invalid value of customer baggage details found at Desk/addCustomerToFlight()");
 			e.printStackTrace();

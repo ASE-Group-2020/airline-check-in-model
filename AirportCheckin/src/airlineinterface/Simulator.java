@@ -15,6 +15,10 @@ import exceptions.InvalidValueException;
 public class Simulator {
 	
 	private static boolean randomness;
+	
+	private static List<Flight> allFlights = new ArrayList<Flight>();
+	
+	private static float runtimeInSeconds = 10;
 
 	public static void main(String[] args) {
 		Logger.instance().resetTimer();									// Start logger
@@ -22,16 +26,38 @@ public class Simulator {
 		WaitingQueue q = new WaitingQueue();							// Create queue
 		Desk desk = new Desk(q, "desk 1");								// Create desk(s)
 		
-		
 		Desk.addFlights(addFlightsFromFile("dataFlight.csv"));			// Add flights
 		q.addCustomersToList(addCustomersFromFile("dataCustomer.csv"));	// Add customer
 
-		Logger.instance().log("Starting simulation");
+		Logger.instance().MainLog("---Starting simulation--");
 		
 		Thread threadQueue = new Thread(q);								// Start threads
 		threadQueue.start();
 		Thread threadDesk = new Thread(desk);
 		threadDesk.start();
+		
+		long stopAtTime = System.currentTimeMillis() + (long)(runtimeInSeconds * 1000);
+		while (System.currentTimeMillis() < stopAtTime) {}
+		
+		Logger.instance().MainLog("---Simulation Time Elapsed---");
+		
+		desk.deskExists = false;
+		q.active = false;
+		while (true)
+		{
+			if (threadQueue.isAlive()) continue;
+			if (threadDesk.isAlive()) continue;
+			break;
+		}
+		
+		for (Flight f : allFlights)
+		{
+			Logger.instance().LogFlightDetails(f);
+		}
+		
+		Logger.instance().MainLog("---Saving Log To File---");
+		
+		Logger.instance().WriteSummaryToFile("Summary.txt");
 	}
 
 	public static List<Customer> addCustomersFromFile(String filePath) {
@@ -63,6 +89,7 @@ public class Simulator {
 					if (!Boolean.parseBoolean(customerDetails[4])) {
 						allCustomers.add(currCustomer);
 					}
+					Logger.instance().LogPassengerDetails(currCustomer);
 				} else {
 					System.out.println(
 							"Corrupted data found at line" + Arrays.toString(customerDetails) + "! Skipping...");
@@ -102,7 +129,6 @@ public class Simulator {
 	 * How to separate the processing from the file reading, though..? That could be threaded and made faster... Make the processing multi-threaded.
 	 */
 	public static List<Flight> addFlightsFromFile(String filePath) {
-		List<Flight> allFlights = new ArrayList<Flight>();
 		try { 															// open input stream
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
 			String line = ""; 											// store current line
