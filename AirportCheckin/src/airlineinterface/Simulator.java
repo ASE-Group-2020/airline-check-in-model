@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import airlineinterface.gui.GUIController;
+import airlineinterface.gui.GUIView;
 import exceptions.InvalidValueException;
 
 // Runs main, sets up everything by loading in CSV files
@@ -28,6 +30,16 @@ public class Simulator {
 		
 		Desk.addFlights(addFlightsFromFile("dataFlight.csv"));			// Add flights
 		q.addCustomersToList(addCustomersFromFile("dataCustomer.csv"));	// Add customer
+		q.makeCustomersArrive(5);
+		
+		GUIView guiView = new GUIView();
+		GUIController guiController = new GUIController(guiView);
+		guiController.addDesk(desk);
+		guiController.addQueue(q);
+		for(Flight f : allFlights) {
+			guiController.addFlight(f);
+		}
+		guiView.setVisible(true);
 
 		Logger.instance().MainLog("---Starting simulation--");
 		

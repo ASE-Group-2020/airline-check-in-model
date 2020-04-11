@@ -13,7 +13,7 @@ public class WaitingQueue implements Runnable {
 	public boolean active = true;
 
 	public WaitingQueue() {
-		setWaiting(new LinkedList<Customer>());
+		waiting = new LinkedList<Customer>();
 		notArrived = new LinkedList<Customer>();
 	}
 
@@ -39,6 +39,11 @@ public class WaitingQueue implements Runnable {
 		Collections.shuffle(notArrived);
 		Logger.instance().MainLog("notArrives length: " + notArrived.size());
 	}
+	
+	public void makeCustomersArrive(int numberToArrive) {
+		for (int i = 0; i < numberToArrive && notArrived.size() > 0; i++)
+			getWaiting().add(notArrived.remove(0));
+	}
 
 	// Pop and return customer - null if empty
 	public synchronized Customer getNext() {
@@ -54,7 +59,7 @@ public class WaitingQueue implements Runnable {
 		this.waiting = waiting;
 	}
 
-	public List<Customer> getnotArrived() {
+	public List<Customer> getNotArrived() {
 		return notArrived;
 	}
 

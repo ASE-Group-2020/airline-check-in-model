@@ -54,7 +54,7 @@ public class Desk implements Runnable {
 		Logger.instance().MainLog("Starting simulation of " + deskName);
 
 		// While (queue OR list are NOT empty) and (deskExists is turned on) i.e the terminal is working ... do ...
-		while ( (!queue.getnotArrived().isEmpty() || !queue.getWaiting().isEmpty()) && deskExists ) {
+		while ( (!queue.getNotArrived().isEmpty() || !queue.getWaiting().isEmpty()) && deskExists ) {
 			Customer c = queue.getNext(); 		// Returns null customer object is queue is empty
 			if (!(c == null)) { 				// TODO depends on the queue object how we check if it isn't empty
 				Logger.instance().PassengerMovedToDesk(c, deskName);
