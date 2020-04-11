@@ -19,7 +19,7 @@ public class WaitingQueue implements Runnable {
 	@Override
 	public void run() {
 		Logger.instance().MainLog("Starting queue simulation");
-		try { Thread.sleep(3000); } catch (InterruptedException e1) {}
+		Simulator.sleep(3000);
 		Logger.instance().MainLog("People have started arriving at the airport");
 		while (!notArrived.isEmpty() && active) {
 			getWaiting().add(notArrived.remove(0));

@@ -76,6 +76,7 @@ public class Desk implements Runnable {
 														currCustomer.getBaggageDetails()[1]); 			// ...and set respective action in the method
 					Simulator.sleep(3000); 																// 3 seconds to confirm check in and leave desk
 					checkIn(currCustomer, currCustomerFee); 											// Check in the customer
+					Logger.instance().MainLog("Checked in: " + c.getFirstName() + " " + c.getLastName());
 				}
 				catch (InvalidValueException e) {
 					Logger.instance().MainLog(" ##DESK##  The " + deskName + " has reported the following error: " + e.getMessage());

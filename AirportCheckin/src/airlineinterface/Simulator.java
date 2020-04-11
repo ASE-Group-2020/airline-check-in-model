@@ -22,7 +22,7 @@ public class Simulator {
 	
 	private static float runtimeInSeconds = 10;
 	
-	private static float simSpeed = 1;
+	private static float simSpeed = (float) 0.01;
 
 	public static void main(String[] args) {
 		Logger.instance().resetTimer();									// Start logger
@@ -57,6 +57,7 @@ public class Simulator {
 		
 		desk.enable = false;
 		q.active = false;
+		
 		while (true)
 		{
 			if (threadQueue.isAlive()) continue;
