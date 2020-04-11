@@ -20,7 +20,8 @@ public class Desk implements Runnable {
 	private enum Stage {
 		GETTING_CUSTOMER,
 		CALCULATING_FEE,
-		CHECKING_IN
+		CHECKING_IN,
+		WAITING
 	}
 	private Stage action;
 	
@@ -61,18 +62,27 @@ public class Desk implements Runnable {
 		Logger.instance().MainLog("Starting simulation of " + deskName);
 
 		// While (queue OR list are NOT empty) and (enable is turned on) i.e the terminal is working ... do ...
-		while ( (!queue.getNotArrived().isEmpty() || !queue.getWaiting().isEmpty()) && enable ) {
-			action = Stage.GETTING_CUSTOMER;
-			Customer c = queue.getNext(); 		// Returns null customer object is queue is empty
-			this.currCustomer = c;				// this is the current customer the desk is working with
+		// while ( (!queue.getNotArrived().isEmpty() || !queue.getWaiting().isEmpty()) && enable ) { <- OLD WAY, we want the desks waiting now should we add more customers later
+		while (enable) {
+			Customer c = queue.getNext(); 								// Returns null customer object is queue is empty
+			this.currCustomer = c;										// this is the current customer the desk is working with
 			
-			if (!(c == null)) { 				// TODO depends on the queue object how we check if it isn't empty
+			if (c != null) { 											// If a customer exists in the queue, get them...
+				action = Stage.GETTING_CUSTOMER;
 				Logger.instance().PassengerMovedToDesk(c, deskName);
-				Simulator.sleep(3000); 				// 3 second delay for person to move to help desk
-				try {startCheckIn(queue, c);}
-				catch (InvalidValueException e) {System.out.println(e.getMessage());}
+				Simulator.sleep(9000); 									// 9 second delay for person to move to help desk and calculate fee
+				try {
+					float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],			// Calculate oversize fees
+														currCustomer.getBaggageDetails()[1]); 			// ...and set respective action in the method
+					Simulator.sleep(3000); 																// 3 seconds to confirm check in and leave desk
+					checkIn(currCustomer, currCustomerFee); 											// Check in the customer
+				}
+				catch (InvalidValueException e) {
+					Logger.instance().MainLog(" ##DESK##  The " + deskName + " has reported the following error: " + e.getMessage());
+				}
 			}
-			else {
+			else {														//If not, wait
+				action = Stage.WAITING;
 				Simulator.sleep(2000);
 			}
 		}
@@ -96,21 +106,11 @@ public class Desk implements Runnable {
 				return "Desk action: Calculating baggage fee.";
 			case CHECKING_IN:
 				return "Desk action: Checking a customer in.";
+			case WAITING:
+				return "Desk action: Waiting...";
 			default:
 				return "Desk action: Not set.";
 		}
-	}
-
-	/* Takes in the customer at the front of the queue using .peek(), else 
-	 * TODO a custom method from queue class.
-	 * TODO: Add randomness to speeds?
-	 */
-	private synchronized void startCheckIn(WaitingQueue queue, Customer currCustomer) throws InvalidValueException {
-		Simulator.sleep(6000); 															// 6 second delay for person to get baggage fee
-		float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],
-											currCustomer.getBaggageDetails()[1]); 					// Get the baggage fee of the first customer
-		Simulator.sleep(3000); 															// 3 seconds to confirm check in and leave desk;
-		checkIn(currCustomer, currCustomerFee); 													// Check in a customer
 	}
 
 	private synchronized void checkIn(Customer currCustomer, float baggageFee) {
@@ -144,7 +144,6 @@ public class Desk implements Runnable {
 		}
 		// This is the maximum weight and volume an individual is allowed to possess, beyond 200kg
 
-		// FYI, it does.  - Well allrighty then.
 		else throw new InvalidValueException("the baggage shouldn't be more than 200kg in weight or 260 litres in volume.");
 	}
 
@@ -153,7 +152,7 @@ public class Desk implements Runnable {
 		try {
 			currFlight.addCustomer(currCustomer, baggageFee);
 			
-			Logger.instance().PassengerCheckedIn(currCustomer, currFlight, deskName, baggageFee);						// Log the customer added to the flight
+			Logger.instance().PassengerCheckedIn(currCustomer, currFlight, deskName, baggageFee);		// Log the customer added to the flight
 		} catch (InvalidValueException e) {
 			System.out.println("Invalid value of customer baggage details found at Desk/addCustomerToFlight()");
 			e.printStackTrace();
