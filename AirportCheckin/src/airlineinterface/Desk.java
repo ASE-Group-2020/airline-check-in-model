@@ -13,10 +13,9 @@ public class Desk implements Runnable {
 	private static HashMap<String, Flight> allFlights = new HashMap<String, Flight>();
 	
 	// Instance-specific
+	public boolean enable = true;		// Connect to terminal to control opening/closing desks via setter method
 	private WaitingQueue queue;
 	private String deskName;
-	public boolean enable = true;		// Connect to terminal to control opening/closing desks via setter method
-	private int simSpeed;
 	private Customer currCustomer;			// The current customer at the desk
 	private enum Stage {
 		GETTING_CUSTOMER,
@@ -69,12 +68,12 @@ public class Desk implements Runnable {
 			
 			if (!(c == null)) { 				// TODO depends on the queue object how we check if it isn't empty
 				Logger.instance().PassengerMovedToDesk(c, deskName);
-				Simulator.sleep(3000*simSpeed); 				// 3 second delay for person to move to help desk
+				Simulator.sleep(3000); 				// 3 second delay for person to move to help desk
 				try {startCheckIn(queue, c);}
 				catch (InvalidValueException e) {System.out.println(e.getMessage());}
 			}
 			else {
-				Simulator.sleep(2000*simSpeed);
+				Simulator.sleep(2000);
 			}
 		}
 		
@@ -107,10 +106,10 @@ public class Desk implements Runnable {
 	 * TODO: Add randomness to speeds?
 	 */
 	private synchronized void startCheckIn(WaitingQueue queue, Customer currCustomer) throws InvalidValueException {
-		Simulator.sleep(6000*simSpeed); 															// 6 second delay for person to get baggage fee
+		Simulator.sleep(6000); 															// 6 second delay for person to get baggage fee
 		float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],
 											currCustomer.getBaggageDetails()[1]); 					// Get the baggage fee of the first customer
-		Simulator.sleep(3000*simSpeed); 															// 3 seconds to confirm check in and leave desk;
+		Simulator.sleep(3000); 															// 3 seconds to confirm check in and leave desk;
 		checkIn(currCustomer, currCustomerFee); 													// Check in a customer
 	}
 
@@ -159,15 +158,6 @@ public class Desk implements Runnable {
 			System.out.println("Invalid value of customer baggage details found at Desk/addCustomerToFlight()");
 			e.printStackTrace();
 		}
-	}
-	
-
-	public int getSimSpeed() {
-		return simSpeed;
-	}
-
-	public void setSimSpeed(int simSpeed) {
-		this.simSpeed = simSpeed;
 	}
 	
 }

@@ -21,6 +21,8 @@ public class Simulator {
 	private static List<Flight> allFlights = new ArrayList<Flight>();
 	
 	private static float runtimeInSeconds = 10;
+	
+	private static float simSpeed = 1;
 
 	public static void main(String[] args) {
 		Logger.instance().resetTimer();									// Start logger
@@ -53,7 +55,7 @@ public class Simulator {
 		
 		Logger.instance().MainLog("---Simulation Time Elapsed---");
 		
-		desk.deskExists = false;
+		desk.enable = false;
 		q.active = false;
 		while (true)
 		{
@@ -188,9 +190,9 @@ public class Simulator {
 		try {
 			if (randomness) {
 				Random r = new Random();
-				Thread.sleep((int) (millisec * (0.5 + r.nextFloat())));
+				Thread.sleep((int) (millisec * simSpeed * (0.5 + r.nextFloat())));
 			} else {
-				Thread.sleep(millisec);
+				Thread.sleep((int) (millisec * simSpeed));
 			}
 			
 		} 
