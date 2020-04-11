@@ -11,6 +11,7 @@ import javax.swing.border.Border;
 
 import airlineinterface.Customer;
 import airlineinterface.Desk;
+import exceptions.ObjectNotFoundException;
 
 public class DeskDisplay extends JPanel {
 
@@ -55,21 +56,18 @@ public class DeskDisplay extends JPanel {
 	}
 
 	public void updateDisplay() {
-		// TODO: Change from placeholder text to actual text
-		lCustomerName.setText("CUSTOMER NAME");
-		lBaggage.setText("BAGGAGE");
-		lBookingRef.setText("BOOKING REF");
-		lFlightCode.setText("FLIGHT CODE");
-		lDeskStage.setText("DESK STAGE");
-		/*
-		Customer c = desk.getCurrentCustomer();
-		lCustomerName.setText(c.getFirstName() + " " + c.getLastName());
-		float[] bd = c.getBaggageDetails();
-		lBaggage.setText("Baggage: " + bd[0] + "kg, " + bd[1] + "l");
-		lBookingRef.setText("Booking code: " + c.getRefCode());
-		lFlightCode.setText("Flight code: " + c.getFlightCode());
-		lDeskStage.setText(desk.getCurrentStage());
-		*/
+		Customer c;
+		try {
+			c = desk.getCurrentCustomer();
+			lCustomerName.setText(c.getFirstName() + " " + c.getLastName());
+			float[] bd = c.getBaggageDetails();
+			lBaggage.setText("Baggage: " + bd[0] + "kg, " + bd[1] + "l");
+			lBookingRef.setText("Booking code: " + c.getRefCode());
+			lFlightCode.setText("Flight code: " + c.getFlightCode());
+			lDeskStage.setText(desk.getCurrentStage());
+		} catch (ObjectNotFoundException e) {
+			lCustomerName.setText("No current customer");
+		}
 		revalidate();
 		repaint();
 	}

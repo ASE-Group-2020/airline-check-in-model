@@ -31,7 +31,21 @@ public class Simulator {
 		Desk desk = new Desk(q, "desk 1");								// Create desk(s)
 		
 		Desk.addFlights(addFlightsFromFile("dataFlight.csv"));			// Add flights
-		q.addCustomersToList(addCustomersFromFile("dataCustomer.csv"));	// Add customer
+		
+		List<Customer> allCustomers = addCustomersFromFile("dataCustomer.csv");
+		// Separate customers to checked-in and not checked-in
+		List<Customer> checkedIn = new ArrayList<Customer>();
+		List<Customer> notCheckedIn = new ArrayList<Customer>();
+		for(Customer c : allCustomers) {
+			(c.isCheckedIn() ? checkedIn : notCheckedIn).add(c);
+		}
+		for (Customer c : checkedIn) {
+			// TODO: Add customer to correct flight
+			// Note: Desk.allFlights (private) would be ideal to access here (HashMap)
+			//       An alternative would be to find the correct flight in Simulator.allFlights (List) since it's setup time only
+		}
+		
+		q.addCustomersToList(notCheckedIn);
 		q.makeCustomersArrive(5);
 		
 		GUIView guiView = new GUIView();
@@ -83,7 +97,6 @@ public class Simulator {
 
 			while ((line = reader.readLine()) != null) { 				// go through every line in the file
 				String[] customerDetails = line.trim().split(","); 		// split the line and trim empty space, push results to small array
-				// System.out.println(Arrays.toString(customerDetails)); <- debug
 				Customer currCustomer;
 				if (customerDetails.length == 7) { 						// handle partial data - only take data from full fields, ignore partial data!
 					try {
@@ -91,7 +104,7 @@ public class Simulator {
 						try {
 							cWeight = Float.parseFloat(customerDetails[5]);
 							cVol = Float.parseFloat(customerDetails[6]);
-						} catch (NumberFormatException e) {/* HELLO, SHOULD ANYTHING BE DONE HERE????? */}
+						} catch (NumberFormatException e) { /* If the parsing fails (e.g. no value, so assume 0) it defaults to 0 */}
 						currCustomer = new Customer(customerDetails[0],
 													customerDetails[1], 
 													customerDetails[2],
@@ -101,12 +114,10 @@ public class Simulator {
 						// Customer failed to be created - skip to next line (WHY NO NOTIFICATION???)
 						continue;
 					}
-					if (!Boolean.parseBoolean(customerDetails[4])) {
-						allCustomers.add(currCustomer);
-					}
+					allCustomers.add(currCustomer);
 					Logger.instance().LogPassengerDetails(currCustomer);
 				} else {
-					System.out.println(
+					Logger.instance().MainLog(
 							"Corrupted data found at line" + Arrays.toString(customerDetails) + "! Skipping...");
 					continue; 											// break at corrupted data, let someone know that it's corrupted!
 				}
@@ -198,7 +209,7 @@ public class Simulator {
 			
 		} 
 		catch (InterruptedException e) {
-			System.out.println(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds.");
+			Logger.instance().MainLog(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds.");
 		}
 	}
 	

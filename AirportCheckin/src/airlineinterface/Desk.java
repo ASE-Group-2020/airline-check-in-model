@@ -94,12 +94,12 @@ public class Desk implements Runnable {
 	/*	Get the current customer the desk is working on
 	 * 	@throws ObjectNotFoundException if the current customer is null
 	 */
-	Customer getCurrentCustomer() throws ObjectNotFoundException {
+	public Customer getCurrentCustomer() throws ObjectNotFoundException {
 		if (this.currCustomer == null) throw new ObjectNotFoundException("No current customer is at the desk!");
 		return this.currCustomer;
 	}
 	
-	String getCurrentStage() {
+	public String getCurrentStage() {
 		switch(action) {
 			case GETTING_CUSTOMER:
 				return "Desk action: Getting customer details.";
