@@ -5,6 +5,7 @@ import java.util.List;
 
 import exceptions.AlreadyCheckedInException;
 import exceptions.InvalidValueException;
+import exceptions.ObjectNotFoundException;
 
 public class Desk implements Runnable {
 
@@ -14,11 +15,18 @@ public class Desk implements Runnable {
 	// Instance-specific
 	private WaitingQueue queue;
 	private String deskName;
-	public boolean deskExists = true;		// Connect to terminal to control opening/closing desks via setter method
+	public boolean enable = true;		// Connect to terminal to control opening/closing desks via setter method
 	private int simSpeed;
+	private Customer currCustomer;			// The current customer at the desk
+	private enum Stage {
+		GETTING_CUSTOMER,
+		CALCULATING_FEE,
+		CHECKING_IN
+	}
+	private Stage action;
 	
 	
-	/* No need to synchronise this, the HashMap will be made concurrent..? 
+	/* No need to synchronize this, the HashMap will be made concurrent..? 
 	 */
 	public static void addFlights(List<Flight> flights) {
 		for (Flight f : flights) {
@@ -27,7 +35,7 @@ public class Desk implements Runnable {
 	}
 
 	/* Constructor that takes in a queue object and the sting object is the desk name.
-	 * TODO: Will the queue update after desk initialisation (answer: yes)? 
+	 * TODO: Will the queue update after desk initialization (answer: yes)? 
 	 * Additionally, how to deal with multiple desks trying to grab the same customer?
 	 */
 	
@@ -53,9 +61,12 @@ public class Desk implements Runnable {
 	public synchronized void run() {
 		Logger.instance().MainLog("Starting simulation of " + deskName);
 
-		// While (queue OR list are NOT empty) and (deskExists is turned on) i.e the terminal is working ... do ...
-		while ( (!queue.getNotArrived().isEmpty() || !queue.getWaiting().isEmpty()) && deskExists ) {
+		// While (queue OR list are NOT empty) and (enable is turned on) i.e the terminal is working ... do ...
+		while ( (!queue.getNotArrived().isEmpty() || !queue.getWaiting().isEmpty()) && enable ) {
+			action = Stage.GETTING_CUSTOMER;
 			Customer c = queue.getNext(); 		// Returns null customer object is queue is empty
+			this.currCustomer = c;				// this is the current customer the desk is working with
+			
 			if (!(c == null)) { 				// TODO depends on the queue object how we check if it isn't empty
 				Logger.instance().PassengerMovedToDesk(c, deskName);
 				Simulator.sleep(3000*simSpeed); 				// 3 second delay for person to move to help desk
@@ -69,6 +80,27 @@ public class Desk implements Runnable {
 		
 		Logger.instance().MainLog(" ##DESK##  The " + deskName + " has stopped accepting customers.");
 	}
+	
+	/*	Get the current customer the desk is working on
+	 * 	@throws ObjectNotFoundException if the current customer is null
+	 */
+	Customer getCurrentCustomer() throws ObjectNotFoundException {
+		if (this.currCustomer == null) throw new ObjectNotFoundException("No current customer is at the desk!");
+		return this.currCustomer;
+	}
+	
+	String getCurrentStage() {
+		switch(action) {
+			case GETTING_CUSTOMER:
+				return "Desk action: Getting customer details.";
+			case CALCULATING_FEE:
+				return "Desk action: Calculating baggage fee.";
+			case CHECKING_IN:
+				return "Desk action: Checking a customer in.";
+			default:
+				return "Desk action: Not set.";
+		}
+	}
 
 	/* Takes in the customer at the front of the queue using .peek(), else 
 	 * TODO a custom method from queue class.
@@ -77,15 +109,16 @@ public class Desk implements Runnable {
 	private synchronized void startCheckIn(WaitingQueue queue, Customer currCustomer) throws InvalidValueException {
 		Simulator.sleep(6000*simSpeed); 															// 6 second delay for person to get baggage fee
 		float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],
-											currCustomer.getBaggageDetails()[1]); 		// Get the baggage fee of the first customer
+											currCustomer.getBaggageDetails()[1]); 					// Get the baggage fee of the first customer
 		Simulator.sleep(3000*simSpeed); 															// 3 seconds to confirm check in and leave desk;
-		checkIn(currCustomer, currCustomerFee); 										// Check in a customer
+		checkIn(currCustomer, currCustomerFee); 													// Check in a customer
 	}
 
 	private synchronized void checkIn(Customer currCustomer, float baggageFee) {
 		try {
-			addCustomerToFlight(currCustomer, currCustomer.getFlightCode(), baggageFee);// Add customer to their selected flight
-			currCustomer.setCheckedIn(); 												// Change boolean flag in customer object					
+			action = Stage.CHECKING_IN;
+			addCustomerToFlight(currCustomer, currCustomer.getFlightCode(), baggageFee);			// Add customer to their selected flight
+			currCustomer.setCheckedIn(); 															// Change boolean flag in customer object			
 			// Log that the customer has finished checking in.
 		} 
 		catch (AlreadyCheckedInException e) {System.out.println("Customer has already been checked in! Desk/CheckIn()");} 
@@ -94,6 +127,7 @@ public class Desk implements Runnable {
 	}
 
 	public synchronized float getOversizeFee(float currentWeight, float currentVolume) throws InvalidValueException {
+		action = Stage.CALCULATING_FEE;
 		if (currentWeight < 15 && currentVolume < 20) {
 			return 0;
 		} else if (currentWeight < 25 && currentVolume < 35) {
@@ -125,7 +159,6 @@ public class Desk implements Runnable {
 			System.out.println("Invalid value of customer baggage details found at Desk/addCustomerToFlight()");
 			e.printStackTrace();
 		}
-
 	}
 	
 
