@@ -1,7 +1,6 @@
 package airlineinterface;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -27,7 +26,7 @@ public class WaitingQueue implements Runnable {
 			// Logging
 			Customer c = ((LinkedList<Customer>) getWaiting()).peekLast();
 			Logger.instance().PassengerJoinedQueue(c);
-			try { Thread.sleep(1000); } catch (InterruptedException e) {}
+			Simulator.sleep(1000);
 		}
 		Logger.instance().MainLog("Everyone has arrived");
 	}
