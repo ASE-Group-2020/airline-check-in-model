@@ -41,10 +41,13 @@ public class Simulator {
 			(c.isCheckedIn() ? checkedIn : notCheckedIn).add(c);
 		}
 		for (Customer c : checkedIn) {
-			// TODO: Add customer to correct flight
-			// Note: Desk.allFlights (private) would be ideal to access here (HashMap)
-			//       An alternative would be to find the correct flight in Simulator.allFlights (List) since it's setup time only
-			// - Keep Desk.allFlights private, loop through Simulator.allFlights
+			for (Flight f : allFlights) {
+				if(f.getFlightCode().equals(c.getFlightCode())) {
+					try {
+						f.addCustomer(c, Desk.getOversizeFee(c.getBaggageDetails()[0], c.getBaggageDetails()[1]));
+						break;
+					} catch (InvalidValueException e) {}
+				}
 			}
 		}
 		
