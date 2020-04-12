@@ -53,7 +53,7 @@ public class Customer implements Comparable<Customer> {
 	 * @throws AlreadyCheckedInException if the customer has already been checked into the system 
 	 * @throws InvalidValueException if the input weight or volume values are invalid (similar to the customer constructor check)
 	 */
-	public void setCheckedIn() throws AlreadyCheckedInException, InvalidValueException
+	public void setCheckedIn() throws AlreadyCheckedInException
 	{
 		if (isCheckedIn) throw new AlreadyCheckedInException(firstName + " " + lastName);
 		else isCheckedIn = true;

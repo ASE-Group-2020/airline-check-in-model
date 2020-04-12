@@ -11,6 +11,7 @@ import java.util.Random;
 
 import airlineinterface.gui.GUIController;
 import airlineinterface.gui.GUIView;
+import exceptions.AlreadyCheckedInException;
 import exceptions.InvalidValueException;
 
 // Runs main, sets up everything by loading in CSV files
@@ -44,6 +45,7 @@ public class Simulator {
 			// Note: Desk.allFlights (private) would be ideal to access here (HashMap)
 			//       An alternative would be to find the correct flight in Simulator.allFlights (List) since it's setup time only
 			// - Keep Desk.allFlights private, loop through Simulator.allFlights
+			}
 		}
 		
 		q.addCustomersToList(notCheckedIn);
@@ -116,6 +118,9 @@ public class Simulator {
 						continue;
 					}
 					allCustomers.add(currCustomer);
+					boolean checkedIn = Boolean.parseBoolean(customerDetails[4]); 
+					if(checkedIn)
+						currCustomer.setCheckedIn();
 					Logger.instance().LogPassengerDetails(currCustomer);
 				} else {
 					Logger.instance().MainLog(

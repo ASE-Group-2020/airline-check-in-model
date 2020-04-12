@@ -115,7 +115,6 @@ public class Desk extends Observable implements Runnable {
 			// Log that the customer has finished checking in.
 		} 
 		catch (AlreadyCheckedInException e) {System.out.println("Customer has already been checked in! Desk/CheckIn()");} 
-		catch (InvalidValueException e) {System.out.println("Invalid value passed at Desk/CheckIn().");} 
 		catch (Exception e) {e.printStackTrace();}
 	}
 
