@@ -22,7 +22,7 @@ public class Simulator {
 	
 	private static float runtimeInSeconds = 10;
 	
-	private static float simSpeed = (float) 0.01;
+	private static float simSpeed = (float) 100;
 
 	public static void main(String[] args) {
 		Logger.instance().resetTimer();									// Start logger
@@ -43,6 +43,7 @@ public class Simulator {
 			// TODO: Add customer to correct flight
 			// Note: Desk.allFlights (private) would be ideal to access here (HashMap)
 			//       An alternative would be to find the correct flight in Simulator.allFlights (List) since it's setup time only
+			// - Keep Desk.allFlights private, loop through Simulator.allFlights
 		}
 		
 		q.addCustomersToList(notCheckedIn);
@@ -202,9 +203,9 @@ public class Simulator {
 		try {
 			if (randomness) {
 				Random r = new Random();
-				Thread.sleep((int) (millisec * simSpeed * (0.5 + r.nextFloat())));
+				Thread.sleep((int) (millisec / simSpeed * (0.5 + r.nextFloat())));
 			} else {
-				Thread.sleep((int) (millisec * simSpeed));
+				Thread.sleep((int) (millisec / simSpeed));
 			}
 			
 		} 
