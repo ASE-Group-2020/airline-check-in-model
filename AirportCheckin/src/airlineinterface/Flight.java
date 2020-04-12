@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import exceptions.InvalidValueException;
 
-public class Flight {
+public class Flight extends Observable {
 	
 	private HashSet<Customer> customers;
 	private String startLocation, endLocation, flightCode, carrier;
@@ -71,6 +71,7 @@ public class Flight {
 	    currentWeight = currentWeight + baggageDetails[0];		//Add baggage weight to the flight
 	    currentVolume = currentVolume + baggageDetails[1];		//Add baggage volume to the flight
 	    totalFee += oversizeFee;
+	    notifyObservers();
 	    return b;
 	}
 	
@@ -80,7 +81,12 @@ public class Flight {
 	 * @param c the customer to remove from the flight
 	 * @return e input customer exists in the list, it is removed and this method returns True. If this customer does not exist in the list, this method will take no action and return false.
 	 */
-	public boolean removeCustomer(Customer c) { return customers.remove(c); }
+	public boolean removeCustomer(Customer c)
+	{
+		boolean b = customers.remove(c);
+		if (b) notifyObservers();
+		return b;
+	}
 	
 	/**@return the flight's maximum flight attributes in the following order: maximum number of passengers, the maximum allowed weight of luggage, and the maximum holding volume*/
 	public float[] getMaxAttributes() { return new float[] {capacity, maxWeight, maxVolume} ; }
