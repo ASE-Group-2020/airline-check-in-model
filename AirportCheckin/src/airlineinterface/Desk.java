@@ -7,7 +7,7 @@ import exceptions.AlreadyCheckedInException;
 import exceptions.InvalidValueException;
 import exceptions.ObjectNotFoundException;
 
-public class Desk implements Runnable {
+public class Desk extends Observable implements Runnable {
 
 	// Statics - each desk holds a static reference to all flights
 	private static HashMap<String, Flight> allFlights = new HashMap<String, Flight>();
@@ -26,7 +26,7 @@ public class Desk implements Runnable {
 	private Stage action;
 	
 	
-	/* No need to synchronize this, the HashMap will be made concurrent..? 
+	/* No need to synchronize this, the HashMap will be made concurrent..? Doesn't need to be concurrent, just reading from it is a-okay. :)
 	 */
 	public static void addFlights(List<Flight> flights) {
 		for (Flight f : flights) {
@@ -34,13 +34,7 @@ public class Desk implements Runnable {
 		}
 	}
 
-	/* Constructor that takes in a queue object and the sting object is the desk name.
-	 * TODO: Will the queue update after desk initialization (answer: yes)? 
-	 * Additionally, how to deal with multiple desks trying to grab the same customer?
-	 */
-	
-	/* Constructor that takes in a queue object
-	*  and the sting object is the desk identifier.
+	/* Constructor that takes in a queue object and the string object is the desk identifier.
 	*/
 	public Desk(WaitingQueue queue, String deskName) {
 		this.queue = queue; 
@@ -48,8 +42,6 @@ public class Desk implements Runnable {
 	}
 
 	/* Implements Runnable, so started with a new Thread(new MyRunnable()).start() call
-	 * TODO: Create a conditional statement that kills/pauses the desk. Do we want a
-	 * deconstructor?
 	 * 
 	 * Done. Nah, just check if there's people in the list and queue.
 	 * Run one desk method (desk task) per thread. This is the cleanest way to do it, as long as the collections
@@ -58,7 +50,7 @@ public class Desk implements Runnable {
 	 * testing and patches. The potential speed-up from making synchronised calls to individual parts of the methods,
 	 * instead of the whole method is negligible.
 	 */ 
-	public synchronized void run() {
+	public void run() {
 		Logger.instance().MainLog("Starting simulation of " + deskName);
 
 		// While (queue OR list are NOT empty) and (enable is turned on) i.e the terminal is working ... do ...
@@ -72,6 +64,7 @@ public class Desk implements Runnable {
 				Logger.instance().PassengerMovedToDesk(c, deskName);
 				Simulator.sleep(9000); 									// 9 second delay for person to move to help desk and calculate fee
 				try {
+					action = Stage.CALCULATING_FEE;
 					float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],			// Calculate oversize fees
 														currCustomer.getBaggageDetails()[1]); 			// ...and set respective action in the method
 					Simulator.sleep(3000); 																// 3 seconds to confirm check in and leave desk
@@ -82,7 +75,7 @@ public class Desk implements Runnable {
 					Logger.instance().MainLog(" ##DESK##  The " + deskName + " has reported the following error: " + e.getMessage());
 				}
 			}
-			else {														//If not, wait
+			else {														// If not, wait
 				action = Stage.WAITING;
 				Simulator.sleep(2000);
 			}
@@ -126,8 +119,7 @@ public class Desk implements Runnable {
 		catch (Exception e) {e.printStackTrace();}
 	}
 
-	public synchronized float getOversizeFee(float currentWeight, float currentVolume) throws InvalidValueException {
-		action = Stage.CALCULATING_FEE;
+	public static float getOversizeFee(float currentWeight, float currentVolume) throws InvalidValueException {
 		if (currentWeight < 15 && currentVolume < 20) {
 			return 0;
 		} else if (currentWeight < 25 && currentVolume < 35) {
