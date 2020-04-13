@@ -5,25 +5,29 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
 import airlineinterface.Flight;
+import airlineinterface.Observer;
 
-public class FlightDisplay extends JPanel {
+public class FlightDisplay extends Observer {
 
 	private Flight flight;
+	private JPanel panel;
 
 	private JLabel lPassengerCapacity, lWeightCapacity, lVolumeCapacity;
 
 	public FlightDisplay(Flight flight) {
-		super(new GridBagLayout());
+		panel = new JPanel(new GridBagLayout());
 
 		Border black = BorderFactory.createLineBorder(Color.DARK_GRAY);
-		this.setBorder(black);
+		panel.setBorder(black);
 
 		this.flight = flight;
+		flight.addObserver(this);
 
 		// Build display
 
@@ -37,7 +41,7 @@ public class FlightDisplay extends JPanel {
 
 		c.gridx = 0;
 		c.gridy = 0;
-		add(new JLabel(carrier + ": " + code), c);
+		panel.add(new JLabel(carrier + ": " + code), c);
 		JPanel locations = new JPanel(new GridBagLayout());
 		c.gridx = 0;
 		c.gridy = 0;
@@ -47,7 +51,7 @@ public class FlightDisplay extends JPanel {
 		locations.add(new JLabel("To  " + travelPoints[1]), c);
 		c.gridx = 0;
 		c.gridy = 1;
-		add(locations, c);
+		panel.add(locations, c);
 
 		lPassengerCapacity = new JLabel();
 		lWeightCapacity = new JLabel();
@@ -55,13 +59,13 @@ public class FlightDisplay extends JPanel {
 
 		c.gridx = 0;
 		c.gridy = 2;
-		add(lPassengerCapacity, c);
+		panel.add(lPassengerCapacity, c);
 		c.gridx = 0;
 		c.gridy = 3;
-		add(lWeightCapacity, c);
+		panel.add(lWeightCapacity, c);
 		c.gridx = 0;
 		c.gridy = 4;
-		add(lVolumeCapacity, c);
+		panel.add(lVolumeCapacity, c);
 		
 		updateDisplay();
 	}
@@ -72,8 +76,17 @@ public class FlightDisplay extends JPanel {
 		lPassengerCapacity.setText("Passengers: " + curAttr[0] + " / " + maxAttr[0]);
 		lWeightCapacity.setText("Weight: " + curAttr[1] + " / " + maxAttr[1]);
 		lVolumeCapacity.setText("Volume: " + curAttr[2] + " / " + maxAttr[2]);
-		revalidate();
-		repaint();
+		panel.revalidate();
+		panel.repaint();
+	}
+	
+	public JComponent getComponent() {
+		return panel;
+	}
+
+	@Override
+	public void onNotify() {
+		updateDisplay();
 	}
 
 }

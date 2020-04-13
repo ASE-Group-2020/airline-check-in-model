@@ -23,7 +23,7 @@ public class Desk extends Observable implements Runnable {
 		CHECKING_IN,
 		WAITING
 	}
-	private Stage action;
+	private Stage action = Stage.WAITING;
 	
 	
 	/* No need to synchronize this, the HashMap will be made concurrent..? Doesn't need to be concurrent, just reading from it is a-okay. :)
@@ -62,14 +62,18 @@ public class Desk extends Observable implements Runnable {
 			if (c != null) { 											// If a customer exists in the queue, get them...
 				action = Stage.GETTING_CUSTOMER;
 				Logger.instance().PassengerMovedToDesk(c, deskName);
+				notifyObservers();
 				Simulator.sleep(9000); 									// 9 second delay for person to move to help desk and calculate fee
 				try {
 					action = Stage.CALCULATING_FEE;
 					float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],			// Calculate oversize fees
 														currCustomer.getBaggageDetails()[1]); 			// ...and set respective action in the method
+					notifyObservers();
 					Simulator.sleep(3000); 																// 3 seconds to confirm check in and leave desk
 					checkIn(currCustomer, currCustomerFee); 											// Check in the customer
 					Logger.instance().MainLog("Checked in: " + c.getFirstName() + " " + c.getLastName());
+					// TODO: Add a sleep while checking in customer
+					notifyObservers();
 				}
 				catch (InvalidValueException e) {
 					Logger.instance().MainLog(" ##DESK##  The " + deskName + " has reported the following error: " + e.getMessage());
@@ -77,6 +81,7 @@ public class Desk extends Observable implements Runnable {
 			}
 			else {														// If not, wait
 				action = Stage.WAITING;
+				notifyObservers();
 				Simulator.sleep(2000);
 			}
 		}

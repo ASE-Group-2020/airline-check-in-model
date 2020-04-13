@@ -11,7 +11,6 @@ import java.util.Random;
 
 import airlineinterface.gui.GUIController;
 import airlineinterface.gui.GUIView;
-import exceptions.AlreadyCheckedInException;
 import exceptions.InvalidValueException;
 
 // Runs main, sets up everything by loading in CSV files
@@ -21,9 +20,9 @@ public class Simulator {
 	
 	private static List<Flight> allFlights = new ArrayList<Flight>();
 	
-	private static float runtimeInSeconds = 10;
+	private static float runtimeInSeconds = 100;
 	
-	private static float simSpeed = (float) 100;
+	private static float simSpeed = (float) 10;
 
 	public static void main(String[] args) {
 		Logger.instance().resetTimer();									// Start logger

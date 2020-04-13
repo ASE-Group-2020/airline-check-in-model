@@ -7,8 +7,6 @@ import java.awt.GridBagLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import airlineinterface.Logger;
-
 public class GUIView {
 
 	private JFrame frame;
@@ -18,7 +16,6 @@ public class GUIView {
 		GridBagConstraints c = new GridBagConstraints();
 		frame = new JFrame("Simulation");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(1200, 600);
 		pMaster = new JPanel(new GridBagLayout());
 		frame.add(pMaster);
 		pQueue = new JPanel(new FlowLayout());
@@ -36,27 +33,27 @@ public class GUIView {
 	}
 
 	public void addFlightDisplay(FlightDisplay f) {
-		pFlights.add(f);
+		pFlights.add(f.getComponent());
 	}
 
 	public void removeFlightDisplay(FlightDisplay f) {
-		pFlights.remove(f);
+		pFlights.remove(f.getComponent());
 	}
 
 	public void addDeskDisplay(DeskDisplay d) {
-		pDesks.add(d);
+		pDesks.add(d.getComponent());
 	}
 
 	public void removeDeskDisplay(DeskDisplay d) {
-		pDesks.remove(d);
+		pDesks.remove(d.getComponent());
 	}
 	
 	public void addQueueDisplay(QueueDisplay q) {
-		pQueue.add(q);
+		pQueue.add(q.getComponent());
 	}
 	
 	public void removeQueueDisplay(QueueDisplay q) {
-		pQueue.remove(q);
+		pQueue.remove(q.getComponent());
 	}
 	
 	public void setVisible(boolean vis) {

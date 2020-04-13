@@ -4,35 +4,47 @@ import java.awt.GridBagLayout;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import airlineinterface.Customer;
+import airlineinterface.Observer;
 import airlineinterface.WaitingQueue;
 
-public class QueueDisplay extends JPanel {
-	private static final long serialVersionUID = -6114396293239580467L;
-
+public class QueueDisplay extends Observer {
 	private WaitingQueue q;
-	private JTable table;
+	private JPanel panel;
+	
+	private JScrollPane tablePane;
 
 	public QueueDisplay(WaitingQueue q) {
-		super(new GridBagLayout());
+		panel = new JPanel(new GridBagLayout());
+		q.addObserver(this);
 		this.q = q;
 		buildDisplay();
 	}
 
 	public void buildDisplay() {
-		if (table != null)
-			remove(table);
+		if (tablePane != null)
+			panel.remove(tablePane);
 		Queue<Customer> copy = new LinkedList<Customer>(q.getWaiting());
-		table = new JTable(new QueueTableModel(copy));
-		JScrollPane pane = new JScrollPane(table);
+		JTable table = new JTable(new QueueTableModel(copy));
 		table.setFillsViewportHeight(true);
-		pane.setSize(100, 40);
-		add(pane);
+		tablePane = new JScrollPane(table);
+		tablePane.setSize(100, 40);
+		panel.add(tablePane);
+	}
+	
+	public JComponent getComponent() {
+		return panel;
+	}
+
+	@Override
+	public void onNotify() {
+		buildDisplay();
 	}
 
 	private class QueueTableModel extends AbstractTableModel {

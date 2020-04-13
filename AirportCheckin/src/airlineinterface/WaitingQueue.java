@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-public class WaitingQueue implements Runnable {
+public class WaitingQueue extends Observable implements Runnable {
 
 	private Queue<Customer> waiting;
 	private List<Customer> notArrived;
@@ -37,16 +37,20 @@ public class WaitingQueue implements Runnable {
 		notArrived.addAll(customers);
 		Collections.shuffle(notArrived);
 		Logger.instance().MainLog("notArrives length: " + notArrived.size());
+		notifyObservers();
 	}
 	
 	public void makeCustomersArrive(int numberToArrive) {
 		for (int i = 0; i < numberToArrive && notArrived.size() > 0; i++)
 			getWaiting().add(notArrived.remove(0));
+		notifyObservers();
 	}
 
 	// Pop and return customer - null if empty
 	public synchronized Customer getNext() {
-		return getWaiting().poll();
+		Customer c = getWaiting().poll();
+		notifyObservers();
+		return c;
 	}
 
 	// Get / Set methods
