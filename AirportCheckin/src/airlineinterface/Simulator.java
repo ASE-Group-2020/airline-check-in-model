@@ -15,25 +15,61 @@ import exceptions.InvalidValueException;
 
 // Runs main, sets up everything by loading in CSV files
 public class Simulator {
-	
-	private static boolean randomness;
-	
-	private static List<Flight> allFlights = new ArrayList<Flight>();
-	
-	private static float runtimeInSeconds = 100;
-	
-	private static float simSpeed = (float) 10;
 
 	public static void main(String[] args) {
 		Logger.instance().resetTimer();									// Start logger
 		
-		WaitingQueue q = new WaitingQueue();							// Create queue
-		Desk desk = new Desk(q, "desk 1");								// Create desk(s)
-		Desk desk2 = new Desk(q, "desk 2");
+		Simulator sim = new Simulator(3);
+
+		sim.readFlightsFromFile("dataFlight-40c.csv");
+		sim.readCustomersFromFile("dataCustomer-40c.csv");
+
+		sim.makeCustomersArrive(5);
 		
-		Desk.addFlights(addFlightsFromFile("dataFlight-40c.csv"));			// Add flights
+		sim.start(10, 20, false);
+
+		Logger.instance().MainLog("---Starting simulation--");
+
+	}
+	
+	private List<Customer> allCustomers;	// All customers loaded into simulation
+	private List<Flight> allFlights;		// All flights loaded into simulation
+	private List<Desk> allDesks;			// All desks in simulation
+	private WaitingQueue queue;
+	private GUIView guiView;
+	private GUIController guiController;
+	
+	public Simulator(int deskCount) {
+		// Build GUI.
+		guiView = new GUIView();
+		guiController = new GUIController(guiView);
+		// Create WaitingQueue
+		queue = new WaitingQueue();
+		guiController.addQueue(queue);
+		// Build desks
+		allDesks = new ArrayList<Desk>();
+		addDesks(deskCount);
+		// Create lists
+		allFlights = new ArrayList<Flight>();
+		allCustomers = new ArrayList<Customer>();
+	}
 		
-		List<Customer> allCustomers = addCustomersFromFile("dataCustomer-40c.csv");
+	/* Reads flights from CSV file and adds them into flight list.
+	*/
+	public void readFlightsFromFile(String filepath) {
+		List<Flight> flightsFromFile = addFlightsFromFile(filepath);
+
+		allFlights.addAll(flightsFromFile);		// Add all flights to allFlights
+		Desk.addFlights(flightsFromFile);		// Add all flights to desk
+
+		for(Flight f : flightsFromFile) {		// Add all flights to guiController
+			guiController.addFlight(f);
+		}
+    }
+	/* Reads customers from CSV file and adds them into customer lists.
+	*/
+	public void readCustomersFromFile(String filepath) {
+		allCustomers.addAll(addCustomersFromFile(filepath));
 		// Separate customers to checked-in and not checked-in
 		List<Customer> checkedIn = new ArrayList<Customer>();
 		List<Customer> notCheckedIn = new ArrayList<Customer>();
@@ -50,43 +86,53 @@ public class Simulator {
 				}
 			}
 		}
-		
-		q.addCustomersToList(notCheckedIn);
-		q.makeCustomersArrive(5);
-		
-		GUIView guiView = new GUIView();
-		GUIController guiController = new GUIController(guiView);
-		//
-		guiController.addDesk(desk);
-		guiController.addDesk(desk2);
-		//
-		guiController.addQueue(q);
-		for(Flight f : allFlights) {
-			guiController.addFlight(f);
-		}
+		queue.addCustomersToList(notCheckedIn);
+    }
+	
+	// Creates desk instances adds them to an array list. 
+	public void addDesks (int num) {
+    	for(int i = 0;i<num;i++) {
+    		Desk desk = new Desk(queue, "NAME_TEMP");
+    		allDesks.add(desk);
+    		guiController.addDesk(desk);
+    	}
+    }
+	
+	public void makeCustomersArrive(int num) {
+		queue.makeCustomersArrive(num);
+	}
+	
+	// Starts Simulator. Handles time management and randomness setting of the simulation.
+	public void start(float simSpeed, float realRunTime, boolean randomness) {
 		guiView.setVisible(true);
 
-		Logger.instance().MainLog("---Starting simulation--");
+		List<Thread> allDeskThreads = new ArrayList<Thread>();
+		Thread threadQueue = new Thread(queue);								// Start threads
+		// threadQueue.start();
+		for(Desk d : allDesks) {
+			allDeskThreads.add(new Thread(d));
+		}
 		
-		Thread threadQueue = new Thread(q);								// Start threads
+		// Start threads
+		for(Thread t : allDeskThreads)
+			t.start();
 		threadQueue.start();
-		Thread threadDesk = new Thread(desk);
-		threadDesk.start();
 		
-		long stopAtTime = System.currentTimeMillis() + (long)(runtimeInSeconds * 1000);
-		while (System.currentTimeMillis() < stopAtTime) {}
+		long stopAtTime = System.currentTimeMillis() + (long)(realRunTime * 1000);
+		while (System.currentTimeMillis() < stopAtTime) {}	// Do nothing
 		
 		Logger.instance().MainLog("---Simulation Time Elapsed---");
 		//
-		desk.enable = false;
-		desk2.enable = false;
-		//
-		q.active = false;
+		// Stop desks and queue
+		for(Desk d : allDesks)
+			d.enable = false;
+		queue.active = false;
 		
 		while (true)
 		{
 			if (threadQueue.isAlive()) continue;
-			if (threadDesk.isAlive()) continue;
+			for(Thread t : allDeskThreads)
+				if(t.isAlive()) continue;
 			break;
 		}
 		
@@ -99,36 +145,9 @@ public class Simulator {
 		
 		Logger.instance().WriteSummaryToFile("Summary.txt");
 	}
-	
-	public Simulator(int deskCount) {
-		   //Build GUI.
-		   //Build waiting queue. <- instantiation
-		   //Build desk. <- instantiation
-	    }
-		
-	/* Reads flights from CSV file and adds them into flight list.
-	*/
-	public void readFlightsFromFile(String filepath) {
-    	
-    }
-	/* Reads customers from CSV file and adds them into customer lists.
-	*/
-	public void readCustomersFromFile(String filepath) {
-    	
-    }
-	
-	// Creates desk instances adds them to an array list. 
-	public void addDesks (int num) {
-    	
-    }
-	
-	// Starts Simulator. Handles time management and randomness setting of the simulation.
-	public void start(float simSpeed, float realRunTime, boolean randomness){
-		
-	}
 
-	public static List<Customer> addCustomersFromFile(String filePath) {
-		ArrayList<Customer> allCustomers = new ArrayList<Customer>();
+	private static List<Customer> addCustomersFromFile(String filePath) {
+		ArrayList<Customer> fileCustomers = new ArrayList<Customer>();
 		try { 															// open input stream
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
 			String line = ""; 											// store current line
@@ -155,7 +174,7 @@ public class Simulator {
 						// Customer failed to be created - skip to next line (WHY NO NOTIFICATION???)
 						continue;
 					}
-					allCustomers.add(currCustomer);
+					fileCustomers.add(currCustomer);
 					boolean checkedIn = Boolean.parseBoolean(customerDetails[4]); 
 					if(checkedIn)
 						currCustomer.setCheckedIn();
@@ -178,7 +197,7 @@ public class Simulator {
 				e.printStackTrace();
 			}
 		}
-		return allCustomers;
+		return fileCustomers;
 	}
 	
 	/* In a real environment this would be a connection to a DB but making it multithreaded would be beneficial 
@@ -196,7 +215,8 @@ public class Simulator {
 	 * 
 	 * How to separate the processing from the file reading, though..? That could be threaded and made faster... Make the processing multi-threaded.
 	 */
-	public static List<Flight> addFlightsFromFile(String filePath) {
+	private static List<Flight> addFlightsFromFile(String filePath) {
+		List<Flight> fileFlights = new ArrayList<Flight>();
 		try { 															// open input stream
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
 			String line = ""; 											// store current line
@@ -220,7 +240,7 @@ public class Simulator {
 						Integer.parseInt(flightDetails[4]), 
 						Float.parseFloat(flightDetails[5]),
 						Float.parseFloat(flightDetails[6])); 			// one-liner to initialize Flight object with data from current file line
-				allFlights.add(currFlight); 							// the key is the unique flight id (flight code), value is currFlight being added
+				fileFlights.add(currFlight); 							// the key is the unique flight id (flight code), value is currFlight being added
 			}
 			reader.close(); 											// close reader
 		}
@@ -237,7 +257,7 @@ public class Simulator {
 				e.printStackTrace();
 			}
 		}
-		return allFlights;
+		return fileFlights;
 	}
 	
 	public static void sleep(int millisec) {
