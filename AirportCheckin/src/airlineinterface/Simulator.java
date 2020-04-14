@@ -29,10 +29,11 @@ public class Simulator {
 		
 		WaitingQueue q = new WaitingQueue();							// Create queue
 		Desk desk = new Desk(q, "desk 1");								// Create desk(s)
+		Desk desk2 = new Desk(q, "desk 2");
 		
-		Desk.addFlights(addFlightsFromFile("dataFlight.csv"));			// Add flights
+		Desk.addFlights(addFlightsFromFile("dataFlight-40c.csv"));			// Add flights
 		
-		List<Customer> allCustomers = addCustomersFromFile("dataCustomer.csv");
+		List<Customer> allCustomers = addCustomersFromFile("dataCustomer-40c.csv");
 		// Separate customers to checked-in and not checked-in
 		List<Customer> checkedIn = new ArrayList<Customer>();
 		List<Customer> notCheckedIn = new ArrayList<Customer>();
@@ -55,7 +56,10 @@ public class Simulator {
 		
 		GUIView guiView = new GUIView();
 		GUIController guiController = new GUIController(guiView);
+		//
 		guiController.addDesk(desk);
+		guiController.addDesk(desk2);
+		//
 		guiController.addQueue(q);
 		for(Flight f : allFlights) {
 			guiController.addFlight(f);
@@ -73,8 +77,10 @@ public class Simulator {
 		while (System.currentTimeMillis() < stopAtTime) {}
 		
 		Logger.instance().MainLog("---Simulation Time Elapsed---");
-		
+		//
 		desk.enable = false;
+		desk2.enable = false;
+		//
 		q.active = false;
 		
 		while (true)
