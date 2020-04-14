@@ -47,7 +47,7 @@ public class Desk extends Observable implements Runnable {
 	 * Run one desk method (desk task) per thread. This is the cleanest way to do it, as long as the collections
 	 * are thread-safe. The print statements and logger are essential to the work of the program and need to 
 	 * happen in order with the operations if we are to be able to measure the program's viability without endless
-	 * testing and patches. The potential speed-up from making synchronised calls to individual parts of the methods,
+	 * testing and patches. The potential speed-up from making synchronized calls to individual parts of the methods,
 	 * instead of the whole method is negligible.
 	 */ 
 	public void run() {
@@ -69,11 +69,13 @@ public class Desk extends Observable implements Runnable {
 					float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],			// Calculate oversize fees
 														currCustomer.getBaggageDetails()[1]); 			// ...and set respective action in the method
 					notifyObservers();
+					
 					Simulator.sleep(3000); 																// 3 seconds to confirm check in and leave desk
 					checkIn(currCustomer, currCustomerFee); 											// Check in the customer
 					Logger.instance().MainLog("Checked in: " + c.getFirstName() + " " + c.getLastName());
-					// TODO: Add a sleep while checking in customer
 					notifyObservers();
+					
+					Simulator.sleep(3000);
 				}
 				catch (InvalidValueException e) {
 					Logger.instance().MainLog(" ##DESK##  The " + deskName + " has reported the following error: " + e.getMessage());

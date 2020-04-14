@@ -103,12 +103,12 @@ public class Simulator {
 			while ((line = reader.readLine()) != null) { 				// go through every line in the file
 				String[] customerDetails = line.trim().split(","); 		// split the line and trim empty space, push results to small array
 				Customer currCustomer;
-				if (customerDetails.length == 7) { 						// handle partial data - only take data from full fields, ignore partial data!
+				if (customerDetails.length == 7) { 						// TODO: edit this too | handle partial data - only take data from full fields, ignore partial data!
 					try {
 						float cWeight = 0, cVol = 0;
 						try {
 							cWeight = Float.parseFloat(customerDetails[5]);
-							cVol = Float.parseFloat(customerDetails[6]);
+							cVol = Float.parseFloat(customerDetails[6]);// TODO: Edit this after Niko makes change in data files.
 						} catch (NumberFormatException e) { /* If the parsing fails (e.g. no value, so assume 0) it defaults to 0 */}
 						currCustomer = new Customer(customerDetails[0],
 													customerDetails[1], 
@@ -131,9 +131,7 @@ public class Simulator {
 				}
 			}
 			reader.close(); 											// close reader
-		} catch (
-
-		Exception e) {
+		} catch (Exception e) {
 			if (e instanceof FileNotFoundException) {
 				System.err.println("Error: Customer info file not found. Exiting...");
 				System.exit(0);
@@ -154,7 +152,7 @@ public class Simulator {
 	 * queue off the buffer reference, immediately create a new one, copy in the temp string first, 
 	 * then fill up the rest of the buffer and repeat until EOF. Repeat until done. Use a pool of 
 	 * threads to parse/process the buffers. You have to queue up whole chunks of valid lines. 
-	 * Queueing off single lines will result in the thread communications taking longer than the parsing.
+	 * Queuing off single lines will result in the thread communications taking longer than the parsing.
 	 * This would result in out-of-order chunk processing but we don't care about that.
 	 * 
 	 * Is it worth it though??? I/O works faster sequentially (HDDs definitely do, which most companies still 
@@ -185,7 +183,7 @@ public class Simulator {
 						flightDetails[3],
 						Integer.parseInt(flightDetails[4]), 
 						Float.parseFloat(flightDetails[5]),
-						Float.parseFloat(flightDetails[6])); 			// one-liner to initialise Flight object with data from current file line
+						Float.parseFloat(flightDetails[6])); 			// one-liner to initialize Flight object with data from current file line
 				allFlights.add(currFlight); 							// the key is the unique flight id (flight code), value is currFlight being added
 			}
 			reader.close(); 											// close reader
@@ -206,7 +204,7 @@ public class Simulator {
 		return allFlights;
 	}
 	
-	public synchronized static void sleep(int millisec) {
+	public static void sleep(int millisec) {
 		try {
 			if (randomness) {
 				Random r = new Random();
