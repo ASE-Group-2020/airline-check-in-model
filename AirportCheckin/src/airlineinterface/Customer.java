@@ -34,8 +34,8 @@ public class Customer implements Comparable<Customer> {
 		if (_firstName.equals("")) 	throw new InvalidValueException("_firstName must not be empty");
 		if (_lastName.equals(""))  	throw new InvalidValueException("_lastName must not be empty");
 		if (_flightCode.equals(""))	throw new InvalidValueException("_flightCode must not be empty");
-		if (_weight < 0) 			throw new InvalidValueException("_code must not be null");
-		if (_volume < 0) 			throw new InvalidValueException("_code must not be null");
+		if (_weight < 0) 			throw new InvalidValueException("_weight must not be null");
+		if (_volume < 0) 			throw new InvalidValueException("_volume must not be null");
 		
 		refCode = _code;
 		firstName = _firstName;

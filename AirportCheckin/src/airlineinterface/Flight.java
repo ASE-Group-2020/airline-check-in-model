@@ -121,21 +121,17 @@ public class Flight extends Observable {
 		/*for (Customer c : customers) {
 			output = output + c.toString() + System.lineSeparator();
 		}*/
-		return "Checked-in customers: " + currentCapacity + "/" + capacity + System.lineSeparator() +
-				"Current baggage weight: " + currentWeight + System.lineSeparator() +
-				"Current baggage volume: " + currentVolume + System.lineSeparator() +
-				"Max baggage weight: " + maxWeight + System.lineSeparator() +
-				"Max baggage volume: " + maxVolume + System.lineSeparator() + 
-				"Over passenger capacity?: " + overCapacity + System.lineSeparator() +
-				"Baggage out of bounds?: " + overweight + System.lineSeparator() +
-				"Total oversize fee: " + totalFee + System.lineSeparator();
-		/*"Checked-in customers: " + System.lineSeparator() + output + System.lineSeparator() +
-				"Current baggage weight: " + currentWeight + System.lineSeparator() +
-				"Current baggage volume: " + currentVolume + System.lineSeparator() +
-				"Max baggage weight: " + maxWeight + System.lineSeparator() +
-				"Max baggage volume: " + maxVolume + System.lineSeparator() + 
-				"Baggage out of bounds?: " + overweight + System.lineSeparator() +
-				"Total oversize fee: " + totalFee + System.lineSeparator();*/
+		return  "Flight Code: " 				+ flightCode 		+ System.lineSeparator() +
+				"Departure Location: " 			+ startLocation 	+ System.lineSeparator() +
+				"Arrival Location: " 			+ endLocation 		+ System.lineSeparator() +
+				"Checked-in customers: " 		+ currentCapacity 	+ "/" + capacity 		 + System.lineSeparator() +
+				"Current baggage weight: "  	+ currentWeight 	+ System.lineSeparator() +
+				"Current baggage volume: "  	+ currentVolume 	+ System.lineSeparator() +
+				"Max baggage weight: "			+ maxWeight 		+ System.lineSeparator() +
+				"Max baggage volume: " 			+ maxVolume 		+ System.lineSeparator() + 
+				"Over passenger capacity?: " 	+ overCapacity 		+ System.lineSeparator() +
+				"Baggage out of bounds?: " 		+ overweight 		+ System.lineSeparator() +
+				"Total oversize fee: " 			+ totalFee;
 	}
 	
 	/**@return a two-cell array for the traveling point of the flight: starting location, and finishing location*/
