@@ -49,7 +49,7 @@ public class DatasetCreator
 		/**Used to randomly generate the weight of a passenger's baggage*/
 		CustomerWeight(0, 30),
 		/**Used to randomly generate the volume of a passenger's baggage*/
-		CustomerVolume(0, 40f);
+		CustomerVolume(0, 6f);
 		
 		float min, max;
 		private Spec(float a, float b) { min = a; max = b; }
@@ -75,8 +75,8 @@ public class DatasetCreator
 	/**Resets the DatasetCreator object with specified default variables*/
 	public static void Reset()
 	{
-		flightCount = 2;
-		customerCount = 20;
+		flightCount = 5;
+		customerCount = 50;
 		places 	   = new String[] {"Edinburgh", "Londom", "Berlin", "Dubai", "Stockholm", "Costa Rica", "Phuket", "Tahiti", "Paris", "Maldives", "Rio de Janeiro", "Santorini"};
 		placeCodes = new String[] {"EDN"      , "LDN"   , "BLN"   , "DBI"  , "SKM"	    , "CRA"		  , "RKT"   , "THI"	  , "PRI"  , "MLD"	   , "RDJ"			 , "STI"};
 		carriers   = new String[] {"EasyJet", "British Airways", "Virgin", "Ryanair", "BlueJet", "Delta Air Lines", "Frontier Airlines", "United Airlines"};
@@ -100,7 +100,7 @@ public class DatasetCreator
 		// generates and writes each new flight entry to file individually
 		try
 		{
-			FileWriter flightDataWriter = new FileWriter("dataFlight.csv");		
+			FileWriter flightDataWriter = new FileWriter("dataFlight-50c.csv");		
 			for (int I = 0; I < flightCount; I++)
 			{	
 				flightDataWriter.write(NewFlight() + "\n");
@@ -111,7 +111,7 @@ public class DatasetCreator
 		// generates and writes each new customer entry to file individually
 		try
 		{
-			FileWriter customerDataWriter = new FileWriter("dataCustomer.csv");
+			FileWriter customerDataWriter = new FileWriter("dataCustomer-50c.csv");
 			for (int I = 0; I < customerCount; I++)
 			{			
 				customerDataWriter.write(NewCustomer() + "\n");
@@ -152,10 +152,10 @@ public class DatasetCreator
 	public static String NewCustomer()
 	{
 		boolean checkedIn = Spec.CheckIn.RandomBoolWithThreshold();
-		float weight;
-		float volume;
-		weight = Spec.CustomerWeight.RandomMinMax();
-		volume = Spec.CustomerVolume.RandomMinMax();
+		float weight = Spec.CustomerWeight.RandomMinMax();
+		float volume1 = Spec.CustomerVolume.RandomMinMax();
+		float volume2 = Spec.CustomerVolume.RandomMinMax();
+		float volume3 = Spec.CustomerVolume.RandomMinMax();
 		
 		return
 			NewID() + "," + 
@@ -164,7 +164,9 @@ public class DatasetCreator
 			RandomFlightCode() + "," +
 			checkedIn + "," +
 			weight + "," +
-			volume
+			volume1 + "," +
+			volume2 + "," +
+			volume3
 		;
 	}
 	
