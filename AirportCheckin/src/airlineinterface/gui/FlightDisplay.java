@@ -8,6 +8,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.Border;
 
 import airlineinterface.Flight;
@@ -18,7 +19,7 @@ public class FlightDisplay extends Observer {
 	private Flight flight;
 	private JPanel panel;
 
-	private JLabel lPassengerCapacity, lWeightCapacity, lVolumeCapacity;
+	private JTextField lPassengerCapacity, lWeightCapacity, lVolumeCapacity;
 
 	public FlightDisplay(Flight flight) {
 		panel = new JPanel(new GridBagLayout());
@@ -53,10 +54,17 @@ public class FlightDisplay extends Observer {
 		c.gridy = 1;
 		panel.add(locations, c);
 
-		lPassengerCapacity = new JLabel();
-		lWeightCapacity = new JLabel();
-		lVolumeCapacity = new JLabel();
+		lPassengerCapacity = new JTextField();
+		lWeightCapacity = new JTextField();
+		lVolumeCapacity = new JTextField();
 
+		lPassengerCapacity.setEditable(false);
+		lPassengerCapacity.setFocusable(false);
+		lWeightCapacity.setEditable(false);
+		lWeightCapacity.setFocusable(false);
+		lVolumeCapacity.setEditable(false);
+		lVolumeCapacity.setFocusable(false);
+		
 		c.gridx = 0;
 		c.gridy = 2;
 		panel.add(lPassengerCapacity, c);

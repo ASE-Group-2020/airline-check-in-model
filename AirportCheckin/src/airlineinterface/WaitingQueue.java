@@ -23,6 +23,7 @@ public class WaitingQueue extends Observable implements Runnable {
 		Logger.instance().MainLog("People have started arriving at the airport");
 		while (!notArrived.isEmpty() && active) {
 			getWaiting().add(notArrived.remove(0));
+			notifyObservers();
 			// Logging
 			Customer c = ((LinkedList<Customer>) getWaiting()).peekLast();
 			Logger.instance().PassengerJoinedQueue(c);

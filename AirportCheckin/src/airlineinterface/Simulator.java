@@ -19,17 +19,16 @@ public class Simulator {
 	public static void main(String[] args) {
 		Logger.instance().resetTimer();									// Start logger
 		
-		Simulator sim = new Simulator(3);
+		Simulator sim = new Simulator(3);								// the argument is the number of desks instantiated 
 
 		sim.readFlightsFromFile("dataFlight-40c.csv");
 		sim.readCustomersFromFile("dataCustomer-40c.csv");
 
-		sim.makeCustomersArrive(5);
+		sim.makeCustomersArrive(5);										// Delays the arrival of customers
 		
-		sim.start(10, 20, false);
+		sim.start(1, 200, false);										// (simSpeed, runTime, randomness)
 
-		Logger.instance().MainLog("---Starting simulation--");
-
+		
 	}
 	
 	private List<Customer> allCustomers;	// All customers loaded into simulation
@@ -38,6 +37,8 @@ public class Simulator {
 	private WaitingQueue queue;
 	private GUIView guiView;
 	private GUIController guiController;
+	private int deskCount;					// Used for naming desks 
+	
 	
 	public Simulator(int deskCount) {
 		// Build GUI.
@@ -92,18 +93,21 @@ public class Simulator {
 	// Creates desk instances adds them to an array list. 
 	public void addDesks (int num) {
     	for(int i = 0;i<num;i++) {
-    		Desk desk = new Desk(queue, "NAME_TEMP");
+    		Desk desk = new Desk(queue, "Desk " + (++deskCount));
     		allDesks.add(desk);
     		guiController.addDesk(desk);
     	}
     }
-	
+	// makes queue available from outside simulation
 	public void makeCustomersArrive(int num) {
 		queue.makeCustomersArrive(num);
 	}
 	
 	// Starts Simulator. Handles time management and randomness setting of the simulation.
 	public void start(float simSpeed, float realRunTime, boolean randomness) {
+		Simulator.simSpeed = simSpeed;
+		Simulator.randomness = randomness;
+		
 		guiView.setVisible(true);
 
 		List<Thread> allDeskThreads = new ArrayList<Thread>();
@@ -118,6 +122,9 @@ public class Simulator {
 			t.start();
 		threadQueue.start();
 		
+		
+		Logger.instance().MainLog("---Starting simulation--"); //Start threads marks beginning of simulation
+
 		long stopAtTime = System.currentTimeMillis() + (long)(realRunTime * 1000);
 		while (System.currentTimeMillis() < stopAtTime) {}	// Do nothing
 		
@@ -259,6 +266,10 @@ public class Simulator {
 		}
 		return fileFlights;
 	}
+	
+	
+	private static boolean randomness; 
+	private static float simSpeed; 
 	
 	public static void sleep(int millisec) {
 		try {
