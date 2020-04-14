@@ -103,12 +103,12 @@ public class Simulator {
 			while ((line = reader.readLine()) != null) { 				// go through every line in the file
 				String[] customerDetails = line.trim().split(","); 		// split the line and trim empty space, push results to small array
 				Customer currCustomer;
-				if (customerDetails.length == 7) { 						// handle partial data - only take data from full fields, ignore partial data!
+				if (customerDetails.length == 7) { 						// TODO: edit this too | handle partial data - only take data from full fields, ignore partial data!
 					try {
 						float cWeight = 0, cVol = 0;
 						try {
 							cWeight = Float.parseFloat(customerDetails[5]);
-							cVol = Float.parseFloat(customerDetails[6]);
+							cVol = Float.parseFloat(customerDetails[6]);	// TODO: Edit this after Niko makes change in data files.
 						} catch (NumberFormatException e) { /* If the parsing fails (e.g. no value, so assume 0) it defaults to 0 */}
 						currCustomer = new Customer(customerDetails[0],
 													customerDetails[1], 

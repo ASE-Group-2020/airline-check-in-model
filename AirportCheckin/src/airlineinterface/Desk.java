@@ -69,11 +69,13 @@ public class Desk extends Observable implements Runnable {
 					float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],			// Calculate oversize fees
 														currCustomer.getBaggageDetails()[1]); 			// ...and set respective action in the method
 					notifyObservers();
+					
 					Simulator.sleep(3000); 																// 3 seconds to confirm check in and leave desk
 					checkIn(currCustomer, currCustomerFee); 											// Check in the customer
 					Logger.instance().MainLog("Checked in: " + c.getFirstName() + " " + c.getLastName());
-					// TODO: Add a sleep while checking in customer
 					notifyObservers();
+					
+					Simulator.sleep(3000);
 				}
 				catch (InvalidValueException e) {
 					Logger.instance().MainLog(" ##DESK##  The " + deskName + " has reported the following error: " + e.getMessage());
