@@ -28,10 +28,9 @@ public class Simulator {
 		Logger.instance().resetTimer();									// Start logger
 		
 		WaitingQueue q = new WaitingQueue();							// Create queue
-		Desk desk = new Desk(q, "desk 1");								// Create desk(s)
+		Desk desk= new Desk(q, "desk 1");								// Create desk(s)
 		
 		Desk.addFlights(addFlightsFromFile("dataFlight.csv"));			// Add flights
-		
 		List<Customer> allCustomers = addCustomersFromFile("dataCustomer.csv");
 		// Separate customers to checked-in and not checked-in
 		List<Customer> checkedIn = new ArrayList<Customer>();
@@ -93,8 +92,35 @@ public class Simulator {
 		
 		Logger.instance().WriteSummaryToFile("Summary.txt");
 	}
-
-	public static List<Customer> addCustomersFromFile(String filePath) {
+	
+	public Simulator(int deskCount) {
+	   //Build GUI.
+	   //Build waiting queue. <- instantiation
+	   //Build desk. <- instantiation
+    }
+	
+	/* Reads flights from CSV file and adds them into flight list.
+	*/
+	public void readFlightsFromFile(String filepath) {
+    	
+    }
+	/* Reads customers from CSV file and adds them into customer lists.
+	*/
+	public void readCustomersFromFile(String filepath) {
+    	
+    }
+	
+	// Creates desk instances adds them to an array list. 
+	public void addDesks (int num) {
+    	
+    }
+	
+	// Starts Simulator. Handles time management and randomness setting of the simulation.
+	public void start(float simSpeed, float realRunTime, boolean randomness){
+		
+	}
+	
+    public static List<Customer> addCustomersFromFile(String filePath) {
 		ArrayList<Customer> allCustomers = new ArrayList<Customer>();
 		try { 															// open input stream
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
@@ -162,7 +188,7 @@ public class Simulator {
 	 * 
 	 * How to separate the processing from the file reading, though..? That could be threaded and made faster... Make the processing multi-threaded.
 	 */
-	public static List<Flight> addFlightsFromFile(String filePath) {
+	 public static List<Flight> addFlightsFromFile(String filePath) {
 		try { 															// open input stream
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
 			String line = ""; 											// store current line
