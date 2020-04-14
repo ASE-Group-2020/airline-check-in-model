@@ -131,9 +131,7 @@ public class Simulator {
 				}
 			}
 			reader.close(); 											// close reader
-		} catch (
-
-		Exception e) {
+		} catch (Exception e) {
 			if (e instanceof FileNotFoundException) {
 				System.err.println("Error: Customer info file not found. Exiting...");
 				System.exit(0);
