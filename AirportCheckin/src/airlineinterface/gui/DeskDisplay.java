@@ -18,8 +18,8 @@ import exceptions.ObjectNotFoundException;
 public class DeskDisplay extends Observer {
 
 	private Desk desk;
+	
 	private JPanel panel;
-
 	private JTextField lCustomerName, lBaggage, lBookingRef, lFlightCode, lDeskStage;
 
 	public DeskDisplay(Desk desk) {

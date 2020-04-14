@@ -26,7 +26,7 @@ public class Simulator {
 
 		sim.makeCustomersArrive(5);										// Delays the arrival of customers
 		
-		sim.start(1, 200, false);										// (simSpeed, runTime, randomness)
+		sim.start(1, 200, true);										// (simSpeed, runTime, randomness)
 
 		
 	}

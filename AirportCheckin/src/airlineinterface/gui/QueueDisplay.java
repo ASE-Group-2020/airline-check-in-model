@@ -15,27 +15,27 @@ import airlineinterface.Observer;
 import airlineinterface.WaitingQueue;
 
 public class QueueDisplay extends Observer {
-	private WaitingQueue q;
-	private JPanel panel;
 	
-	private JScrollPane tablePane;
+	private WaitingQueue q;
+	
+	private JPanel panel;
+	private JTable table;
 
 	public QueueDisplay(WaitingQueue q) {
 		panel = new JPanel(new GridBagLayout());
-		q.addObserver(this);
-		this.q = q;
-		buildDisplay();
-	}
-
-	public void buildDisplay() {
-		if (tablePane != null)
-			panel.remove(tablePane);
-		Queue<Customer> copy = new LinkedList<Customer>(q.getWaiting());
-		JTable table = new JTable(new QueueTableModel(copy));
+		table = new JTable();
 		table.setFillsViewportHeight(true);
-		tablePane = new JScrollPane(table);
+		JScrollPane tablePane = new JScrollPane(table);
 		tablePane.setSize(100, 40);
 		panel.add(tablePane);
+		q.addObserver(this);
+		this.q = q;
+		updateDisplay();
+	}
+
+	public void updateDisplay() {
+		Queue<Customer> copy = new LinkedList<Customer>(q.getWaiting());
+		table.setModel(new QueueTableModel(copy));
 	}
 	
 	public JComponent getComponent() {
@@ -44,7 +44,7 @@ public class QueueDisplay extends Observer {
 
 	@Override
 	public void onNotify() {
-		buildDisplay();
+		updateDisplay();
 	}
 
 	private class QueueTableModel extends AbstractTableModel {

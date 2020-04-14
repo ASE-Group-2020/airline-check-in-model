@@ -17,8 +17,8 @@ import airlineinterface.Observer;
 public class FlightDisplay extends Observer {
 
 	private Flight flight;
+	
 	private JPanel panel;
-
 	private JTextField lPassengerCapacity, lWeightCapacity, lVolumeCapacity;
 
 	public FlightDisplay(Flight flight) {
@@ -54,9 +54,9 @@ public class FlightDisplay extends Observer {
 		c.gridy = 1;
 		panel.add(locations, c);
 
-		lPassengerCapacity = new JTextField();
-		lWeightCapacity = new JTextField();
-		lVolumeCapacity = new JTextField();
+		lPassengerCapacity = new JTextField("", 20);
+		lWeightCapacity = new JTextField("", 20);
+		lVolumeCapacity = new JTextField("", 20);
 
 		lPassengerCapacity.setEditable(false);
 		lPassengerCapacity.setFocusable(false);
