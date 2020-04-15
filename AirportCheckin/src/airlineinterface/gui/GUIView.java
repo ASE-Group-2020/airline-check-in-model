@@ -56,6 +56,14 @@ public class GUIView {
 		pQueue.remove(q.getComponent());
 	}
 	
+	public void addSpeedDisplay(SpeedDisplay s) {
+		pDesks.add(s.getComponent());
+	}
+
+	public void removeSpeedDisplay(SpeedDisplay s) {
+		pDesks.remove(s.getComponent());
+	}
+	
 	public void setVisible(boolean vis) {
 		frame.pack();
 		frame.setVisible(vis);

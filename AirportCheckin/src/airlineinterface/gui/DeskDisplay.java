@@ -3,8 +3,11 @@ package airlineinterface.gui;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -21,6 +24,18 @@ public class DeskDisplay extends Observer {
 	
 	private JPanel panel;
 	private JTextField lCustomerName, lBaggage, lBookingRef, lFlightCode, lDeskStage;
+	private JButton toggle;
+	
+	private ActionListener openCloseDesk = new ActionListener()
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			toggle.setText(desk.getCurrentStage().equals("Desk action: Closed") ? "Open" : "Close");
+			// TODO implement open/close desk functionality
+			
+		}
+	};
 
 	public DeskDisplay(Desk desk) {
 		panel = new JPanel(new GridBagLayout());
@@ -36,6 +51,9 @@ public class DeskDisplay extends Observer {
 		lBookingRef = new JTextField("", 20);
 		lFlightCode = new JTextField("", 20);
 		lDeskStage = new JTextField("", 20);
+		toggle = new JButton("Close");
+		toggle.addActionListener(openCloseDesk);
+		
 		lCustomerName.setEditable(false);
 		lCustomerName.setFocusable(false);
 		lBaggage.setEditable(false);
@@ -49,7 +67,7 @@ public class DeskDisplay extends Observer {
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.ipadx = 5;
-		c.ipady = 5;
+		c.ipady = 6;
 		
 		c.gridx = 0;
 		c.gridy = 0;
@@ -66,6 +84,9 @@ public class DeskDisplay extends Observer {
 		c.gridx = 0;
 		c.gridy = 4;
 		panel.add(lDeskStage, c);
+		c.gridx = 0;
+		c.gridy = 5;
+		panel.add(toggle, c); // TODO add button here
 		
 		updateDisplay();
 	}

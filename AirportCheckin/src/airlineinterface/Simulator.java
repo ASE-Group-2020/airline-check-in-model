@@ -53,6 +53,8 @@ public class Simulator {
 		// Create lists
 		allFlights = new ArrayList<Flight>();
 		allCustomers = new ArrayList<Customer>();
+		
+		guiController.addSpeed();
 	}
 		
 	/* Reads flights from CSV file and adds them into flight list.

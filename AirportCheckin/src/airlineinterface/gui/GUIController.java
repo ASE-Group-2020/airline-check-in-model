@@ -14,6 +14,8 @@ public class GUIController {
 
 	private Map<Desk, DeskDisplay> desks;
 	private Map<Flight, FlightDisplay> flights;
+	
+	private SpeedDisplay sd;
 
 	public GUIController(GUIView view) {
 		this.view = view;
@@ -53,5 +55,15 @@ public class GUIController {
 		QueueDisplay qd = new QueueDisplay(q);
 		view.addQueueDisplay(qd);
 	}
-
+	
+	public void addSpeed()
+	{
+		sd = new SpeedDisplay();
+		view.addSpeedDisplay(sd);
+	}
+	
+	public void removeSpeed()
+	{
+		view.removeSpeedDisplay(sd);
+	}
 }

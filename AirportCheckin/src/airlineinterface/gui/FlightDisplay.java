@@ -3,8 +3,11 @@ package airlineinterface.gui;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,7 +22,20 @@ public class FlightDisplay extends Observer {
 	private Flight flight;
 	
 	private JPanel panel;
-	private JTextField lPassengerCapacity, lWeightCapacity, lVolumeCapacity;
+	private JTextField lStatus, lPassengerCapacity, lWeightCapacity, lVolumeCapacity;
+	private JButton bDepart;
+	
+	private ActionListener departFlight = new ActionListener()
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			if (bDepart.getText().equals("Depart"))
+			{
+				bDepart.setText("------");
+				// TODO implement flight taking off
+			}
+		}};
 
 	public FlightDisplay(Flight flight) {
 		panel = new JPanel(new GridBagLayout());
@@ -38,7 +54,7 @@ public class FlightDisplay extends Observer {
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.ipadx = 5;
-		c.ipady = 5;
+		c.ipady = 7; // was 5
 
 		c.gridx = 0;
 		c.gridy = 0;
@@ -53,11 +69,16 @@ public class FlightDisplay extends Observer {
 		c.gridx = 0;
 		c.gridy = 1;
 		panel.add(locations, c);
-
+		
+		lStatus = new JTextField("", 20);
 		lPassengerCapacity = new JTextField("", 20);
 		lWeightCapacity = new JTextField("", 20);
 		lVolumeCapacity = new JTextField("", 20);
-
+		bDepart = new JButton("Depart");
+		bDepart.addActionListener(departFlight);
+		
+		lStatus.setEditable(false);
+		lStatus.setFocusable(false);
 		lPassengerCapacity.setEditable(false);
 		lPassengerCapacity.setFocusable(false);
 		lWeightCapacity.setEditable(false);
@@ -67,13 +88,19 @@ public class FlightDisplay extends Observer {
 		
 		c.gridx = 0;
 		c.gridy = 2;
-		panel.add(lPassengerCapacity, c);
+		panel.add(lStatus, c);
 		c.gridx = 0;
 		c.gridy = 3;
-		panel.add(lWeightCapacity, c);
+		panel.add(lPassengerCapacity, c);
 		c.gridx = 0;
 		c.gridy = 4;
+		panel.add(lWeightCapacity, c);
+		c.gridx = 0;
+		c.gridy = 5;
 		panel.add(lVolumeCapacity, c);
+		c.gridx = 0;
+		c.gridy = 6;
+		panel.add(bDepart, c); // TODO add button here
 		
 		updateDisplay();
 	}
@@ -81,6 +108,7 @@ public class FlightDisplay extends Observer {
 	public void updateDisplay() {
 		float[] maxAttr = flight.getMaxAttributes();
 		float[] curAttr = flight.getCustomerSumAttributes();
+		lStatus.setText("Flight status: NOT IMPLEMENTED");
 		lPassengerCapacity.setText("Passengers: " + curAttr[0] + " / " + maxAttr[0]);
 		lWeightCapacity.setText("Weight: " + curAttr[1] + " / " + maxAttr[1]);
 		lVolumeCapacity.setText("Volume: " + curAttr[2] + " / " + maxAttr[2]);
