@@ -14,7 +14,7 @@ import airlineinterface.gui.GUIView;
 import exceptions.InvalidValueException;
 
 // Runs main, sets up everything by loading in CSV files
-public class Simulator {
+public class Simulator extends Observable {
 
 	public static void main(String[] args) {
 		Logger.instance().resetTimer();									// Start logger
@@ -26,11 +26,16 @@ public class Simulator {
 
 		sim.makeCustomersArrive(5);										// Delays the arrival of customers
 		
-		sim.start(1, 200, true);										// (simSpeed, runTime, randomness)
-
-		
+		sim.start(1, 120, true);										// (simSpeed, runTime, randomness)
 	}
-	
+	/*
+	private static Simulator instance = null;
+	public static Simulator getInstance()
+	{
+		if (instance == null) return new Simulator(3);
+		else return instance;
+	}
+	*/
 	private List<Customer> allCustomers;	// All customers loaded into simulation
 	private List<Flight> allFlights;		// All flights loaded into simulation
 	private List<Desk> allDesks;			// All desks in simulation
@@ -39,8 +44,18 @@ public class Simulator {
 	private GUIController guiController;
 	private int deskCount;					// Used for naming desks 
 	
+	private static boolean randomness; 
+	public static float simSpeed;
+	public static long stopAtTime;
+	public static long startTime;
+	public static long currentTime;
+	public static float realRunTime;
 	
-	public Simulator(int deskCount) {
+	public static boolean runSimulation = true;
+	private static Random r;
+	
+	public Simulator(int deskCount)
+	{
 		// Build GUI.
 		guiView = new GUIView();
 		guiController = new GUIController(guiView);
@@ -54,7 +69,11 @@ public class Simulator {
 		allFlights = new ArrayList<Flight>();
 		allCustomers = new ArrayList<Customer>();
 		
-		guiController.addSpeed();
+		addObserver(guiController.addSpeed());
+		
+		r = new Random();
+		
+		//instance = this;
 	}
 		
 	/* Reads flights from CSV file and adds them into flight list.
@@ -107,6 +126,8 @@ public class Simulator {
 	
 	// Starts Simulator. Handles time management and randomness setting of the simulation.
 	public void start(float simSpeed, float realRunTime, boolean randomness) {
+		runSimulation = true;
+		Simulator.realRunTime = realRunTime;
 		Simulator.simSpeed = simSpeed;
 		Simulator.randomness = randomness;
 		
@@ -115,35 +136,44 @@ public class Simulator {
 		List<Thread> allDeskThreads = new ArrayList<Thread>();
 		Thread threadQueue = new Thread(queue);								// Start threads
 		// threadQueue.start();
-		for(Desk d : allDesks) {
-			allDeskThreads.add(new Thread(d));
-		}
-		
-		// Start threads
-		for(Thread t : allDeskThreads)
-			t.start();
-		threadQueue.start();
-		
+		for(Desk d : allDesks) allDeskThreads.add(new Thread(d));
 		
 		Logger.instance().MainLog("---Starting simulation--"); //Start threads marks beginning of simulation
-
-		long stopAtTime = System.currentTimeMillis() + (long)(realRunTime * 1000);
-		while (System.currentTimeMillis() < stopAtTime) {}	// Do nothing
 		
-		Logger.instance().MainLog("---Simulation Time Elapsed---");
-		//
+		// Start threads
+		for(Thread t : allDeskThreads) t.start();
+		threadQueue.start();
+		
+		startTime = System.currentTimeMillis();
+		stopAtTime = startTime + (long)(Simulator.realRunTime * 1000);
+		currentTime = 0;
+		while (stopAtTime > System.currentTimeMillis() && runSimulation)
+		{
+			currentTime = (System.currentTimeMillis() - startTime) / 1000;
+			notifyObservers();
+		}
+		currentTime = (long) Simulator.realRunTime;
+		notifyObservers();
+		
 		// Stop desks and queue
-		for(Desk d : allDesks)
-			d.enable = false;
+		for(Desk d : allDesks) d.enable = false;
 		queue.active = false;
 		
+		Logger.instance().MainLog("---Simulation Time Elapsed---");
+		
+		// halts code until all threads have been stopped
 		while (true)
 		{
 			if (threadQueue.isAlive()) continue;
-			for(Thread t : allDeskThreads)
-				if(t.isAlive()) continue;
-			break;
+			boolean allThreadsStopped = true;
+			for(Thread t : allDeskThreads) 
+			{
+				if(t.isAlive()) { allThreadsStopped = false; break; }
+			}
+			if (allThreadsStopped) break;
 		}
+		
+		for(Desk d : allDesks) d.notifyObservers();
 		
 		for (Flight f : allFlights)
 		{
@@ -269,14 +299,35 @@ public class Simulator {
 		return fileFlights;
 	}
 	
+	// TODO re-do sleep so that it scales with changes in simSpeed
 	
-	private static boolean randomness; 
-	private static float simSpeed; 
+	public static void sleep(int millisec)
+	{
+		double currentTime = System.currentTimeMillis();
+		double lastTickTime = currentTime;
+		double endTime;
+		double tickTime;
+		double deltaTime;
+		
+		if (randomness) endTime = currentTime + millisec * (0.5f + r.nextFloat());
+		else 			endTime = currentTime + millisec;
+		
+		while (currentTime < endTime)
+		{			
+			try { Thread.sleep(1L); }
+			catch (InterruptedException e) { Logger.instance().MainLog(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds."); }
+			tickTime = System.currentTimeMillis();
+			deltaTime = tickTime - lastTickTime;
+			if (deltaTime == 0L) continue;
+			currentTime += deltaTime * Simulator.simSpeed;
+			lastTickTime = tickTime;
+		}
+	}
 	
+	/*
 	public static void sleep(int millisec) {
 		try {
 			if (randomness) {
-				Random r = new Random();
 				Thread.sleep((int) (millisec / simSpeed * (0.5 + r.nextFloat())));
 			} else {
 				Thread.sleep((int) (millisec / simSpeed));
@@ -287,6 +338,5 @@ public class Simulator {
 			Logger.instance().MainLog(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds.");
 		}
 	}
-	
-
+	*/
 }

@@ -29,7 +29,7 @@ public class WaitingQueue extends Observable implements Runnable {
 			Logger.instance().PassengerJoinedQueue(c);
 			Simulator.sleep(1000);
 		}
-		Logger.instance().MainLog("Everyone has arrived");
+		if (active) Logger.instance().MainLog("Everyone has arrived");
 	}
 
 	// Adds every given customer to the not-arrived list, then shuffles

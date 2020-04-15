@@ -26,14 +26,33 @@ public class DeskDisplay extends Observer {
 	private JTextField lCustomerName, lBaggage, lBookingRef, lFlightCode, lDeskStage;
 	private JButton toggle;
 	
+	private String newButtonText = "";
+	
+	private static String WAITING_FOR_DESK = "Please Wait...";
+	private static String CLOSED_DESK_STAGE = "Desk action: Closed.";
+	private static String READY_TO_OPEN = "Open";
+	private static String READY_TO_CLOSE = "Close";
+	
 	private ActionListener openCloseDesk = new ActionListener()
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			toggle.setText(desk.getCurrentStage().equals("Desk action: Closed") ? "Open" : "Close");
-			// TODO implement open/close desk functionality
-			
+			if (newButtonText.equals(""))
+			{
+				// if the desk is already closed
+				if (desk.getCurrentStage().equals(CLOSED_DESK_STAGE))
+				{
+					newButtonText = READY_TO_CLOSE;
+					desk.OpenDesk();
+				}
+				else // if the desk is open
+				{
+					newButtonText = READY_TO_OPEN;
+					desk.CloseDesk();
+				}
+				toggle.setText(WAITING_FOR_DESK);
+			}
 		}
 	};
 
@@ -92,24 +111,47 @@ public class DeskDisplay extends Observer {
 	}
 
 	public void updateDisplay() {
-		Customer c;
 		try {
-			c = desk.getCurrentCustomer();
-			lCustomerName.setText(c.getFirstName() + " " + c.getLastName());
-			float[] bd = c.getBaggageDetails();
-			lBaggage.setText("Baggage: " + bd[0] + "kg, " + bd[1] + "l");
-			lBookingRef.setText("Booking code: " + c.getRefCode());
-			lFlightCode.setText("Flight code: " + c.getFlightCode());
-			lDeskStage.setText(desk.getCurrentStage());
-		} catch (ObjectNotFoundException e) {
-			lCustomerName.setText("No current customer");
-			lBaggage.setText("");
-			lBookingRef.setText("");
-			lFlightCode.setText("");
-			lDeskStage.setText(desk.getCurrentStage());
+			Customer c = desk.getCurrentCustomer();
+			if (c == null) NoCustomer();
+			else
+			{
+				lCustomerName.setText(c.getFirstName() + " " + c.getLastName());
+				float[] bd = c.getBaggageDetails();
+				lBaggage.setText("Baggage: " + bd[0] + "kg, " + bd[1] + "l");
+				lBookingRef.setText("Booking code: " + c.getRefCode());
+				lFlightCode.setText("Flight code: " + c.getFlightCode());
+				lDeskStage.setText(desk.getCurrentStage());
+			}
+		} catch (ObjectNotFoundException e) { NoCustomer(); }
+		
+		if (toggle.getText().equals(WAITING_FOR_DESK))
+		{
+			// if the desk is being opened
+			if (newButtonText.equals(READY_TO_CLOSE) && !desk.getCurrentStage().equals(CLOSED_DESK_STAGE))
+			{
+				toggle.setText(READY_TO_CLOSE);
+				newButtonText = "";
+			}
+			// if the desk is being closed
+			else if (newButtonText.equals(READY_TO_OPEN) && desk.getCurrentStage().equals(CLOSED_DESK_STAGE))
+			{
+				toggle.setText(READY_TO_OPEN); 
+				newButtonText = "";
+			}
 		}
+		
 		panel.revalidate();
 		panel.repaint();
+	}
+	
+	private void NoCustomer()
+	{
+		lCustomerName.setText("");
+		lBaggage.setText("");
+		lBookingRef.setText("");
+		lFlightCode.setText("");
+		lDeskStage.setText(desk.getCurrentStage());
 	}
 	
 	public JComponent getComponent() {

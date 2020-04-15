@@ -32,7 +32,7 @@ public class FlightDisplay extends Observer {
 		{
 			if (bDepart.getText().equals("Depart"))
 			{
-				bDepart.setText("------");
+				bDepart.setText("NOT IMPLEMENTED");
 				// TODO implement flight taking off
 			}
 		}};

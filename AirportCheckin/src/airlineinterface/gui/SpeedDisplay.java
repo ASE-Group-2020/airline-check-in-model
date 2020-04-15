@@ -20,22 +20,29 @@ import airlineinterface.Simulator;
 
 public class SpeedDisplay extends Observer {
 	
-	private JPanel panel;
+	private JPanel panel, subPanel;
 	private JTextField lSimTime, lSimEnd, lBlank, lSimSpeed, lNewSpeed;
-	private JButton enterSpeed;
+	private JButton enterSpeed, stopButton;
 	
 	private ActionListener updateSpeed = new ActionListener()
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			try { debugSpeed = Math.max(0, Float.parseFloat(lNewSpeed.getText())); }
+			try { Simulator.simSpeed = Math.max(0, Float.parseFloat(lNewSpeed.getText())); }
 			catch (NumberFormatException nfe) {}
 			lNewSpeed.setText("");
 		}
 	};
 	
-	private float debugSpeed = -1;
+	private ActionListener stopSimulation = new ActionListener()
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			Simulator.runSimulation = false;
+		}
+	};
 	
 	public SpeedDisplay()
 	{
@@ -51,8 +58,11 @@ public class SpeedDisplay extends Observer {
 		lBlank = new JTextField("", 20);
 		lSimSpeed = new JTextField("", 20);
 		lNewSpeed = new JTextField("", 10);
+		
 		enterSpeed = new JButton("Set Speed");
 		enterSpeed.addActionListener(updateSpeed);
+		stopButton = new JButton("Stop Simulation");
+		stopButton.addActionListener(stopSimulation);
 		
 		lSimTime.setEditable(false);
 		lSimTime.setFocusable(false);
@@ -78,9 +88,18 @@ public class SpeedDisplay extends Observer {
 		c.gridx = 0;
 		c.gridy = 4;
 		panel.add(lNewSpeed, c); 
+		
+		subPanel = new JPanel(new GridBagLayout());
 		c.gridx = 0;
 		c.gridy = 5;
-		panel.add(enterSpeed, c); 
+		panel.add(subPanel, c); 
+		
+		c.gridx = 0;
+		c.gridy = 0;
+		subPanel.add(enterSpeed, c);
+		c.gridx = 1;
+		c.gridy = 0;
+		subPanel.add(stopButton, c); 
 		
 		updateDisplay();
 	}
@@ -88,9 +107,9 @@ public class SpeedDisplay extends Observer {
 	// TODO get speed variables from Simulator
 	public void updateDisplay()
 	{
-		lSimTime.setText("Simulator Time: " + -1);
-		lSimEnd.setText("Simulator End: " + -1);
-		lSimSpeed.setText("Simulator Speed: " + debugSpeed);
+		lSimTime.setText("Simulator Time: " + Simulator.currentTime);
+		lSimEnd.setText("Simulator End: " + Simulator.realRunTime);
+		lSimSpeed.setText("Simulator Speed: " + Simulator.simSpeed);
 	}
 	
 	public JComponent getComponent() {

@@ -56,10 +56,11 @@ public class GUIController {
 		view.addQueueDisplay(qd);
 	}
 	
-	public void addSpeed()
+	public SpeedDisplay addSpeed()
 	{
 		sd = new SpeedDisplay();
 		view.addSpeedDisplay(sd);
+		return sd;
 	}
 	
 	public void removeSpeed()

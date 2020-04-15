@@ -21,9 +21,14 @@ public class Desk extends Observable implements Runnable {
 		GETTING_CUSTOMER,
 		CALCULATING_FEE,
 		CHECKING_IN,
-		WAITING
+		WAITING,
+		CLOSED
 	}
 	private Stage action = Stage.WAITING;
+	private boolean waitingToClose = false;
+	
+	public void OpenDesk() { waitingToClose = false; if (action == Stage.CLOSED) action = Stage.WAITING; notifyObservers(); }
+	public void CloseDesk() { waitingToClose = true; }
 	
 	
 	/* No need to synchronize this, the HashMap will be made concurrent..? Doesn't need to be concurrent, just reading from it is a-okay. :)
@@ -56,23 +61,36 @@ public class Desk extends Observable implements Runnable {
 		// While (queue OR list are NOT empty) and (enable is turned on) i.e the terminal is working ... do ...
 		// while ( (!queue.getNotArrived().isEmpty() || !queue.getWaiting().isEmpty()) && enable ) { <- OLD WAY, we want the desks waiting now should we add more customers later
 		while (enable) {
-			Customer c = queue.getNext(); 								// Returns null customer object is queue is empty
-			this.currCustomer = c;										// this is the current customer the desk is working with
-			
-			if (c != null) { 											// If a customer exists in the queue, get them...
-				action = Stage.GETTING_CUSTOMER;
-				Logger.instance().PassengerMovedToDesk(c, deskName);
+			//System.out.println(deskName + " tick");
+			if (waitingToClose)
+			{
+				action = Stage.CLOSED;
+				currCustomer = null;
 				notifyObservers();
-				Simulator.sleep(9000); 									// 9 second delay for person to move to help desk and calculate fee
+				waitingToClose = false;
+			}
+			if (action == Stage.CLOSED)
+			{
+				Simulator.sleep(1000); if (!enable) break;
+				continue;
+			}
+																			// Returns null customer object is queue is empty
+			currCustomer = queue.getNext();										// this is the current customer the desk is working with
+			if (currCustomer != null) { 											// If a customer exists in the queue, get them...
+				
+				action = Stage.GETTING_CUSTOMER;
+				Logger.instance().PassengerMovedToDesk(currCustomer, deskName);
+				notifyObservers();
+				Simulator.sleep(9000); if (!enable) break; 									// 9 second delay for person to move to help desk and calculate fee
 				try {
 					action = Stage.CALCULATING_FEE;
 					float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],			// Calculate oversize fees
 														currCustomer.getBaggageDetails()[1]); 			// ...and set respective action in the method
 					notifyObservers();
 					
-					Simulator.sleep(3000); 																// 3 seconds to confirm check in and leave desk
+					Simulator.sleep(3000); if (!enable) break; 											// 3 seconds to confirm check in and leave desk
 					checkIn(currCustomer, currCustomerFee); 											// Check in the customer
-					Logger.instance().MainLog("Checked in: " + c.getFirstName() + " " + c.getLastName());
+					Logger.instance().MainLog("Checked in: " + currCustomer.getFirstName() + " " + currCustomer.getLastName());
 					notifyObservers();
 					
 					Simulator.sleep(3000);
@@ -83,12 +101,15 @@ public class Desk extends Observable implements Runnable {
 			}
 			else {														// If not, wait
 				action = Stage.WAITING;
+				//System.out.println(deskName + " currently waiting for a customer");
 				notifyObservers();
 				Simulator.sleep(2000);
 			}
 		}
-		
-		Logger.instance().MainLog(" ##DESK##  The " + deskName + " has stopped accepting customers.");
+		action = Stage.CLOSED;
+		currCustomer = null;
+		notifyObservers();
+		Logger.instance().MainLog(" ##DESK##  The " + deskName + " has been shut down.");
 	}
 	
 	/*	Get the current customer the desk is working on
@@ -109,12 +130,14 @@ public class Desk extends Observable implements Runnable {
 				return "Desk action: Checking a customer in.";
 			case WAITING:
 				return "Desk action: Waiting...";
+			case CLOSED:
+				return "Desk action: Closed.";
 			default:
 				return "Desk action: Not set.";
 		}
 	}
 
-	private synchronized void checkIn(Customer currCustomer, float baggageFee) {
+	private void checkIn(Customer currCustomer, float baggageFee) {
 		try {
 			action = Stage.CHECKING_IN;
 			addCustomerToFlight(currCustomer, currCustomer.getFlightCode(), baggageFee);			// Add customer to their selected flight
@@ -122,7 +145,7 @@ public class Desk extends Observable implements Runnable {
 			// Log that the customer has finished checking in.
 		} 
 		catch (AlreadyCheckedInException e) {System.out.println("Customer has already been checked in! Desk/CheckIn()");} 
-		catch (Exception e) {e.printStackTrace();}
+		catch (Exception e) { System.err.println("DEBUG: Unknown error in Desk.checkIn"); e.printStackTrace();}
 	}
 
 	public static float getOversizeFee(float currentWeight, float currentVolume) throws InvalidValueException {
@@ -146,7 +169,7 @@ public class Desk extends Observable implements Runnable {
 		else throw new InvalidValueException("the baggage shouldn't be more than 200kg in weight or 260 litres in volume.");
 	}
 
-	private synchronized void addCustomerToFlight(Customer currCustomer, String flightCode, float baggageFee) {
+	private void addCustomerToFlight(Customer currCustomer, String flightCode, float baggageFee) {
 		Flight currFlight = allFlights.get(flightCode);
 		try {
 			currFlight.addCustomer(currCustomer, baggageFee);
