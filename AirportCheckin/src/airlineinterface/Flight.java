@@ -6,7 +6,7 @@ import exceptions.InvalidValueException;
 
 public class Flight extends Observable {
 	
-	private HashSet<Customer> customers;
+	public HashSet<Customer> customers;
 	private String startLocation, endLocation, flightCode, carrier;
 	private int capacity;
 	private float maxWeight, maxVolume;

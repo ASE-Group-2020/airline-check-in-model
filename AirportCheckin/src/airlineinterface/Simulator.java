@@ -37,7 +37,7 @@ public class Simulator extends Observable {
 	}
 	*/
 	private List<Customer> allCustomers;	// All customers loaded into simulation
-	private List<Flight> allFlights;		// All flights loaded into simulation
+	public List<Flight> allFlights;		// All flights loaded into simulation
 	private List<Desk> allDesks;			// All desks in simulation
 	private WaitingQueue queue;
 	private GUIView guiView;
