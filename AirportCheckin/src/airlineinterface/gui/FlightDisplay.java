@@ -105,7 +105,7 @@ public class FlightDisplay extends Observer {
 		updateDisplay();
 	}
 
-	public void updateDisplay() {
+	public synchronized void updateDisplay() {
 		float[] maxAttr = flight.getMaxAttributes();
 		float[] curAttr = flight.getCustomerSumAttributes();
 		lStatus.setText("Flight status: NOT IMPLEMENTED");

@@ -22,13 +22,14 @@ public class WaitingQueue extends Observable implements Runnable {
 		Simulator.sleep(3000);
 		Logger.instance().MainLog("People have started arriving at the airport");
 		while (!notArrived.isEmpty() && active) {
-			getWaiting().add(notArrived.remove(0));
+			Customer c = notArrived.remove(0);
+			getWaiting().add(c);
 			notifyObservers();
 			// Logging
-			Customer c = ((LinkedList<Customer>) getWaiting()).peekLast();
 			Logger.instance().PassengerJoinedQueue(c);
 			Simulator.sleep(1000);
 		}
+		notifyObservers();
 		if (active) Logger.instance().MainLog("Everyone has arrived");
 	}
 
@@ -55,8 +56,12 @@ public class WaitingQueue extends Observable implements Runnable {
 	}
 
 	// Get / Set methods
-	public Queue<Customer> getWaiting() {
+	public synchronized Queue<Customer> getWaiting() {
 		return waiting;
+	}
+	
+	public Queue<Customer> getWaitingCopy() {
+		return new LinkedList<Customer>(waiting);
 	}
 
 	public void setWaiting(Queue<Customer> waiting) {

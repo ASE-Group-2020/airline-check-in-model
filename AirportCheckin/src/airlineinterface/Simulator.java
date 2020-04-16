@@ -24,9 +24,9 @@ public class Simulator extends Observable {
 		sim.readFlightsFromFile("dataFlight-40c.csv");
 		sim.readCustomersFromFile("dataCustomer-40c.csv");
 
-		sim.makeCustomersArrive(5);										// Delays the arrival of customers
+		//sim.makeCustomersArrive(5);										// Delays the arrival of customers
 		
-		sim.start(1, 120, true);										// (simSpeed, runTime, randomness)
+		sim.start(1, 120, false);										// (simSpeed, runTime, randomness)
 	}
 	/*
 	private static Simulator instance = null;
@@ -132,6 +132,12 @@ public class Simulator extends Observable {
 		Simulator.randomness = randomness;
 		
 		guiView.setVisible(true);
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		List<Thread> allDeskThreads = new ArrayList<Thread>();
 		Thread threadQueue = new Thread(queue);								// Start threads
@@ -299,8 +305,19 @@ public class Simulator extends Observable {
 		return fileFlights;
 	}
 	
-	// TODO re-do sleep so that it scales with changes in simSpeed
+	private static int realTimeStep = 50;
+	public static void sleep(int millisec)
+	{
+		float sleepTimeRemaining = (float) (millisec * ( randomness ? 0.5f * r.nextFloat() : 1 ));
+	    while (sleepTimeRemaining > 0) {
+	        try { Thread.sleep(realTimeStep); }
+	        catch (InterruptedException e) { Logger.instance().MainLog(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds."); }
+	        sleepTimeRemaining -= realTimeStep * simSpeed;
+	    }
+	}
 	
+	// TODO re-do sleep so that it scales with changes in simSpeed
+	/*
 	public static void sleep(int millisec)
 	{
 		double currentTime = System.currentTimeMillis();
@@ -323,7 +340,7 @@ public class Simulator extends Observable {
 			lastTickTime = tickTime;
 		}
 	}
-	
+	*/
 	/*
 	public static void sleep(int millisec) {
 		try {

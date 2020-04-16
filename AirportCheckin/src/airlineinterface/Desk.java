@@ -74,8 +74,9 @@ public class Desk extends Observable implements Runnable {
 				Simulator.sleep(1000); if (!enable) break;
 				continue;
 			}
-																			// Returns null customer object is queue is empty
+			//System.out.println(System.currentTimeMillis() + " 1 " + deskName);																// Returns null customer object is queue is empty
 			currCustomer = queue.getNext();										// this is the current customer the desk is working with
+			//System.out.println(System.currentTimeMillis() + " 2 " + deskName);
 			if (currCustomer != null) { 											// If a customer exists in the queue, get them...
 				
 				action = Stage.GETTING_CUSTOMER;
