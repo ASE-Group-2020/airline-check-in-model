@@ -17,28 +17,8 @@ import exceptions.InvalidValueException;
 // Runs main, sets up everything by loading in CSV files
 public class Simulator extends Observable {
 
-	public static void main(String[] args) {
-		Logger.instance().resetTimer();									// Start logger
-		
-		Simulator sim = new Simulator(3);								// the argument is the number of desks instantiated 
-
-		sim.readFlightsFromFile("dataFlight-40c.csv");
-		sim.readCustomersFromFile("dataCustomer-40c.csv");
-
-		//sim.makeCustomersArrive(5);										// Delays the arrival of customers
-		
-		sim.start(1, 120, false);										// (simSpeed, runTime, randomness)
-	}
-	/*
-	private static Simulator instance = null;
-	public static Simulator getInstance()
-	{
-		if (instance == null) return new Simulator(3);
-		else return instance;
-	}
-	*/
 	private List<Customer> allCustomers;	// All customers loaded into simulation
-	public List<Flight> allFlights;		// All flights loaded into simulation
+	public List<Flight> allFlights;			// All flights loaded into simulation
 	private List<Desk> allDesks;			// All desks in simulation
 	private WaitingQueue queue;
 	private GUIView guiView;
@@ -53,6 +33,7 @@ public class Simulator extends Observable {
 	public static float realRunTime;
 	
 	public static boolean runSimulation = true;
+	public static boolean closeWindow = false;
 	private static Random r;
 	
 	public Simulator(int deskCount)
@@ -191,8 +172,12 @@ public class Simulator extends Observable {
 		Logger.instance().MainLog("---Saving Log To File---");
 		
 		Logger.instance().WriteSummaryToFile("Summary.txt");
+		
+		while(!closeWindow) {}											// wait until window has been closed
 	}
 
+	/* addCustomersFromFile() - adds Customers data from a CSV file
+	 */
 	private static List<Customer> addCustomersFromFile(String filePath) {
 		ArrayList<Customer> fileCustomers = new ArrayList<Customer>();
 		try { 															// open input stream
@@ -247,20 +232,7 @@ public class Simulator extends Observable {
 		return fileCustomers;
 	}
 	
-	/* In a real environment this would be a connection to a DB but making it multithreaded would be beneficial 
-	 * and to show we know what we are supposed to be doing/learning. Here is the plan: 
-	 *  - Allocate a big buffer object, read a chunk, parse back from the end to find the last EOL char,
-	 * copy the last bit of the buffer into a temp string, shove a null into the buffer at the EOL+1, 
-	 * queue off the buffer reference, immediately create a new one, copy in the temp string first, 
-	 * then fill up the rest of the buffer and repeat until EOF. Repeat until done. Use a pool of 
-	 * threads to parse/process the buffers. You have to queue up whole chunks of valid lines. 
-	 * Queuing off single lines will result in the thread communications taking longer than the parsing.
-	 * This would result in out-of-order chunk processing but we don't care about that.
-	 * 
-	 * Is it worth it though??? I/O works faster sequentially (HDDs definitely do, which most companies still 
-	 * use on their servers)!
-	 * 
-	 * How to separate the processing from the file reading, though..? That could be threaded and made faster... Make the processing multi-threaded.
+	/* addFlightsFromFile() - adds Flight data from a CSV file
 	 */
 	private static List<Flight> addFlightsFromFile(String filePath) {
 		List<Flight> fileFlights = new ArrayList<Flight>();
@@ -318,44 +290,18 @@ public class Simulator extends Observable {
 	    }
 	}
 	
-	// TODO re-do sleep so that it scales with changes in simSpeed
-	/*
-	public static void sleep(int millisec)
-	{
-		double currentTime = System.currentTimeMillis();
-		double lastTickTime = currentTime;
-		double endTime;
-		double tickTime;
-		double deltaTime;
+
+	public static void main(String[] args) {
+		Logger.instance().resetTimer();									// Start logger
 		
-		if (randomness) endTime = currentTime + millisec * (0.5f + r.nextFloat());
-		else 			endTime = currentTime + millisec;
+		Simulator sim = new Simulator(3);								// the argument is the number of desks instantiated 
+
+		sim.readFlightsFromFile("dataFlight-40c.csv");
+		sim.readCustomersFromFile("dataCustomer-40c.csv");
+
+		//sim.makeCustomersArrive(5);									// Delays the arrival of customers
 		
-		while (currentTime < endTime)
-		{			
-			try { Thread.sleep(1L); }
-			catch (InterruptedException e) { Logger.instance().MainLog(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds."); }
-			tickTime = System.currentTimeMillis();
-			deltaTime = tickTime - lastTickTime;
-			if (deltaTime == 0L) continue;
-			currentTime += deltaTime * Simulator.simSpeed;
-			lastTickTime = tickTime;
-		}
+		sim.start(1, 120, false);										// (simSpeed, runTime, randomness)
+		System.exit(0);													// Exit the program after all threads have been stopped and GUI closed
 	}
-	*/
-	/*
-	public static void sleep(int millisec) {
-		try {
-			if (randomness) {
-				Thread.sleep((int) (millisec / simSpeed * (0.5 + r.nextFloat())));
-			} else {
-				Thread.sleep((int) (millisec / simSpeed));
-			}
-			
-		} 
-		catch (InterruptedException e) {
-			Logger.instance().MainLog(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds.");
-		}
-	}
-	*/
 }

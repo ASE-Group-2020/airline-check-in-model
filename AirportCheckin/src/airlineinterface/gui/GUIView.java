@@ -3,9 +3,13 @@ package airlineinterface.gui;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import airlineinterface.Simulator;
 
 public class GUIView {
 
@@ -15,9 +19,17 @@ public class GUIView {
 	public GUIView() {
 		GridBagConstraints c = new GridBagConstraints();
 		frame = new JFrame("Simulation");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		pMaster = new JPanel(new GridBagLayout());
 		frame.add(pMaster);
+		frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent event) {
+            	Simulator.runSimulation = false;		// set flags to inform the simulation to start wrapping up and close
+            	Simulator.closeWindow = true;
+            	Simulator.simSpeed = 10000;				// set sim speed to a high number to close window instantly, cuz nobody wants to wait in 2020
+            }
+        });
 		pQueue = new JPanel(new FlowLayout());
 		pDesks = new JPanel(new FlowLayout());
 		pFlights = new JPanel(new FlowLayout());
