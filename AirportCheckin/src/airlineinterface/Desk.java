@@ -90,7 +90,7 @@ public class Desk extends Observable implements Runnable {
 					
 					Simulator.sleep(3000); if (!enable) break; 											// 3 seconds to confirm check in and leave desk
 					checkIn(currCustomer, currCustomerFee); 											// Check in the customer
-					Logger.instance().MainLog("Checked in: " + currCustomer.getFirstName() + " " + currCustomer.getLastName());
+					Logger.instance().MainLog("Checked in: " + currCustomer.getFirstName() + " " + currCustomer.getLastName());	// Log that the customer has finished checking in.
 					notifyObservers();
 					
 					Simulator.sleep(3000);
@@ -141,8 +141,6 @@ public class Desk extends Observable implements Runnable {
 		try {
 			action = Stage.CHECKING_IN;
 			addCustomerToFlight(currCustomer, currCustomer.getFlightCode(), baggageFee);			// Add customer to their selected flight
-			currCustomer.setCheckedIn(); 															// Change boolean flag in customer object			
-			// Log that the customer has finished checking in.
 		} 
 		catch (AlreadyCheckedInException e) {System.out.println("Customer has already been checked in! Desk/CheckIn()");} 
 		catch (Exception e) { System.err.println("DEBUG: Unknown error in Desk.checkIn"); e.printStackTrace();}
@@ -174,7 +172,7 @@ public class Desk extends Observable implements Runnable {
 		else throw new InvalidValueException("the baggage shouldn't be more than 200kg in weight or 260 litres in volume.");
 	}
 
-	private void addCustomerToFlight(Customer currCustomer, String flightCode, float baggageFee) {
+	private void addCustomerToFlight(Customer currCustomer, String flightCode, float baggageFee) throws AlreadyCheckedInException {
 		Flight currFlight = allFlights.get(flightCode);
 		try {
 			currFlight.addCustomer(currCustomer, baggageFee);

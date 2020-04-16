@@ -11,6 +11,7 @@ import java.util.Random;
 
 import airlineinterface.gui.GUIController;
 import airlineinterface.gui.GUIView;
+import exceptions.AlreadyCheckedInException;
 import exceptions.InvalidValueException;
 
 // Runs main, sets up everything by loading in CSV files
@@ -104,7 +105,8 @@ public class Simulator extends Observable {
 					try {
 						f.addCustomer(c, Desk.getOversizeFee(c.getBaggageDetails()));
 						break;
-					} catch (InvalidValueException e) {}
+					} catch (InvalidValueException e) {/* Would occur if the customer flight code was incorrect */}
+					catch (AlreadyCheckedInException e) {/* Would occur if the customer was already set to checked in */}
 				}
 			}
 		}

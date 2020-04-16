@@ -2,6 +2,8 @@ package airlineinterface;
 
 import java.util.HashSet;
 import java.util.Iterator;
+
+import exceptions.AlreadyCheckedInException;
 import exceptions.InvalidValueException;
 
 public class Flight extends Observable {
@@ -62,10 +64,11 @@ public class Flight extends Observable {
 	 * @param c the new customer to add to the flight
 	 * @throws InvalidValueException when the customer's flight code does not match with this flight's code (i.e the customer is trying to check into the wrong flight)
 	 */
-	public boolean addCustomer(Customer c, float oversizeFee) throws InvalidValueException
+	public boolean addCustomer(Customer c, float oversizeFee) throws InvalidValueException, AlreadyCheckedInException
 	{
 		if (!c.getFlightCode().equals(flightCode)) throw new InvalidValueException("customer does not belong to this flight");
-		boolean b = customers.add(c);										//Add customer to TreeSet of customer on flight
+		c.setCheckedIn();										//Set customer to being checked in, throwing exception if customer is already checked in
+		boolean b = customers.add(c);							//Add customer to TreeSet of customer on flight
 		currentCapacity = currentCapacity + 1;					//Add one additional passengers to the flight
 		float[] baggageDetails = c.getBaggageDetails();			//Get an array which holds the 2 values: checked in baggage weight and volume
 	    currentWeight = currentWeight + baggageDetails[0];		//Add baggage weight to the flight

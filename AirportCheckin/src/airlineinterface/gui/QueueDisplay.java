@@ -8,6 +8,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
 import airlineinterface.Customer;
@@ -50,7 +51,11 @@ public class QueueDisplay extends Observer {
 
 	@Override
 	public void onNotify() {
-		updateDisplay();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				updateDisplay();
+			}
+		});
 	}
 
 	private class QueueTableModel extends AbstractTableModel {
