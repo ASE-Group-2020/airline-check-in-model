@@ -102,8 +102,7 @@ public class Simulator extends Observable {
 			for (Flight f : allFlights) {
 				if(f.getFlightCode().equals(c.getFlightCode())) {
 					try {
-						f.addCustomer(c, Desk.getOversizeFee(c.getBaggageDetails()[0], 
-								c.getBaggageDetails()[1]*c.getBaggageDetails()[2]*c.getBaggageDetails()[3]));
+						f.addCustomer(c, Desk.getOversizeFee(c.getBaggageDetails()));
 						break;
 					} catch (InvalidValueException e) {}
 				}

@@ -85,10 +85,7 @@ public class Desk extends Observable implements Runnable {
 				Simulator.sleep(9000); if (!enable) break; 									// 9 second delay for person to move to help desk and calculate fee, if desk is still enabled - continue
 				try {
 					action = Stage.CALCULATING_FEE;
-					float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],			// Calculate oversize fees
-														currCustomer.getBaggageDetails()[1]
-														* currCustomer.getBaggageDetails()[2]
-														* currCustomer.getBaggageDetails()[3]); 		// ...and set respective action in the method
+					float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails());			// Calculate oversize fees, set respective action in the method
 					notifyObservers();
 					
 					Simulator.sleep(3000); if (!enable) break; 											// 3 seconds to confirm check in and leave desk
@@ -150,21 +147,26 @@ public class Desk extends Observable implements Runnable {
 		catch (AlreadyCheckedInException e) {System.out.println("Customer has already been checked in! Desk/CheckIn()");} 
 		catch (Exception e) { System.err.println("DEBUG: Unknown error in Desk.checkIn"); e.printStackTrace();}
 	}
-
-	public static float getOversizeFee(float currentWeight, float currentVolume) throws InvalidValueException {
-		if (currentWeight < 15 && currentVolume < 20) {
+	
+	/*	Customer baggage details takes a float array, the 0th element is the weight and 1,2,3 are the X,Y,Z for the volume
+	 */
+	public static float getOversizeFee(float[] customerBaggage) throws InvalidValueException {
+		float weight = customerBaggage[0];
+		float volume = customerBaggage[1]*customerBaggage[2]*customerBaggage[3];
+		
+		if (weight < 15 && volume < 20) {
 			return 0;
-		} else if (currentWeight < 25 && currentVolume < 35) {
+		} else if (weight < 25 && volume < 35) {
 			return 10;
-		} else if (currentWeight < 45 && currentVolume < 55) {
+		} else if (weight < 45 && volume < 55) {
 			return 20;
-		} else if (currentWeight < 70 && currentVolume < 90) {
+		} else if (weight < 70 && volume < 90) {
 			return 40;
-		} else if (currentWeight < 100 && currentVolume < 120) {
+		} else if (weight < 100 && volume < 120) {
 			return 60;
-		} else if (currentWeight < 150 && currentVolume < 180) {
+		} else if (weight < 150 && volume < 180) {
 			return 80;
-		} else if (currentWeight <= 200 && currentVolume <= 260) {
+		} else if (weight <= 200 && volume <= 260) {
 			return 100;
 		}
 		// This is the maximum weight and volume an individual is allowed to possess, beyond 200kg
