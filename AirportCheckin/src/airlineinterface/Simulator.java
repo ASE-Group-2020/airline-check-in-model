@@ -92,13 +92,12 @@ public class Simulator extends Observable {
 	/* Reads customers from CSV file and adds them into customer lists.
 	*/
 	public void readCustomersFromFile(String filepath) {
-		allCustomers.addAll(addCustomersFromFile(filepath));
+		List<List<Customer>> allFileCustomers = addCustomersFromFile(filepath);
 		// Separate customers to checked-in and not checked-in
-		List<Customer> checkedIn = new ArrayList<Customer>();
-		List<Customer> notCheckedIn = new ArrayList<Customer>();
-		for(Customer c : allCustomers) {
-			(c.isCheckedIn() ? checkedIn : notCheckedIn).add(c);
-		}
+		List<Customer> checkedIn = allFileCustomers.get(0);
+		List<Customer> notCheckedIn = allFileCustomers.get(1);
+		allCustomers.addAll(checkedIn);
+		allCustomers.addAll(notCheckedIn);
 		for (Customer c : checkedIn) {
 			for (Flight f : allFlights) {
 				if(f.getFlightCode().equals(c.getFlightCode())) {
@@ -193,8 +192,9 @@ public class Simulator extends Observable {
 		Logger.instance().WriteSummaryToFile("Summary.txt");
 	}
 
-	private static List<Customer> addCustomersFromFile(String filePath) {
-		ArrayList<Customer> fileCustomers = new ArrayList<Customer>();
+	private static List<List<Customer>> addCustomersFromFile(String filePath) {
+		ArrayList<Customer> fileCheckedInCustomers = new ArrayList<Customer>();
+		ArrayList<Customer> fileNotCheckedInCustomers = new ArrayList<Customer>();
 		try { 															// open input stream
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
 			String line = ""; 											// store current line
@@ -221,10 +221,8 @@ public class Simulator extends Observable {
 						// Customer failed to be created - skip to next line (WHY NO NOTIFICATION???)
 						continue;
 					}
-					fileCustomers.add(currCustomer);
 					boolean checkedIn = Boolean.parseBoolean(customerDetails[4]); 
-					if(checkedIn)
-						currCustomer.setCheckedIn();
+					(checkedIn ? fileCheckedInCustomers : fileNotCheckedInCustomers).add(currCustomer);
 					Logger.instance().LogPassengerDetails(currCustomer);
 				} else {
 					Logger.instance().MainLog(
@@ -244,7 +242,10 @@ public class Simulator extends Observable {
 				e.printStackTrace();
 			}
 		}
-		return fileCustomers;
+		List<List<Customer>> rtrn = new ArrayList<List<Customer>>();
+		rtrn.add(fileCheckedInCustomers);
+		rtrn.add(fileNotCheckedInCustomers);
+		return rtrn;
 	}
 	
 	/* In a real environment this would be a connection to a DB but making it multithreaded would be beneficial 
