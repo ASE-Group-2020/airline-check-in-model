@@ -102,7 +102,8 @@ public class Simulator extends Observable {
 			for (Flight f : allFlights) {
 				if(f.getFlightCode().equals(c.getFlightCode())) {
 					try {
-						f.addCustomer(c, Desk.getOversizeFee(c.getBaggageDetails()[0], c.getBaggageDetails()[1]));
+						f.addCustomer(c, Desk.getOversizeFee(c.getBaggageDetails()[0], 
+								c.getBaggageDetails()[1]*c.getBaggageDetails()[2]*c.getBaggageDetails()[3]));
 						break;
 					} catch (InvalidValueException e) {}
 				}
@@ -202,19 +203,19 @@ public class Simulator extends Observable {
 				Customer currCustomer;
 				if (customerDetails.length == 9) { 						// handle partial data - only take data from full fields, ignore partial data!
 					try {
-						float cWeight = 0, cVol = 0;
+						float cWeight = 0, cVolX = 0, cVolY = 0, cVolZ = 0;
 						try {
 							cWeight = Float.parseFloat(customerDetails[5]);
-							cVol = Float.parseFloat(customerDetails[6]) 
-									* Float.parseFloat(customerDetails[7]) 
-									* Float.parseFloat(customerDetails[8]);	// Baggage volume calculation added 
+							cVolX = Float.parseFloat(customerDetails[6]);
+							cVolY = Float.parseFloat(customerDetails[7]);
+							cVolZ = Float.parseFloat(customerDetails[8]);	// Baggage volume calculation added 
 						} catch (NumberFormatException e) { /* If the parsing fails (e.g. no value, so assume 0) it defaults to 0 */}
 						
 						currCustomer = new Customer(customerDetails[0],
 													customerDetails[1], 
 													customerDetails[2],
 													customerDetails[3], 
-													cWeight, cVol); 	// one-liner to initialize Customer object with data from current file line
+													cWeight, cVolX, cVolY, cVolZ); 	// one-liner to initialize Customer object with data from current file line
 					} catch (InvalidValueException e) {
 						// Customer failed to be created - skip to next line (WHY NO NOTIFICATION???)
 						continue;

@@ -6,7 +6,7 @@ public class Customer implements Comparable<Customer> {
 	
 	private String refCode, firstName, lastName, flightCode;
 	private boolean isCheckedIn = false;
-	private float baggageWeight, baggageVolume;
+	private float baggageWeight, volX, volY, volZ;
 	
 	@SuppressWarnings("unused")
 	private Customer() {}
@@ -23,7 +23,7 @@ public class Customer implements Comparable<Customer> {
 	 * @param _volume volume of the customer's baggage
 	 * @throws InvalidValueException when any of the input values are either empty, null or if the integer values are below zero
 	 */
-	public Customer(String _code, String _firstName, String _lastName, String _flightCode, float _weight, float _volume) throws InvalidValueException
+	public Customer(String _code, String _firstName, String _lastName, String _flightCode, float _weight, float _volumeX, float _volumeY, float _volumeZ) throws InvalidValueException
 	{
 		// ensures all input data is valid
 		if (_code == null)		  	throw new InvalidValueException("_code must not be null");
@@ -35,14 +35,18 @@ public class Customer implements Comparable<Customer> {
 		if (_lastName.equals(""))  	throw new InvalidValueException("_lastName must not be empty");
 		if (_flightCode.equals(""))	throw new InvalidValueException("_flightCode must not be empty");
 		if (_weight < 0) 			throw new InvalidValueException("_weight must not be null");
-		if (_volume < 0) 			throw new InvalidValueException("_volume must not be null");
+		if (_volumeX < 0) 			throw new InvalidValueException("_volumeX must not be null");
+		if (_volumeY < 0) 			throw new InvalidValueException("_volumeY must not be null");
+		if (_volumeZ < 0) 			throw new InvalidValueException("_volumeZ must not be null");
 		
 		refCode = _code;
 		firstName = _firstName;
 		lastName = _lastName;
 		flightCode = _flightCode;
 		baggageWeight = _weight;
-		baggageVolume = _volume;
+		volX = _volumeX;
+		volY = _volumeY;
+		volZ = _volumeZ;
 	}
 	
 	/**
@@ -77,11 +81,11 @@ public class Customer implements Comparable<Customer> {
 	/**@return a string representation of the customer's ref code and names*/
 	public String toString() {return refCode + " " + firstName + " " + lastName;}
 	
-	/**@return an array of the following attributes (in order):<br>
-	 * weight of customer's baggage<br>
+	/**@return an array of the following attributes (in order):
+	 * weight of customer's baggage
 	 * volume of customer's baggage
 	 * */
-	public float[] getBaggageDetails() { return new float[] {baggageWeight, baggageVolume}; }
+	public float[] getBaggageDetails() { return new float[] {baggageWeight, volX, volY, volZ}; }
 	
 	/**Compares two customers by their reference codes (which should be unique)*/
 	public int compareTo(Customer other) { return refCode.compareTo(other.getRefCode()); }

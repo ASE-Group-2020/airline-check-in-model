@@ -13,7 +13,7 @@ public class Desk extends Observable implements Runnable {
 	private static HashMap<String, Flight> allFlights = new HashMap<String, Flight>();
 	
 	// Instance-specific
-	public boolean enable = true;		// Connect to terminal to control opening/closing desks via setter method
+	public boolean enable = true;			// Connect to terminal to control opening/closing desks via setter method
 	private WaitingQueue queue;
 	private String deskName;
 	private Customer currCustomer;			// The current customer at the desk
@@ -74,19 +74,21 @@ public class Desk extends Observable implements Runnable {
 				Simulator.sleep(1000); if (!enable) break;
 				continue;
 			}
-			//System.out.println(System.currentTimeMillis() + " 1 " + deskName);																// Returns null customer object is queue is empty
-			currCustomer = queue.getNext();										// this is the current customer the desk is working with
+			//System.out.println(System.currentTimeMillis() + " 1 " + deskName);			// Returns null customer object is queue is empty
+			currCustomer = queue.getNext();													// this is the current customer the desk is working with
 			//System.out.println(System.currentTimeMillis() + " 2 " + deskName);
-			if (currCustomer != null) { 											// If a customer exists in the queue, get them...
+			if (currCustomer != null) { 													// If a customer exists in the queue, get them...
 				
 				action = Stage.GETTING_CUSTOMER;
 				Logger.instance().PassengerMovedToDesk(currCustomer, deskName);
 				notifyObservers();
-				Simulator.sleep(9000); if (!enable) break; 									// 9 second delay for person to move to help desk and calculate fee
+				Simulator.sleep(9000); if (!enable) break; 									// 9 second delay for person to move to help desk and calculate fee, if desk is still enabled - continue
 				try {
 					action = Stage.CALCULATING_FEE;
 					float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails()[0],			// Calculate oversize fees
-														currCustomer.getBaggageDetails()[1]); 			// ...and set respective action in the method
+														currCustomer.getBaggageDetails()[1]
+														* currCustomer.getBaggageDetails()[2]
+														* currCustomer.getBaggageDetails()[3]); 		// ...and set respective action in the method
 					notifyObservers();
 					
 					Simulator.sleep(3000); if (!enable) break; 											// 3 seconds to confirm check in and leave desk
