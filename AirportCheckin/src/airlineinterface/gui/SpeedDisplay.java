@@ -29,7 +29,7 @@ public class SpeedDisplay extends Observer {
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			try { Simulator.simSpeed = Math.max(0, Float.parseFloat(lNewSpeed.getText())); }
+			try { Simulator.get().setSimulationSpeed(Math.max(0, Float.parseFloat(lNewSpeed.getText()))); }
 			catch (NumberFormatException nfe) {}
 			lNewSpeed.setText("");
 		}
@@ -40,7 +40,7 @@ public class SpeedDisplay extends Observer {
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			Simulator.runSimulation = false;
+			Simulator.get().stopSimulation();
 		}
 	};
 	
@@ -100,16 +100,14 @@ public class SpeedDisplay extends Observer {
 		c.gridx = 1;
 		c.gridy = 0;
 		subPanel.add(stopButton, c); 
-		
-		updateDisplay();
 	}
 	
 	// TODO get speed variables from Simulator
 	public void updateDisplay()
 	{
-		lSimTime.setText("Simulator Time: " + Simulator.currentTime);
-		lSimEnd.setText("Simulator End: " + Simulator.realRunTime);
-		lSimSpeed.setText("Simulator Speed: " + Simulator.simSpeed);
+		lSimTime.setText("Simulator Time: " + Simulator.get().getCurrentTime());
+		lSimEnd.setText("Simulator End: " + Simulator.get().getRealRunTime());
+		lSimSpeed.setText("Simulator Speed: " + Simulator.get().getSimSpeed());
 	}
 	
 	public JComponent getComponent() {

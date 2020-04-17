@@ -25,9 +25,7 @@ public class GUIView {
 		frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent event) {
-            	Simulator.runSimulation = false;		// set flags to inform the simulation to start wrapping up and close
-            	Simulator.closeWindow = true;
-            	Simulator.simSpeed = 10000;				// set sim speed to a high number to close window instantly, cuz nobody wants to wait in 2020
+            	Simulator.get().closeSimulation();
             }
         });
 		pQueue = new JPanel(new FlowLayout());
@@ -79,6 +77,10 @@ public class GUIView {
 	public void setVisible(boolean vis) {
 		frame.pack();
 		frame.setVisible(vis);
+	}
+	
+	public void closeGui() {
+		frame.dispose();
 	}
 
 }

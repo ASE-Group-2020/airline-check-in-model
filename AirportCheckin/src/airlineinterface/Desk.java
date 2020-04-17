@@ -71,7 +71,7 @@ public class Desk extends Observable implements Runnable {
 			}
 			if (action == Stage.CLOSED)
 			{
-				Simulator.sleep(1000); if (!enable) break;
+				Simulator.get().sleep(1000); if (!enable) break;
 				continue;
 			}
 			//System.out.println(System.currentTimeMillis() + " 1 " + deskName);			// Returns null customer object is queue is empty
@@ -82,18 +82,18 @@ public class Desk extends Observable implements Runnable {
 				action = Stage.GETTING_CUSTOMER;
 				Logger.instance().PassengerMovedToDesk(currCustomer, deskName);
 				notifyObservers();
-				Simulator.sleep(9000); if (!enable) break; 									// 9 second delay for person to move to help desk and calculate fee, if desk is still enabled - continue
+				Simulator.get().sleep(9000); if (!enable) break; 									// 9 second delay for person to move to help desk and calculate fee, if desk is still enabled - continue
 				try {
 					action = Stage.CALCULATING_FEE;
 					float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails());			// Calculate oversize fees, set respective action in the method
 					notifyObservers();
 					
-					Simulator.sleep(3000); if (!enable) break; 											// 3 seconds to confirm check in and leave desk
+					Simulator.get().sleep(3000); if (!enable) break; 											// 3 seconds to confirm check in and leave desk
 					checkIn(currCustomer, currCustomerFee); 											// Check in the customer
 					Logger.instance().MainLog("Checked in: " + currCustomer.getFirstName() + " " + currCustomer.getLastName());	// Log that the customer has finished checking in.
 					notifyObservers();
 					
-					Simulator.sleep(3000);
+					Simulator.get().sleep(3000);
 				}
 				catch (InvalidValueException e) {
 					Logger.instance().MainLog(" ##DESK##  The " + deskName + " has reported the following error: " + e.getMessage());
@@ -103,7 +103,7 @@ public class Desk extends Observable implements Runnable {
 				action = Stage.WAITING;
 				//System.out.println(deskName + " currently waiting for a customer");
 				notifyObservers();
-				Simulator.sleep(2000);
+				Simulator.get().sleep(2000);
 			}
 		}
 		action = Stage.CLOSED;

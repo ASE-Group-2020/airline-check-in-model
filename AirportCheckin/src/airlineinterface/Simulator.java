@@ -16,6 +16,17 @@ import exceptions.InvalidValueException;
 
 // Runs main, sets up everything by loading in CSV files
 public class Simulator extends Observable {
+	
+	private static Simulator instance;
+	
+	/*
+	 * Singleton pattern for Simulator - Desk and WaitingQueue need to sleep so must have access to a single Simulator
+	 */
+	public static Simulator get() {
+		if (instance == null)
+			instance = new Simulator();
+		return instance;
+	}
 
 	private List<Customer> allCustomers;	// All customers loaded into simulation
 	public List<Flight> allFlights;			// All flights loaded into simulation
@@ -25,18 +36,19 @@ public class Simulator extends Observable {
 	private GUIController guiController;
 	private int deskCount;					// Used for naming desks 
 	
-	private static boolean randomness; 
-	public static float simSpeed;
-	public static long stopAtTime;
-	public static long startTime;
-	public static long currentTime;
-	public static float realRunTime;
+	/* Time and sleep-related variables */
+	private boolean randomness; 
+	private float simSpeed;
+	private long stopAtTime;
+	private long startTime;
+	private long currentTime;
+	private float realRunTime;
+	private int sleepTimeStep = 50;		// Simulator.sleep waits for this time step as many times as needed - makes simSpeed reactive 
+	private Random r = new Random();
+	private boolean runSimulation = true;
+	private volatile boolean closeWindow = false;	// Volatile as otherwise the window refuses to close if simulation is saved to file through button
 	
-	public static boolean runSimulation = true;
-	public static boolean closeWindow = false;
-	private static Random r;
-	
-	public Simulator(int deskCount)
+	private Simulator()
 	{
 		// Build GUI.
 		guiView = new GUIView();
@@ -46,22 +58,44 @@ public class Simulator extends Observable {
 		guiController.addQueue(queue);
 		// Build desks
 		allDesks = new ArrayList<Desk>();
-		addDesks(deskCount);
 		// Create lists
 		allFlights = new ArrayList<Flight>();
 		allCustomers = new ArrayList<Customer>();
 		
 		addObserver(guiController.addSpeed());
-		
-		r = new Random();
-		
-		//instance = this;
+	}
+	
+	public float getSimSpeed() {
+		return simSpeed;
+	}
+	
+	public float getRealRunTime() {
+		return realRunTime;
+	}
+	
+	public long getCurrentTime() {
+		return currentTime;
+	}
+	
+	/* Causes simulation to stop and write to file */
+	public void stopSimulation() {
+		runSimulation = false;
+	}
+	/* Causes simulation to stop, write to file, and closes GUI */
+	public void closeSimulation() {
+    	runSimulation = false;		// set flags to inform the simulation to start wrapping up and close
+    	closeWindow = true;
+    	simSpeed = 10000;			// set sim speed to a high number to close window instantly, cuz nobody wants to wait in 2020
+	}
+	
+	public void setSimulationSpeed(float speed) {
+		simSpeed = speed;
 	}
 		
 	/* Reads flights from CSV file and adds them into flight list.
 	*/
-	public void readFlightsFromFile(String filepath) {
-		List<Flight> flightsFromFile = addFlightsFromFile(filepath);
+	public void addFlightsFromFile(String filepath) {
+		List<Flight> flightsFromFile = getFlightsFromFile(filepath);
 
 		allFlights.addAll(flightsFromFile);		// Add all flights to allFlights
 		Desk.addFlights(flightsFromFile);		// Add all flights to desk
@@ -73,8 +107,8 @@ public class Simulator extends Observable {
 	
 	/* Reads customers from CSV file and adds them into customer lists.
 	*/
-	public void readCustomersFromFile(String filepath) {
-		List<List<Customer>> allFileCustomers = addCustomersFromFile(filepath);
+	public void addCustomersFromFile(String filepath) {
+		List<List<Customer>> allFileCustomers = getCustomersFromFile(filepath);
 		// Separate customers to checked-in and not checked-in
 		List<Customer> checkedIn = allFileCustomers.get(0);
 		List<Customer> notCheckedIn = allFileCustomers.get(1);
@@ -110,9 +144,9 @@ public class Simulator extends Observable {
 	// Starts Simulator. Handles time management and randomness setting of the simulation.
 	public void start(float simSpeed, float realRunTime, boolean randomness) {
 		runSimulation = true;
-		Simulator.realRunTime = realRunTime;
-		Simulator.simSpeed = simSpeed;
-		Simulator.randomness = randomness;
+		this.realRunTime = realRunTime;
+		this.simSpeed = simSpeed;
+		this.randomness = randomness;
 		
 		guiView.setVisible(true);
 		try {
@@ -134,14 +168,14 @@ public class Simulator extends Observable {
 		threadQueue.start();
 		
 		startTime = System.currentTimeMillis();
-		stopAtTime = startTime + (long)(Simulator.realRunTime * 1000);
+		stopAtTime = startTime + (long)(this.realRunTime * 1000);
 		currentTime = 0;
 		while (stopAtTime > System.currentTimeMillis() && runSimulation)
 		{
 			currentTime = (System.currentTimeMillis() - startTime) / 1000;
 			notifyObservers();
 		}
-		currentTime = (long) Simulator.realRunTime;
+		currentTime = (long) this.realRunTime;
 		notifyObservers();
 		
 		// Stop desks and queue
@@ -173,12 +207,14 @@ public class Simulator extends Observable {
 		
 		Logger.instance().WriteSummaryToFile("Summary.txt");
 		
-		while(!closeWindow) {}											// wait until window has been closed
+		while (!closeWindow) {try {Thread.sleep(100);} catch (InterruptedException e) {}}	// wait until window has been closed
+		guiController.closeGui();
 	}
 
-	/* addCustomersFromFile() - adds Customers data from a CSV file
+	/* 
+	 * getCustomersFromFile() - Helper function to read all customers from a CSV file
 	 */
-	private static List<List<Customer>> addCustomersFromFile(String filePath) {
+	private static List<List<Customer>> getCustomersFromFile(String filePath) {
 		ArrayList<Customer> fileCheckedInCustomers = new ArrayList<Customer>();
 		ArrayList<Customer> fileNotCheckedInCustomers = new ArrayList<Customer>();
 		try { 															// open input stream
@@ -235,9 +271,10 @@ public class Simulator extends Observable {
 		return rtrn;
 	}
 	
-	/* addFlightsFromFile() - adds Flight data from a CSV file
+	/*
+	 * addFlightsFromFile() - Helper function to read all flights from a CSV file
 	 */
-	private static List<Flight> addFlightsFromFile(String filePath) {
+	private static List<Flight> getFlightsFromFile(String filePath) {
 		List<Flight> fileFlights = new ArrayList<Flight>();
 		try { 															// open input stream
 			BufferedReader reader = new BufferedReader(new FileReader(filePath));
@@ -265,9 +302,7 @@ public class Simulator extends Observable {
 				fileFlights.add(currFlight); 							// the key is the unique flight id (flight code), value is currFlight being added
 			}
 			reader.close(); 											// close reader
-		}
-			
-		 catch (Exception e) {
+		} catch (Exception e) {
 			if (e instanceof FileNotFoundException) {
 				System.err.println("Error: Flight info file not found. Exiting...");
 				System.exit(0);
@@ -282,14 +317,16 @@ public class Simulator extends Observable {
 		return fileFlights;
 	}
 	
-	private static int realTimeStep = 50;
-	public static void sleep(int millisec)
+	/*
+	 * Public method that handles sleeping with potential randomness and different simulation speeds
+	 */
+	public void sleep(int millisec)
 	{
-		float sleepTimeRemaining = (float) (millisec * ( randomness ? 0.5f * r.nextFloat() : 1 ));
-	    while (sleepTimeRemaining > 0) {
-	        try { Thread.sleep(realTimeStep); }
+		float sleepTimeRemaining = (float) (millisec * ( randomness ? 0.5f * r.nextFloat() : 1 ));	// Total time to sleep for (including randomness)
+	    while (sleepTimeRemaining > 0) {															// If sleeping hasn't completed, keep looping
+	        try { Thread.sleep(sleepTimeStep); }													// Sleep for a set, small time - allows CPU to do other tasks
 	        catch (InterruptedException e) { Logger.instance().MainLog(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds."); }
-	        sleepTimeRemaining -= realTimeStep * simSpeed;
+	        sleepTimeRemaining -= sleepTimeStep * simSpeed;											// Update remaining time, considering simSpeed
 	    }
 	}
 	
@@ -297,14 +334,14 @@ public class Simulator extends Observable {
 	public static void main(String[] args) {
 		Logger.instance().resetTimer();									// Start logger
 		
-		Simulator sim = new Simulator(3);								// the argument is the number of desks instantiated 
+		Simulator sim = Simulator.get();								// Only one Simulator can exist at a time
+		sim.addDesks(3);												// No desks are added by default - specify the number here
 
-		sim.readFlightsFromFile("dataFlight-40c.csv");
-		sim.readCustomersFromFile("dataCustomer-40c.csv");
+		sim.addFlightsFromFile("dataFlight-40c.csv");
+		sim.addCustomersFromFile("dataCustomer-40c.csv");
 
-		//sim.makeCustomersArrive(5);									// Delays the arrival of customers
+		//sim.makeCustomersArrive(5);									// Immediate arrival of customers
 		
 		sim.start(1, 120, false);										// (simSpeed, runTime, randomness)
-		System.exit(0);													// Exit the program after all threads have been stopped and GUI closed
 	}
 }

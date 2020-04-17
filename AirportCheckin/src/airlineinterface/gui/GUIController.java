@@ -67,4 +67,8 @@ public class GUIController {
 	{
 		view.removeSpeedDisplay(sd);
 	}
+	
+	public void closeGui() {
+		view.closeGui();
+	}
 }

@@ -23,14 +23,14 @@ public class WaitingQueue extends Observable implements Runnable {
 	@Override
 	public void run() {
 		Logger.instance().MainLog("Starting queue simulation");
-		Simulator.sleep(3000);
+		Simulator.get().sleep(3000);
 		Logger.instance().MainLog("People have started arriving at the airport");
 		while (!notArrived.isEmpty() && active) {
 			Customer c = nextCustomerArrived();
 			notifyObservers();
 			// Logging
 			Logger.instance().PassengerJoinedQueue(c);
-			Simulator.sleep(1000);
+			Simulator.get().sleep(1000);
 		}
 		notifyObservers();
 		if (active) Logger.instance().MainLog("Everyone has arrived");
