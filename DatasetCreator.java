@@ -24,6 +24,8 @@ public class DatasetCreator
 	static int flightCount;
 	/**The number of customer entries to be produced*/
 	static int customerCount;	
+	/**Starting location where the check-in desk is located*/
+	static String airportLocation;
 	/**A list of place names used to create flight paths*/
 	static String[] places;
 	/**A list of place codes used to create flight paths - MUST match the above names in the correct order*/
@@ -75,13 +77,17 @@ public class DatasetCreator
 	/**Resets the DatasetCreator object with specified default variables*/
 	public static void Reset()
 	{
-		flightCount = 5;
-		customerCount = 50;
-		places 	   = new String[] {"Edinburgh", "Londom", "Berlin", "Dubai", "Stockholm", "Costa Rica", "Phuket", "Tahiti", "Paris", "Maldives", "Rio de Janeiro", "Santorini"};
-		placeCodes = new String[] {"EDN"      , "LDN"   , "BLN"   , "DBI"  , "SKM"	    , "CRA"		  , "RKT"   , "THI"	  , "PRI"  , "MLD"	   , "RDJ"			 , "STI"};
+		customerCount = 100;
+		
+		flightCount = Math.max(customerCount / 10, 1);
+		
+		airportLocation = "Edinburgh";
+		
+		places 	   = new String[] {"Londom", "Berlin", "Dubai", "Stockholm", "Costa Rica", "Phuket", "Tahiti", "Paris", "Maldives", "Rio de Janeiro", "Santorini"};
+		placeCodes = new String[] {"LDN"   , "BLN"   , "DBI"  , "SKM"	   , "CRA"		 , "RKT"   , "THI"	 , "PRI"  , "MLD"	  , "RDJ"			, "STI"};
 		carriers   = new String[] {"EasyJet", "British Airways", "Virgin", "Ryanair", "BlueJet", "Delta Air Lines", "Frontier Airlines", "United Airlines"};
-		firstNames = new String[] {"may", "david", "mark", "phil", "martin", "john", "mike", "steve", "jack", "jenny", "olivia", "hannah", "irene", "amanpreet", "nyla", "reis", "kiya", "lisa", "sumayya", "edna"};
-		lastNames  = new String[] {"macdonald", "xi", "barlow", "brown", "godliman", "gamble", "parris", "jones", "smith", "kumar", "barnes", "cameron", "mac", "scott", "gray", "wise", "mcgregor", "chandler"};
+		firstNames = new String[] {"May", "David", "Mark", "Phil", "Martin", "John", "Mike", "Steve", "Jack", "Jenny", "Olivia", "Hannah", "Irene", "Amanpreet", "Nyla", "Reis", "Kiya", "Lisa", "Sumayya", "Edna"};
+		lastNames  = new String[] {"Macdonald", "Xi", "Barlow", "Brown", "Godliman", "Gamble", "Parris", "Jones", "Smith", "Kumar", "Barnes", "Cameron", "Mac", "Scott", "Gray", "Wise", "McGregor", "Chandler"};
 		r = new Random();
 		
 		flightCodes = new HashMap<String, Integer>();
@@ -100,7 +106,7 @@ public class DatasetCreator
 		// generates and writes each new flight entry to file individually
 		try
 		{
-			FileWriter flightDataWriter = new FileWriter("dataFlight-50c.csv");		
+			FileWriter flightDataWriter = new FileWriter("dataFlight-" + customerCount + "c.csv");		
 			for (int I = 0; I < flightCount; I++)
 			{	
 				flightDataWriter.write(NewFlight() + "\n");
@@ -111,7 +117,7 @@ public class DatasetCreator
 		// generates and writes each new customer entry to file individually
 		try
 		{
-			FileWriter customerDataWriter = new FileWriter("dataCustomer-50c.csv");
+			FileWriter customerDataWriter = new FileWriter("dataCustomer-" + customerCount + "c.csv");
 			for (int I = 0; I < customerCount; I++)
 			{			
 				customerDataWriter.write(NewCustomer() + "\n");
@@ -129,12 +135,11 @@ public class DatasetCreator
 	 */
 	public static String NewFlight()
 	{
-		String start = RandomFromArray(places);
-		String end = new String(start); while (start.equals(end)) { end = RandomFromArray(places);}			
+		String end = RandomFromArray(places);		
 		return 
-			start + "," + 
+			airportLocation + "," + 
 			end + "," + 
-			FlightCode(start, end) + "," + 
+			FlightCode(end) + "," + 
 			RandomFromArray(carriers) + "," +
 			(int) Spec.Passengers.RandomMinMax() + "," + 
 			Spec.FlightWeight.RandomMinMax() + "," + 
@@ -198,9 +203,9 @@ public class DatasetCreator
 	 * @param end arrival location (END)
 	 * @return a flight code e.g. SRT-END-13
 	 */
-	private static String FlightCode(String start, String end)
+	private static String FlightCode(String end)
 	{
-		String code = placeCodes[IndexInArray(start, places)] + "-" + placeCodes[IndexInArray(end, places)] + "-";
+		String code = "EDN-" + placeCodes[IndexInArray(end, places)] + "-";
 		if (!flightCodes.containsKey(code))
 		{
 			flightCodes.put(code, 0);
