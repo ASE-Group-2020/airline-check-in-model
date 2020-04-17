@@ -23,7 +23,7 @@ public class DeskDisplay extends Observer {
 	private Desk desk;
 	
 	private JPanel panel;
-	private JTextField lCustomerName, lBaggage, lBookingRef, lFlightCode, lDeskStage;
+	private JTextField lCustomerName, lCustomerClass, lBaggage, lBookingRef, lFlightCode, lDeskStage;
 	private JButton toggle;
 	
 	private String newButtonText = "";
@@ -66,6 +66,7 @@ public class DeskDisplay extends Observer {
 		desk.addObserver(this);
 
 		lCustomerName = new JTextField("", 20);
+		lCustomerClass = new JTextField("", 20);
 		lBaggage = new JTextField("", 20);
 		lBookingRef = new JTextField("", 20);
 		lFlightCode = new JTextField("", 20);
@@ -75,6 +76,8 @@ public class DeskDisplay extends Observer {
 		
 		lCustomerName.setEditable(false);
 		lCustomerName.setFocusable(false);
+		lCustomerClass.setEditable(false);
+		lCustomerClass.setFocusable(false);
 		lBaggage.setEditable(false);
 		lBaggage.setFocusable(false);
 		lBookingRef.setEditable(false);
@@ -86,26 +89,29 @@ public class DeskDisplay extends Observer {
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.ipadx = 5;
-		c.ipady = 6;
+		c.ipady = 7;
 		
 		c.gridx = 0;
 		c.gridy = 0;
 		panel.add(lCustomerName, c);
 		c.gridx = 0;
 		c.gridy = 1;
-		panel.add(lBaggage, c);
+		panel.add(lCustomerClass, c);
 		c.gridx = 0;
 		c.gridy = 2;
-		panel.add(lBookingRef, c);
+		panel.add(lBaggage, c);
 		c.gridx = 0;
 		c.gridy = 3;
-		panel.add(lFlightCode, c);
+		panel.add(lBookingRef, c);
 		c.gridx = 0;
 		c.gridy = 4;
-		panel.add(lDeskStage, c);
+		panel.add(lFlightCode, c);
 		c.gridx = 0;
 		c.gridy = 5;
-		panel.add(toggle, c); // TODO add button here
+		panel.add(lDeskStage, c);
+		c.gridx = 0;
+		c.gridy = 6;
+		panel.add(toggle, c);
 		
 		updateDisplay();
 	}
@@ -117,6 +123,7 @@ public class DeskDisplay extends Observer {
 			else
 			{
 				lCustomerName.setText(c.getFirstName() + " " + c.getLastName());
+				lCustomerClass.setText(c.getSeatingClass() + " Class");
 				float[] bd = c.getBaggageDetails();
 				lBaggage.setText("Baggage: " + bd[0] + "kg, " + bd[1] + "l");
 				lBookingRef.setText("Booking code: " + c.getRefCode());

@@ -1,5 +1,8 @@
 package airlineinterface;
 
+import java.util.EnumSet;
+import java.util.Iterator;
+
 import exceptions.*;
 
 public class Customer implements Comparable<Customer> {
@@ -7,6 +10,9 @@ public class Customer implements Comparable<Customer> {
 	private String refCode, firstName, lastName, flightCode;
 	private boolean isCheckedIn = false;
 	private float baggageWeight, volX, volY, volZ;
+	
+	private enum BoardingClass { Invalid, Standard, Business}
+	private BoardingClass customerClass = BoardingClass.Invalid;
 	
 	@SuppressWarnings("unused")
 	private Customer() {}
@@ -23,7 +29,7 @@ public class Customer implements Comparable<Customer> {
 	 * @param _volume volume of the customer's baggage
 	 * @throws InvalidValueException when any of the input values are either empty, null or if the integer values are below zero
 	 */
-	public Customer(String _code, String _firstName, String _lastName, String _flightCode, float _weight, float _volumeX, float _volumeY, float _volumeZ) throws InvalidValueException
+	public Customer(String _code, String _firstName, String _lastName, String _flightCode, String customerClass, float _weight, float _volumeX, float _volumeY, float _volumeZ) throws InvalidValueException
 	{
 		// ensures all input data is valid
 		if (_code == null)		  	throw new InvalidValueException("_code must not be null");
@@ -39,6 +45,19 @@ public class Customer implements Comparable<Customer> {
 		if (_volumeY < 0) 			throw new InvalidValueException("_volumeY must not be null");
 		if (_volumeZ < 0) 			throw new InvalidValueException("_volumeZ must not be null");
 		
+		Iterator<BoardingClass> iter = EnumSet.allOf(BoardingClass.class).iterator();
+		while (iter.hasNext())
+		{
+			BoardingClass c = iter.next();
+			if (c.equals(BoardingClass.Invalid)) continue;
+			else if (c.toString().equalsIgnoreCase(customerClass)) 
+			{
+				this.customerClass = c;
+				break;
+			}
+		}
+		if (this.customerClass == BoardingClass.Invalid) throw new InvalidValueException("boarding class is not valid");
+		
 		refCode = _code;
 		firstName = _firstName;
 		lastName = _lastName;
@@ -48,6 +67,8 @@ public class Customer implements Comparable<Customer> {
 		volY = _volumeY;
 		volZ = _volumeZ;
 	}
+	
+	public String getSeatingClass() { return customerClass.toString(); }
 	
 	/**
 	 * Checks in the customer and sets their baggage weight and volume values.

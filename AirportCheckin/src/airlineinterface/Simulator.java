@@ -188,26 +188,27 @@ public class Simulator extends Observable {
 			while ((line = reader.readLine()) != null) { 				// go through every line in the file
 				String[] customerDetails = line.trim().split(","); 		// split the line and trim empty space, push results to small array
 				Customer currCustomer;
-				if (customerDetails.length == 9) { 						// handle partial data - only take data from full fields, ignore partial data!
+				if (customerDetails.length == 10) { 						// handle partial data - only take data from full fields, ignore partial data!
 					try {
 						float cWeight = 0, cVolX = 0, cVolY = 0, cVolZ = 0;
 						try {
-							cWeight = Float.parseFloat(customerDetails[5]);
-							cVolX = Float.parseFloat(customerDetails[6]);
-							cVolY = Float.parseFloat(customerDetails[7]);
-							cVolZ = Float.parseFloat(customerDetails[8]);	// Baggage volume calculation added 
+							cWeight = Float.parseFloat(customerDetails[6]);
+							cVolX = Float.parseFloat(customerDetails[7]);
+							cVolY = Float.parseFloat(customerDetails[8]);
+							cVolZ = Float.parseFloat(customerDetails[9]);	// Baggage volume calculation added 
 						} catch (NumberFormatException e) { /* If the parsing fails (e.g. no value, so assume 0) it defaults to 0 */}
 						
 						currCustomer = new Customer(customerDetails[0],
 													customerDetails[1], 
 													customerDetails[2],
-													customerDetails[3], 
+													customerDetails[3],
+													customerDetails[4],
 													cWeight, cVolX, cVolY, cVolZ); 	// one-liner to initialize Customer object with data from current file line
 					} catch (InvalidValueException e) {
 						// Customer failed to be created - skip to next line (WHY NO NOTIFICATION???)
 						continue;
 					}
-					boolean checkedIn = Boolean.parseBoolean(customerDetails[4]); 
+					boolean checkedIn = Boolean.parseBoolean(customerDetails[5]); 
 					(checkedIn ? fileCheckedInCustomers : fileNotCheckedInCustomers).add(currCustomer);
 					Logger.instance().LogPassengerDetails(currCustomer);
 				} else {

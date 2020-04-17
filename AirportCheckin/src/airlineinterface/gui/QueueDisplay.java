@@ -1,13 +1,16 @@
 package airlineinterface.gui;
 
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.LinkedList;
 import java.util.Queue;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
@@ -18,19 +21,38 @@ import airlineinterface.WaitingQueue;
 public class QueueDisplay extends Observer {
 	
 	private WaitingQueue q;
-	
 	private JPanel panel;
-	private JTable table;
+	private JTable tableStandard;
+	private JTable tableBusiness;
 	private JScrollPane tablePane;
 
 	public QueueDisplay(WaitingQueue q) {
 		panel = new JPanel(new GridBagLayout());
 		q.addObserver(this);
 		
-		table = new JTable();
-		table.setFillsViewportHeight(true);
-		tablePane = new JScrollPane(table);
-		panel.add(tablePane);
+		GridBagConstraints c = new GridBagConstraints();
+		c.ipadx = 2;
+		c.ipady = 2;
+		
+		c.gridx = 0;
+		c.gridy = 0;
+		panel.add(new JLabel("Standard Class Queue"), c);
+		tableStandard = new JTable();
+		tableStandard.setFillsViewportHeight(true);
+		tablePane = new JScrollPane(tableStandard);
+		c.gridx = 0;
+		c.gridy = 1;
+		panel.add(tablePane, c);
+		
+		c.gridx = 1;
+		c.gridy = 0;
+		panel.add(new JLabel("Business Class Queue"), c);
+		tableBusiness = new JTable();
+		tableBusiness.setFillsViewportHeight(true);
+		tablePane = new JScrollPane(tableBusiness);
+		c.gridx = 1;
+		c.gridy = 1;
+		panel.add(tablePane, c);
 		
 		this.q = q;
 		updateDisplay();
@@ -38,11 +60,8 @@ public class QueueDisplay extends Observer {
 
 	public synchronized void updateDisplay()
 	{	
-		//if (tablePane != null) panel.remove(tablePane);
-		
-		
-		
-		table.setModel(new QueueTableModel(q.getWaitingCopy()));
+		tableStandard.setModel(new QueueTableModel(q.getWaitingCopyStandard()));
+		tableBusiness.setModel(new QueueTableModel(q.getWaitingCopyBusiness()));
 	}
 	
 	public JComponent getComponent() {
@@ -63,8 +82,6 @@ public class QueueDisplay extends Observer {
 		
 		private String[] columnNames = { "Name", "Code", "Baggage (kg)", "Baggage (l)" };
 		private String[][] data;
-		
-		public QueueTableModel() {}
 
 		public QueueTableModel(Queue<Customer> customers) {
 			/*
