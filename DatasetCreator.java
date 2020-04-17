@@ -37,6 +37,8 @@ public class DatasetCreator
 	/**A list of last names used to generate the customer data*/ 
 	static String[] lastNames;
 	
+	static float flightClassPercentage;
+	
 	/**Used to generate the random values for the flight and customer data*/
 	private enum Spec
 	{
@@ -78,6 +80,7 @@ public class DatasetCreator
 	public static void Reset()
 	{
 		customerCount = 100;
+		flightClassPercentage = 0.7f; // between 0 and 1
 		
 		flightCount = Math.max(customerCount / 10, 1);
 		
@@ -155,25 +158,22 @@ public class DatasetCreator
 	 * (string),(string),(string),(string),(boolean),(float),(float)
 	 */
 	public static String NewCustomer()
-	{
-		boolean checkedIn = Spec.CheckIn.RandomBoolWithThreshold();
-		float weight = Spec.CustomerWeight.RandomMinMax();
-		float volume1 = Spec.CustomerVolume.RandomMinMax();
-		float volume2 = Spec.CustomerVolume.RandomMinMax();
-		float volume3 = Spec.CustomerVolume.RandomMinMax();
-		
+	{		
 		return
 			NewID() + "," + 
 			RandomFromArray(firstNames) + "," +
 			RandomFromArray(lastNames) + "," +
 			RandomFlightCode() + "," +
-			checkedIn + "," +
-			weight + "," +
-			volume1 + "," +
-			volume2 + "," +
-			volume3
+			RandomClass(flightClassPercentage) + "," +
+			Spec.CheckIn.RandomBoolWithThreshold() + "," +
+			Spec.CustomerWeight.RandomMinMax() + "," +
+			Spec.CustomerVolume.RandomMinMax() + "," +
+			Spec.CustomerVolume.RandomMinMax() + "," +
+			Spec.CustomerVolume.RandomMinMax()
 		;
 	}
+	
+	private static String RandomClass(float percent) { return (r.nextFloat() < percent ? "standard" : "business"); }
 	
 	/**
 	 * Returns a random item from the input array.
