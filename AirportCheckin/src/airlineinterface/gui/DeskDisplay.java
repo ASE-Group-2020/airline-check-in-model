@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
@@ -24,7 +25,8 @@ public class DeskDisplay extends Observer {
 	
 	private JPanel panel;
 	private JTextField lCustomerName, lCustomerClass, lBaggage, lBookingRef, lFlightCode, lDeskStage;
-	private JButton toggle;
+	private JLabel lDeskName;
+	private JButton bDeskToggle;
 	
 	private String newButtonText = "";
 	
@@ -51,7 +53,7 @@ public class DeskDisplay extends Observer {
 					newButtonText = READY_TO_OPEN;
 					desk.CloseDesk();
 				}
-				toggle.setText(WAITING_FOR_DESK);
+				bDeskToggle.setText(WAITING_FOR_DESK);
 			}
 		}
 	};
@@ -71,8 +73,9 @@ public class DeskDisplay extends Observer {
 		lBookingRef = new JTextField("", 20);
 		lFlightCode = new JTextField("", 20);
 		lDeskStage = new JTextField("", 20);
-		toggle = new JButton("Close");
-		toggle.addActionListener(openCloseDesk);
+		lDeskName = new JLabel(desk.getDeskName());
+		bDeskToggle = new JButton("Close");
+		bDeskToggle.addActionListener(openCloseDesk);
 		
 		lCustomerName.setEditable(false);
 		lCustomerName.setFocusable(false);
@@ -86,32 +89,31 @@ public class DeskDisplay extends Observer {
 		lFlightCode.setFocusable(false);
 		lDeskStage.setEditable(false);
 		lDeskStage.setFocusable(false);
+		lDeskName.setFocusable(false);
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.ipadx = 5;
 		c.ipady = 7;
+		c.gridwidth = 2;
 		
 		c.gridx = 0;
 		c.gridy = 0;
 		panel.add(lCustomerName, c);
-		c.gridx = 0;
 		c.gridy = 1;
 		panel.add(lCustomerClass, c);
-		c.gridx = 0;
 		c.gridy = 2;
 		panel.add(lBaggage, c);
-		c.gridx = 0;
 		c.gridy = 3;
 		panel.add(lBookingRef, c);
-		c.gridx = 0;
 		c.gridy = 4;
 		panel.add(lFlightCode, c);
-		c.gridx = 0;
 		c.gridy = 5;
 		panel.add(lDeskStage, c);
-		c.gridx = 0;
 		c.gridy = 6;
-		panel.add(toggle, c);
+		c.gridwidth = 1;
+		panel.add(lDeskName, c);
+		c.gridx = 1;
+		panel.add(bDeskToggle, c);
 		
 		updateDisplay();
 	}
@@ -132,18 +134,18 @@ public class DeskDisplay extends Observer {
 			}
 		} catch (ObjectNotFoundException e) { NoCustomer(); }
 		
-		if (toggle.getText().equals(WAITING_FOR_DESK))
+		if (bDeskToggle.getText().equals(WAITING_FOR_DESK))
 		{
 			// if the desk is being opened
 			if (newButtonText.equals(READY_TO_CLOSE) && !desk.getCurrentStage().equals(CLOSED_DESK_STAGE))
 			{
-				toggle.setText(READY_TO_CLOSE);
+				bDeskToggle.setText(READY_TO_CLOSE);
 				newButtonText = "";
 			}
 			// if the desk is being closed
 			else if (newButtonText.equals(READY_TO_OPEN) && desk.getCurrentStage().equals(CLOSED_DESK_STAGE))
 			{
-				toggle.setText(READY_TO_OPEN); 
+				bDeskToggle.setText(READY_TO_OPEN); 
 				newButtonText = "";
 			}
 		}

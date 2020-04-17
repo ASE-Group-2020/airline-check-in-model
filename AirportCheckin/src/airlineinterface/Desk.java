@@ -136,6 +136,10 @@ public class Desk extends Observable implements Runnable {
 				return "Desk action: Not set.";
 		}
 	}
+	
+	public String getDeskName() {
+		return deskName;
+	}
 
 	private void checkIn(Customer currCustomer, float baggageFee) {
 		try {
