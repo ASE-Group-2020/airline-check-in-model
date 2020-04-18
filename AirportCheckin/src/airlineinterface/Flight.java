@@ -6,7 +6,7 @@ import java.util.Iterator;
 import exceptions.AlreadyCheckedInException;
 import exceptions.InvalidValueException;
 
-public class Flight extends Observable {
+public class Flight extends Observable implements Runnable  {
 	
 	public HashSet<Customer> customers;
 	private String startLocation, endLocation, flightCode, carrier;
@@ -16,6 +16,9 @@ public class Flight extends Observable {
 	//variables that are useful for the report
 	private int currentCapacity;
 	private float currentWeight, currentVolume, totalFee;
+	
+	private enum DepartureState {waiting,departed}
+	private DepartureState flightState = DepartureState.waiting;
 	
 	@SuppressWarnings("unused")
 	private Flight() {}
@@ -56,6 +59,27 @@ public class Flight extends Observable {
 		this.maxWeight = maxWeight;
 		this.maxVolume = maxVolume;
 		customers = new HashSet<Customer>();
+	}
+	public void run() {
+		Simulator.get().sleep(5000);
+		flightDeparting();
+		if(flightState == DepartureState.departed){
+			System.out.println("The state of the flights after 5 seconds is: departed" );
+		}else {
+			System.out.println("Something has goen arye.");
+		}
+	}
+	
+	public boolean isFLightWaiting() {
+		if(flightState == DepartureState.waiting) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	public void flightDeparting() { 
+		flightState = DepartureState.departed;
 	}
 	
 	/**
