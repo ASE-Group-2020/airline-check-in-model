@@ -20,21 +20,10 @@ import airlineinterface.Observer;
 public class FlightDisplay extends Observer {
 
 	private Flight flight;
-	
+
 	private JPanel panel;
 	private JTextField lStatus, lPassengerCapacity, lWeightCapacity, lVolumeCapacity;
 	private JButton bDepart;
-	
-	private ActionListener departFlight = new ActionListener()
-	{
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			if (bDepart.getText().equals("Depart"))
-			{
-				flight.flightDeparting();
-			}
-		}};
 
 	public FlightDisplay(Flight flight) {
 		panel = new JPanel(new GridBagLayout());
@@ -68,14 +57,21 @@ public class FlightDisplay extends Observer {
 		c.gridx = 0;
 		c.gridy = 1;
 		panel.add(locations, c);
-		
+
 		lStatus = new JTextField("", 20);
 		lPassengerCapacity = new JTextField("", 20);
 		lWeightCapacity = new JTextField("", 20);
 		lVolumeCapacity = new JTextField("", 20);
 		bDepart = new JButton("Depart");
-		bDepart.addActionListener(departFlight);
-		
+		bDepart.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (bDepart.getText().equals("Depart")) {
+					flight.flightDeparting();
+				}
+			}
+		});
+
 		lStatus.setEditable(false);
 		lStatus.setFocusable(false);
 		lPassengerCapacity.setEditable(false);
@@ -84,7 +80,7 @@ public class FlightDisplay extends Observer {
 		lWeightCapacity.setFocusable(false);
 		lVolumeCapacity.setEditable(false);
 		lVolumeCapacity.setFocusable(false);
-		
+
 		c.gridx = 0;
 		c.gridy = 2;
 		panel.add(lStatus, c);
@@ -100,7 +96,7 @@ public class FlightDisplay extends Observer {
 		c.gridx = 0;
 		c.gridy = 6;
 		panel.add(bDepart, c); // TODO add button here
-		
+
 		updateDisplay();
 	}
 
@@ -108,7 +104,7 @@ public class FlightDisplay extends Observer {
 		float[] maxAttr = flight.getMaxAttributes();
 		float[] curAttr = flight.getCustomerSumAttributes();
 		lStatus.setText(flight.getCurrentState());
-		if(!flight.isFLightWaiting()) {
+		if (!flight.isFlightWaiting()) {
 			flightDeparted();
 		}
 		lPassengerCapacity.setText("Passengers: " + curAttr[0] + " / " + maxAttr[0]);
@@ -117,12 +113,12 @@ public class FlightDisplay extends Observer {
 		panel.revalidate();
 		panel.repaint();
 	}
-	
+
 	private void flightDeparted() {
 		bDepart.setEnabled(false);
-		bDepart.setText("Flight Departed");
+		bDepart.setText("Check-in Closed");
 	}
-	
+
 	public JComponent getComponent() {
 		return panel;
 	}
@@ -132,8 +128,7 @@ public class FlightDisplay extends Observer {
 		updateDisplay();
 	}
 
-	public void disableButtons()
-	{
-		
+	public void disableButtons() {
+
 	}
 }

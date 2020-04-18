@@ -10,15 +10,14 @@ public class Flight extends Observable implements Runnable  {
 	
 	public HashSet<Customer> customers;
 	private String startLocation, endLocation, flightCode, carrier;
-	private int capacity;
+	private int capacity, closeCheckInTime, checkInTimeRemaining;
 	private float maxWeight, maxVolume;
-	//private int departureTime;
 	
 	//variables that are useful for the report
 	private int currentCapacity;
 	private float currentWeight, currentVolume, totalFee;
 	
-	private enum DepartureState {waiting,departed}
+	private enum DepartureState {waiting,check_in_closed}
 	private DepartureState flightState = DepartureState.waiting;
 	
 	@SuppressWarnings("unused")
@@ -36,7 +35,7 @@ public class Flight extends Observable implements Runnable  {
 	 * @param maxVolume the maximum volume of customer luggage this flight can hold
 	 * @throws InvalidValueException when any of the input values are either empty, null or if the integer values are below zero (except maxPassengers which refuses values less than OR EQUAL TO zero
 	 */
-	public Flight(String departure, String destination, String flightRef, String carrier, int maxPassengers, float maxWeight, float maxVolume) throws InvalidValueException
+	public Flight(String departure, String destination, String flightRef, String carrier, int maxPassengers, float maxWeight, float maxVolume, int closeCheckInTime) throws InvalidValueException
 	{
 		if (departure == null)	 throw new InvalidValueException("departure must not be null");
 		if (destination == null) throw new InvalidValueException("destination must not be null");
@@ -59,14 +58,20 @@ public class Flight extends Observable implements Runnable  {
 		capacity = maxPassengers;
 		this.maxWeight = maxWeight;
 		this.maxVolume = maxVolume;
+		this.closeCheckInTime = closeCheckInTime;
 		customers = new HashSet<Customer>();
 	}
 	public void run() {
-		Simulator.get().sleep(5000);
+		checkInTimeRemaining = closeCheckInTime / 1000;
+		while (checkInTimeRemaining > 0) {
+			checkInTimeRemaining--;
+			Simulator.get().nonRandomSleep(1000);
+			notifyObservers();
+		}
 		flightDeparting();
 	}
 	
-	public boolean isFLightWaiting() {
+	public boolean isFlightWaiting() {
 		if(flightState == DepartureState.waiting) {
 			return true;
 		}else{
@@ -75,17 +80,16 @@ public class Flight extends Observable implements Runnable  {
 	}
 	
 	public void flightDeparting() { 
-		flightState = DepartureState.departed;
-		System.out.println("Flight is now departing. Bye Bye!");
+		flightState = DepartureState.check_in_closed;
 		notifyObservers();
 	}
 	
 	public String getCurrentState() {
 		switch(flightState) {
 			case waiting:
-				return "Flight status: Waiting for people to board.";
-			case departed:
-				return "Flight status: Flight has departed.";
+				return "Flight status: Check-in open (" + checkInTimeRemaining + "s).";
+			case check_in_closed:
+				return "Flight status: Check-in closed.";
 			default:
 				return "This shouldn't happen. Please advise technical team of the issue.";
 		}

@@ -306,7 +306,8 @@ public class Simulator extends Observable {
 						flightDetails[3],
 						Integer.parseInt(flightDetails[4]), 
 						Float.parseFloat(flightDetails[5]),
-						Float.parseFloat(flightDetails[6])); 			// one-liner to initialize Flight object with data from current file line
+						Float.parseFloat(flightDetails[6]),
+						Integer.parseInt(flightDetails[7])); 			// one-liner to initialize Flight object with data from current file line
 				fileFlights.add(currFlight); 							// the key is the unique flight id (flight code), value is currFlight being added
 			}
 			reader.close(); 											// close reader
@@ -331,7 +332,16 @@ public class Simulator extends Observable {
 	public void sleep(int millisec)
 	{
 		float sleepTimeRemaining = (float) (millisec * ( randomness ? 0.5f * r.nextFloat() : 1 ));	// Total time to sleep for (including randomness)
-	    while (sleepTimeRemaining > 0 && runSimulation) {															// If sleeping hasn't completed, keep looping
+	    while (sleepTimeRemaining > 0 && runSimulation) {											// If sleeping hasn't completed, keep looping
+	        try { Thread.sleep(sleepTimeStep); }													// Sleep for a set, small time - allows CPU to do other tasks
+	        catch (InterruptedException e) { Logger.instance().MainLog(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds."); }
+	        sleepTimeRemaining -= sleepTimeStep * simSpeed;											// Update remaining time, considering simSpeed
+	    }
+	}
+	public void nonRandomSleep(int millisec)
+	{
+		float sleepTimeRemaining = (float) millisec;												// Total time to sleep for
+	    while (sleepTimeRemaining > 0 && runSimulation) {											// If sleeping hasn't completed, keep looping
 	        try { Thread.sleep(sleepTimeStep); }													// Sleep for a set, small time - allows CPU to do other tasks
 	        catch (InterruptedException e) { Logger.instance().MainLog(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds."); }
 	        sleepTimeRemaining -= sleepTimeStep * simSpeed;											// Update remaining time, considering simSpeed

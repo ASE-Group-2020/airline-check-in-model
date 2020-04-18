@@ -17,17 +17,21 @@ public class Desk extends Observable implements Runnable {
 	private WaitingQueue queue;
 	private String deskName;
 	private Customer currCustomer;			// The current customer at the desk
+	private Flight currCustomerFlight;		// Flight of the current customer
+	private float currCustomerFee;			// Baggage fee of the current customer
 	private enum Stage {
-		GETTING_CUSTOMER,
-		CALCULATING_FEE,
-		CHECKING_IN,
-		WAITING,
-		CLOSED
+		GETTING_CUSTOMER,					// Get customer from the queue
+		CHECKING_CUSTOMER_DETAILS,			// Ensure flight exists and is accepting check-ins
+		MEASURING_BAG,						// Check bag dimensions are acceptable
+		PRINTING_BOARDING_PASS,				// Print pass
+		CHARGING_FEE,						// Charge customer
+		REJECTING_CUSTOMER,					// Customer not accepted
+		CLOSED								// Not accepting anyone
 	}
-	private Stage action = Stage.WAITING;
+	private Stage currentStage = Stage.GETTING_CUSTOMER;
 	private boolean waitingToClose = false;
 	
-	public void OpenDesk() { waitingToClose = false; if (action == Stage.CLOSED) action = Stage.WAITING; notifyObservers(); }
+	public void OpenDesk() { waitingToClose = false; if (currentStage == Stage.CLOSED) currentStage = Stage.GETTING_CUSTOMER; notifyObservers(); }
 	public void CloseDesk() { waitingToClose = true; }
 	
 	
@@ -45,6 +49,73 @@ public class Desk extends Observable implements Runnable {
 		this.queue = queue; 
 		this.deskName = deskName;
 	}
+	
+	private void stageGetCustomer() {
+		if (waitingToClose) {												// First check if desk should close
+			currentStage = Stage.CLOSED;
+			return;
+		}
+		Simulator.get().sleep(1000);
+		currCustomer = queue.getNext();										// Customer joins from queue
+		if (currCustomer != null)											// If the customer is null don't change stage
+			currentStage = Stage.CHECKING_CUSTOMER_DETAILS;
+	}
+	private void stageCheckCustomerDetails() {
+		Simulator.get().sleep(2000);
+		currCustomerFlight = allFlights.get(currCustomer.getFlightCode());	// Get customer flight
+		if (currCustomerFlight == null) {									// Make sure flight exists
+			currentStage = Stage.REJECTING_CUSTOMER;						// Customer rejected
+			Logger.instance().MainLog(deskName + ": " + currCustomer.toString() + " rejected; flight " + currCustomer.getFlightCode() + " not found.");
+			return;
+		}
+		if (!currCustomerFlight.isFlightWaiting()) {
+			currentStage = Stage.REJECTING_CUSTOMER;
+			Logger.instance().MainLog(deskName + ": Customer rejected; flight not boarding.");
+			return;
+		}
+		currentStage = Stage.MEASURING_BAG;
+	}
+	private void stageMeasureBag() {
+		Simulator.get().sleep(4000);
+		currCustomerFee = 0;												// Just in case some data is carried over
+		try {
+			currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails());
+		} catch (InvalidValueException e) {
+			currentStage = Stage.REJECTING_CUSTOMER;
+			Logger.instance().MainLog(deskName + ": " + currCustomer.toString() + " rejected; baggage too large");
+			return;
+		}
+		currentStage = (currCustomerFee == 0) ? Stage.PRINTING_BOARDING_PASS : Stage.CHARGING_FEE;
+	}
+	private void stagePrintBoardingPass() {
+		Simulator.get().sleep(4000);
+		try {
+			currCustomerFlight.addCustomer(currCustomer, currCustomerFee);
+			Logger.instance().PassengerCheckedIn(currCustomer, currCustomerFlight, deskName, currCustomerFee);
+		} catch (InvalidValueException e) {			// Flight code incorrect - shouldn't occur
+			currentStage = Stage.REJECTING_CUSTOMER;
+			Logger.instance().MainLog(deskName + ": " + currCustomer.toString() + " rejected; customer has flight code " 
+			+ currCustomer.getFlightCode() + ", expected " + currCustomerFlight.getFlightCode() + ".");
+			return;
+		} catch (AlreadyCheckedInException e) {		// Customer already checked in - also shouldn't occur
+			currentStage = Stage.REJECTING_CUSTOMER;
+			Logger.instance().MainLog(deskName + ": " + currCustomer.toString() + " rejected; already checked in.");
+			return;
+		}
+		currCustomer = null;						// Shouldn't strictly be needed, here just in case
+		currentStage = Stage.GETTING_CUSTOMER;
+	}
+	private void stageChargeFee() {
+		// Fee is charged in stagePrintBoardingPass, just wait
+		Simulator.get().sleep(4000);
+		currentStage = Stage.PRINTING_BOARDING_PASS;
+	}
+	private void stageRejectCustomer() {
+		// Customer is turned away, just wait
+		Simulator.get().sleep(1000);
+		currCustomer = null;
+		currentStage = Stage.GETTING_CUSTOMER;
+	}
 
 	/* Implements Runnable, so started with a new Thread(new MyRunnable()).start() call
 	 * 
@@ -55,59 +126,35 @@ public class Desk extends Observable implements Runnable {
 	 * testing and patches. The potential speed-up from making synchronized calls to individual parts of the methods,
 	 * instead of the whole method is negligible.
 	 */ 
+	
 	public void run() {
 		Logger.instance().MainLog("Starting simulation of " + deskName);
-
-		// While (queue OR list are NOT empty) and (enable is turned on) i.e the terminal is working ... do ...
-		// while ( (!queue.getNotArrived().isEmpty() || !queue.getWaiting().isEmpty()) && enable ) { <- OLD WAY, we want the desks waiting now should we add more customers later
-		while (enable) {
-			//System.out.println(deskName + " tick");
-			if (waitingToClose)
-			{
-				action = Stage.CLOSED;
-				currCustomer = null;
-				notifyObservers();
-				waitingToClose = false;
-			}
-			if (action == Stage.CLOSED)
-			{
-				Simulator.get().sleep(1000); if (!enable) break;
-				continue;
-			}
-			//System.out.println(System.currentTimeMillis() + " 1 " + deskName);			// Returns null customer object is queue is empty
-			currCustomer = queue.getNext();													// this is the current customer the desk is working with
-			//System.out.println(System.currentTimeMillis() + " 2 " + deskName);
-			if (currCustomer != null) { 													// If a customer exists in the queue, get them...
-				
-				action = Stage.GETTING_CUSTOMER;
-				Logger.instance().PassengerMovedToDesk(currCustomer, deskName);
-				notifyObservers();
-				Simulator.get().sleep(9000); if (!enable) break; 									// 9 second delay for person to move to help desk and calculate fee, if desk is still enabled - continue
-				try {
-					action = Stage.CALCULATING_FEE;
-					float currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails());			// Calculate oversize fees, set respective action in the method
-					notifyObservers();
-					
-					Simulator.get().sleep(3000); if (!enable) break; 											// 3 seconds to confirm check in and leave desk
-					checkIn(currCustomer, currCustomerFee); 											// Check in the customer
-					Logger.instance().MainLog("Checked in: " + currCustomer.getFirstName() + " " + currCustomer.getLastName());	// Log that the customer has finished checking in.
-					notifyObservers();
-					
-					Simulator.get().sleep(3000);
-				}
-				catch (InvalidValueException e) {
-					Logger.instance().MainLog(" ##DESK##  The " + deskName + " has reported the following error: " + e.getMessage());
-				}
-			}
-			else {														// If not, wait
-				action = Stage.WAITING;
-				//System.out.println(deskName + " currently waiting for a customer");
-				notifyObservers();
-				Simulator.get().sleep(2000);
+		while(enable || (currentStage != Stage.GETTING_CUSTOMER && currentStage != Stage.CLOSED)) {		// Only exit if not handling a customer
+			notifyObservers();
+			switch(currentStage) {
+			case GETTING_CUSTOMER:
+				stageGetCustomer();
+				break;
+			case CHECKING_CUSTOMER_DETAILS:
+				stageCheckCustomerDetails();
+				break;
+			case MEASURING_BAG:
+				stageMeasureBag();
+				break;
+			case PRINTING_BOARDING_PASS:
+				stagePrintBoardingPass();
+				break;
+			case CHARGING_FEE:
+				stageChargeFee();
+				break;
+			case REJECTING_CUSTOMER:
+				stageRejectCustomer();
+				break;
+			case CLOSED:
+				// Nothing to do
+				break;
 			}
 		}
-		action = Stage.CLOSED;
-		currCustomer = null;
 		notifyObservers();
 		Logger.instance().MainLog(" ##DESK##  The " + deskName + " has been shut down.");
 	}
@@ -121,33 +168,28 @@ public class Desk extends Observable implements Runnable {
 	}
 	
 	public String getCurrentStage() {
-		switch(action) {
+		switch(currentStage) {
 			case GETTING_CUSTOMER:
-				return "Desk action: Getting customer details.";
-			case CALCULATING_FEE:
-				return "Desk action: Calculating baggage fee.";
-			case CHECKING_IN:
-				return "Desk action: Checking a customer in.";
-			case WAITING:
-				return "Desk action: Waiting...";
+				return "Desk action: Waiting for customer.";
+			case CHECKING_CUSTOMER_DETAILS:
+				return "Desk action: Checking customer details.";
+			case MEASURING_BAG:
+				return "Desk action: Measuring bag.";
+			case PRINTING_BOARDING_PASS:
+				return "Desk action: Printing boarding pass.";
+			case CHARGING_FEE:
+				return "Desk action: Charging baggage fee.";
+			case REJECTING_CUSTOMER:
+				return "Desk action: Rejecting customer.";
 			case CLOSED:
 				return "Desk action: Closed.";
 			default:
-				return "Desk action: Not set.";
+				return "Desk action: Unknown.";
 		}
 	}
 	
 	public String getDeskName() {
 		return deskName;
-	}
-
-	private void checkIn(Customer currCustomer, float baggageFee) {
-		try {
-			action = Stage.CHECKING_IN;
-			addCustomerToFlight(currCustomer, currCustomer.getFlightCode(), baggageFee);			// Add customer to their selected flight
-		} 
-		catch (AlreadyCheckedInException e) {System.out.println("Customer has already been checked in! Desk/CheckIn()");} 
-		catch (Exception e) { System.err.println("DEBUG: Unknown error in Desk.checkIn"); e.printStackTrace();}
 	}
 	
 	/*	Customer baggage details takes a float array, the 0th element is the weight and 1,2,3 are the X,Y,Z for the volume
@@ -174,18 +216,6 @@ public class Desk extends Observable implements Runnable {
 		// This is the maximum weight and volume an individual is allowed to possess, beyond 200kg
 
 		else throw new InvalidValueException("the baggage shouldn't be more than 200kg in weight or 260 litres in volume.");
-	}
-
-	private void addCustomerToFlight(Customer currCustomer, String flightCode, float baggageFee) throws AlreadyCheckedInException {
-		Flight currFlight = allFlights.get(flightCode);
-		try {
-			currFlight.addCustomer(currCustomer, baggageFee);
-			
-			Logger.instance().PassengerCheckedIn(currCustomer, currFlight, deskName, baggageFee);		// Log the customer added to the flight
-		} catch (InvalidValueException e) {
-			System.out.println("Invalid value of customer baggage details found at Desk/addCustomerToFlight()");
-			e.printStackTrace();
-		}
 	}
 	
 }
