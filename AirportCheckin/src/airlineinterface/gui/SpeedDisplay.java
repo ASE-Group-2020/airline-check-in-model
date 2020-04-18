@@ -49,10 +49,6 @@ public class SpeedDisplay extends Observer {
 		panel = new JPanel(new GridBagLayout());
 		panel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
 		
-		GridBagConstraints c = new GridBagConstraints();
-		c.ipadx = 5; // TODO
-		c.ipady = 6; // TODO
-		
 		lSimTime = new JTextField("", 20);
 		lSimEnd = new JTextField("", 20);
 		lBlank = new JTextField("", 20);
@@ -73,6 +69,20 @@ public class SpeedDisplay extends Observer {
 		lSimSpeed.setEditable(false);
 		lSimSpeed.setFocusable(false);
 		
+		GridBagConstraints c = new GridBagConstraints();
+		c.ipadx = 5;
+		c.ipady = 6;
+		subPanel = new JPanel(new GridBagLayout());
+		c.gridx = 0;
+		c.gridy = 5;
+		panel.add(subPanel, c); 
+		c.gridx = 0;
+		c.gridy = 0;
+		subPanel.add(enterSpeed, c);
+		c.gridx = 1;
+		c.gridy = 0;
+		subPanel.add(stopButton, c); 
+		
 		c.gridx = 0;
 		c.gridy = 0;
 		panel.add(lSimTime, c);
@@ -88,18 +98,6 @@ public class SpeedDisplay extends Observer {
 		c.gridx = 0;
 		c.gridy = 4;
 		panel.add(lNewSpeed, c); 
-		
-		subPanel = new JPanel(new GridBagLayout());
-		c.gridx = 0;
-		c.gridy = 5;
-		panel.add(subPanel, c); 
-		
-		c.gridx = 0;
-		c.gridy = 0;
-		subPanel.add(enterSpeed, c);
-		c.gridx = 1;
-		c.gridy = 0;
-		subPanel.add(stopButton, c); 
 	}
 	
 	// TODO get speed variables from Simulator

@@ -125,4 +125,8 @@ public class FlightDisplay extends Observer {
 		updateDisplay();
 	}
 
+	public void disableButtons()
+	{
+		
+	}
 }

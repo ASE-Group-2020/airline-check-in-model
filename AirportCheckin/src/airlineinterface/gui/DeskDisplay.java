@@ -157,6 +157,7 @@ public class DeskDisplay extends Observer {
 	private void NoCustomer()
 	{
 		lCustomerName.setText("");
+		lCustomerClass.setText("");
 		lBaggage.setText("");
 		lBookingRef.setText("");
 		lFlightCode.setText("");

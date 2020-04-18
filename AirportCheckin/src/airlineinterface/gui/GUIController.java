@@ -71,4 +71,9 @@ public class GUIController {
 	public void closeGui() {
 		view.closeGui();
 	}
+	
+	public void setAllButtons(boolean b)
+	{
+		view.setAllButtons(b);
+	}
 }

@@ -80,12 +80,12 @@ public class Simulator extends Observable {
 	/* Causes simulation to stop and write to file */
 	public void stopSimulation() {
 		runSimulation = false;
+		guiController.setAllButtons(false);
 	}
 	/* Causes simulation to stop, write to file, and closes GUI */
 	public void closeSimulation() {
     	runSimulation = false;		// set flags to inform the simulation to start wrapping up and close
     	closeWindow = true;
-    	simSpeed = 10000;			// set sim speed to a high number to close window instantly, cuz nobody wants to wait in 2020
 	}
 	
 	public void setSimulationSpeed(float speed) {
@@ -177,6 +177,7 @@ public class Simulator extends Observable {
 		}
 		currentTime = (long) this.realRunTime;
 		notifyObservers();
+		if (runSimulation) stopSimulation();
 		
 		// Stop desks and queue
 		for(Desk d : allDesks) d.enable = false;
@@ -323,7 +324,7 @@ public class Simulator extends Observable {
 	public void sleep(int millisec)
 	{
 		float sleepTimeRemaining = (float) (millisec * ( randomness ? 0.5f * r.nextFloat() : 1 ));	// Total time to sleep for (including randomness)
-	    while (sleepTimeRemaining > 0) {															// If sleeping hasn't completed, keep looping
+	    while (sleepTimeRemaining > 0 && runSimulation) {															// If sleeping hasn't completed, keep looping
 	        try { Thread.sleep(sleepTimeStep); }													// Sleep for a set, small time - allows CPU to do other tasks
 	        catch (InterruptedException e) { Logger.instance().MainLog(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds."); }
 	        sleepTimeRemaining -= sleepTimeStep * simSpeed;											// Update remaining time, considering simSpeed
