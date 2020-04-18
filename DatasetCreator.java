@@ -39,6 +39,8 @@ public class DatasetCreator
 	
 	static float flightClassPercentage;
 	
+	static float flightDelaySecondsPerCustomer = 5;
+	
 	/**Used to generate the random values for the flight and customer data*/
 	private enum Spec
 	{
@@ -48,6 +50,8 @@ public class DatasetCreator
 		FlightWeight(500, 5000),
 		/**Used to randomly generate the maximum storage volume of an airliner*/
 		FlightVolume(1500, 5000),
+		/**Used to create the departure delay*/
+		FlightDepartureTime(-2,2),
 		/**Used to alter the percentage chance of a random boolean calculation for whether or not a passenger as checked into the airport*/
 		CheckIn(0.5f,1),
 		/**Used to randomly generate the weight of a passenger's baggage*/
@@ -74,12 +78,16 @@ public class DatasetCreator
 	/**Used by the Spec enum to create random weight, volume and passenger numbers, as well as assigning random flight codes to passengers*/
 	static Random r;
 	
-	public DatasetCreator() { Reset(); }
+	
+	private static int RandomDepartureTime()
+	{
+		return (int) ((flightDelaySecondsPerCustomer + Spec.FlightDepartureTime.RandomMinMax()) * 1000 * (float)customerCount);
+	}
 	
 	/**Resets the DatasetCreator object with specified default variables*/
 	public static void Reset()
 	{
-		customerCount = 100;
+		customerCount = 1000;
 		flightClassPercentage = 0.7f; // between 0 and 1
 		
 		flightCount = Math.max(customerCount / 10, 1);
@@ -146,7 +154,8 @@ public class DatasetCreator
 			RandomFromArray(carriers) + "," +
 			(int) Spec.Passengers.RandomMinMax() + "," + 
 			Spec.FlightWeight.RandomMinMax() + "," + 
-			Spec.FlightVolume.RandomMinMax()
+			Spec.FlightVolume.RandomMinMax() + "," +
+			RandomDepartureTime()
 		;
 	}
 	
