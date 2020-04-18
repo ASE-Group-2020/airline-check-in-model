@@ -23,39 +23,18 @@ public class ThreadingTest {
 	void setup(){
 		Logger.instance().resetTimer();									// Start logger
 		
-	    sim = new Simulator(3);								// the argument is the number of desks instantiated 
+	    sim = Simulator.get();											// the argument is the number of desks instantiated 
 
-		sim.readFlightsFromFile("dataFlight-Testc.csv");
-		sim.readCustomersFromFile("dataCustomer-Testc.csv");
+	    sim.addDesks(3);
+		sim.addFlightsFromFile("dataFlight-Testc.csv");
+		sim.addCustomersFromFile("dataCustomer-Testc.csv");
 
-		//sim.makeCustomersArrive(5);										// Delays the arrival of customers
+		//sim.makeCustomersArrive(5);									// Delays the arrival of customers
 		
 		sim.start(100000, 4, true);										// (simSpeed, runTime, randomness)
 		this.num = 12;
 	}
 
-	/*
-	 * @Test
-	 *//**
-		 * test if: EQUALS
-		 * 
-		 * When the queue has a customer When the queue doesn't have a queue
-		 * 
-		 * 
-		 *//*
-			 * void runTest() {
-			 * 
-			 * //check that the if statement works correctly Customer c = q.getNext();
-			 * assertTrue(!(c == null)); //There is a next customer
-			 * 
-			 * //reset the waitingQueue and desk with an empty queue q.setWaiting(emptyQ);
-			 * this.d = new Desk(q, "desk1");
-			 * 
-			 * //check that the if statement works correctly c = q.getNext(); assertTrue(c
-			 * == null); //There isn't a next customer
-			 * 
-			 * }
-			 */
 
 	@Test
 	/**Check if 5 desks can pull from one queue of people and put them into two flights correctly
@@ -71,7 +50,7 @@ public class ThreadingTest {
 		int num = 20;
 		for(Flight f : sim.allFlights) {
 			System.out.println("the number of people in flight: " + f.customers.size());
-			assertEquals(int(f.customers.size()),num,"The code has failed to correctly place the queing people into both flights.");
+			assertEquals("The code has failed to correctly place the queing people into both flights.",f.customers.size(),num);
 		}
 		
 	}

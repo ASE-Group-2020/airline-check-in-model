@@ -167,6 +167,13 @@ public class Simulator extends Observable {
 		for(Thread t : allDeskThreads) t.start();
 		threadQueue.start();
 		
+		
+		//Setting up flight threads
+		List<Thread> allFlightThreads = new ArrayList<Thread>();
+		for(Flight f : allFlights) allFlightThreads.add(new Thread(f));
+		// Start flight threads
+		for(Thread t : allFlightThreads) t.start();
+		
 		startTime = System.currentTimeMillis();
 		stopAtTime = startTime + (long)(this.realRunTime * 1000);
 		currentTime = 0;
