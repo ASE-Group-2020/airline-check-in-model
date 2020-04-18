@@ -32,8 +32,7 @@ public class FlightDisplay extends Observer {
 		{
 			if (bDepart.getText().equals("Depart"))
 			{
-				bDepart.setText("NOT IMPLEMENTED");
-				// TODO implement flight taking off
+				flight.flightDeparting();
 			}
 		}};
 
@@ -108,12 +107,20 @@ public class FlightDisplay extends Observer {
 	public synchronized void updateDisplay() {
 		float[] maxAttr = flight.getMaxAttributes();
 		float[] curAttr = flight.getCustomerSumAttributes();
-		lStatus.setText("Flight status: NOT IMPLEMENTED");
+		lStatus.setText(flight.getCurrentState());
+		if(!flight.isFLightWaiting()) {
+			flightDeparted();
+		}
 		lPassengerCapacity.setText("Passengers: " + curAttr[0] + " / " + maxAttr[0]);
 		lWeightCapacity.setText("Weight: " + curAttr[1] + " / " + maxAttr[1]);
 		lVolumeCapacity.setText("Volume: " + curAttr[2] + " / " + maxAttr[2]);
 		panel.revalidate();
 		panel.repaint();
+	}
+	
+	private void flightDeparted() {
+		bDepart.setEnabled(false);
+		bDepart.setText("Flight Departed");
 	}
 	
 	public JComponent getComponent() {

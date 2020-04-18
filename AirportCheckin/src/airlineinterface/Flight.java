@@ -12,6 +12,7 @@ public class Flight extends Observable implements Runnable  {
 	private String startLocation, endLocation, flightCode, carrier;
 	private int capacity;
 	private float maxWeight, maxVolume;
+	//private int departureTime;
 	
 	//variables that are useful for the report
 	private int currentCapacity;
@@ -63,11 +64,6 @@ public class Flight extends Observable implements Runnable  {
 	public void run() {
 		Simulator.get().sleep(5000);
 		flightDeparting();
-		if(flightState == DepartureState.departed){
-			System.out.println("The state of the flights after 5 seconds is: departed" );
-		}else {
-			System.out.println("Something has goen arye.");
-		}
 	}
 	
 	public boolean isFLightWaiting() {
@@ -80,6 +76,19 @@ public class Flight extends Observable implements Runnable  {
 	
 	public void flightDeparting() { 
 		flightState = DepartureState.departed;
+		System.out.println("Flight is now departing. Bye Bye!");
+		notifyObservers();
+	}
+	
+	public String getCurrentState() {
+		switch(flightState) {
+			case waiting:
+				return "Flight status: Waiting for people to board.";
+			case departed:
+				return "Flight status: Flight has departed.";
+			default:
+				return "This shouldn't happen. Please advise technical team of the issue.";
+		}
 	}
 	
 	/**
