@@ -1,11 +1,13 @@
 package airlineinterface.gui;
 
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -83,4 +85,37 @@ public class GUIView {
 		frame.dispose();
 	}
 
+	public void setAllButtons(boolean b)
+	{
+		// disables all buttons on flight displays
+		for (Component p : pFlights.getComponents())
+		{
+			if (p instanceof JPanel)
+			{
+				for (Component c : ((JPanel)p).getComponents())
+				{
+					if (c instanceof JButton) ((JButton)c).setEnabled(b);
+				}
+			}
+		}
+		
+		// disables all buttons on desk displays
+		boolean ignoredFirstItem = false; // the first instance is the SpeedDisplay, which requires a different way to disable the buttons
+		for (Component p : pDesks.getComponents())
+		{
+			if (!ignoredFirstItem) { ignoredFirstItem = true; continue; }
+			else if (p instanceof JPanel)
+			{
+				for (Component c : ((JPanel)p).getComponents())
+				{
+					if (c instanceof JButton) ((JButton)c).setEnabled(b);
+				}
+			}
+		}
+		
+		// disables all buttons on SpeedDisplay
+		JPanel panel = ((JPanel) pDesks.getComponent(0)); // SpeedDisplay's panel
+		JPanel subPanel = ((JPanel) panel.getComponent(0)); // SpeedDisplay button panel
+		for (Component c : subPanel.getComponents()) if (c instanceof JButton) ((JButton)c).setEnabled(b);
+	}
 }
