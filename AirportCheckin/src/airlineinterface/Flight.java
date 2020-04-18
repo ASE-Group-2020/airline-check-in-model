@@ -8,7 +8,7 @@ import exceptions.InvalidValueException;
 
 public class Flight extends Observable implements Runnable  {
 	
-	public HashSet<Customer> customers;
+	private HashSet<Customer> customers;
 	private String startLocation, endLocation, flightCode, carrier;
 	private int capacity, closeCheckInTime, checkInTimeRemaining;
 	private float maxWeight, maxVolume;
@@ -19,6 +19,8 @@ public class Flight extends Observable implements Runnable  {
 	
 	private enum DepartureState {waiting,check_in_closed}
 	private DepartureState flightState = DepartureState.waiting;
+	
+	private boolean customerBlock = false;
 	
 	@SuppressWarnings("unused")
 	private Flight() {}
@@ -61,6 +63,14 @@ public class Flight extends Observable implements Runnable  {
 		this.closeCheckInTime = closeCheckInTime;
 		customers = new HashSet<Customer>();
 	}
+	
+	// prevents multiple threads from accessing the customers hashset at the same time - will cause ConcurrentModificationException without it
+	private void customerBlock(boolean mode)
+	{
+		while (mode && customerBlock) {}
+		customerBlock = mode;
+	}
+	
 	public void run() {
 		checkInTimeRemaining = closeCheckInTime / 1000;
 		while (checkInTimeRemaining > 0) {
@@ -105,7 +115,9 @@ public class Flight extends Observable implements Runnable  {
 	{
 		if (!c.getFlightCode().equals(flightCode)) throw new InvalidValueException("customer does not belong to this flight");
 		c.setCheckedIn();										//Set customer to being checked in, throwing exception if customer is already checked in
+		customerBlock(true);
 		boolean b = customers.add(c);							//Add customer to TreeSet of customer on flight
+		customerBlock(false);
 		currentCapacity = currentCapacity + 1;					//Add one additional passengers to the flight
 		float[] baggageDetails = c.getBaggageDetails();			//Get an array which holds the 2 values: checked in baggage weight and volume
 	    currentWeight = currentWeight + baggageDetails[0];		//Add baggage weight to the flight
@@ -123,7 +135,9 @@ public class Flight extends Observable implements Runnable  {
 	 */
 	public boolean removeCustomer(Customer c)
 	{
+		customerBlock(true);
 		boolean b = customers.remove(c);
+		customerBlock(false);
 		if (b) notifyObservers();
 		return b;
 	}
@@ -132,9 +146,10 @@ public class Flight extends Observable implements Runnable  {
 	public float[] getMaxAttributes() { return new float[] {capacity, maxWeight, maxVolume} ; }
 	
 	/**@return the flight's current flight attributes of all the customers in the following order: current number of passengers, the total weight of luggage, and the total volume of luggage*/
-	public float[] getCustomerSumAttributes()
+	public synchronized float[] getCustomerSumAttributes()
 	{
 		float[] details = new float[] { 0, 0, 0};
+		customerBlock(true);
 		Iterator<Customer> iter = customers.iterator();
 		while (iter.hasNext())
 		{
@@ -147,6 +162,7 @@ public class Flight extends Observable implements Runnable  {
 				details[2] += customerDetails[1];
 			}
 		}
+		customerBlock(false);
 		return details;
 	}
 	
