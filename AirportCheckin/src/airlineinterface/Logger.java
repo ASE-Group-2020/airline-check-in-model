@@ -47,23 +47,23 @@ public class Logger {
 	
 	public synchronized void MainLog(String s)
 	{
-		String t = GetTimeStamp() + s + "\n";
+		String t = GetTimeStamp() + s + System.lineSeparator();
 		mainLog += t;
 		System.out.print(t);
 	}
 	
 	public synchronized void LogPassengerDetails(Customer c)
 	{
-		passengerDetails += GetTimeStamp() + c.toString() + "\n";
+		passengerDetails += GetTimeStamp() + c.toString() + System.lineSeparator();
 	}
 	
 	public synchronized void LogFlightDetails(Flight f)
 	{
-		flightDetails += GetTimeStamp() + "\n";
-		String[] s = f.toString().split("\n");
+		flightDetails += GetTimeStamp() + System.lineSeparator();
+		String[] s = f.toString().split(System.lineSeparator());
 		for (String i : s)
 		{
-			flightDetails += "	" + i + "\n";
+			flightDetails += "	" + i + System.lineSeparator();
 		}
 	}
 	
@@ -76,14 +76,14 @@ public class Logger {
 	
 	public synchronized void PassengerMovedToDesk(Customer c, String deskName)
 	{
-		String s = GetTimeStamp() + "\"" + c.toString() + "\" " + "has moved to " + deskName + "\n";
+		String s = GetTimeStamp() + "\"" + c.toString() + "\" " + "has moved to " + deskName + System.lineSeparator();
 		deskJoin += s;
 		mainLog += s;
 	}
 	
 	public synchronized void PassengerCheckedIn(Customer c, Flight f, String deskName, float baggageFee)
 	{
-		String s = GetTimeStamp() + "\"" + c.toString() + "\" " + "has been checked in at " + deskName + ". Baggage Fee: " + baggageFee + "\n";
+		String s = GetTimeStamp() + "\"" + c.toString() + "\" " + "has been checked in at " + deskName + ". Baggage Fee: " + baggageFee + System.lineSeparator();
 		checkedIn += s;
 		mainLog += s;
 	}
@@ -100,16 +100,16 @@ public class Logger {
 		String sum = "Simulation Log:\n\n";
 		
 		// main log
-		sum += "Main Log:\n" + mainLog + "\n";
+		sum += "Main Log:\n" + mainLog + System.lineSeparator();
 		
 		// additional information
-		sum += "Queue Join:\n" + queueJoin + "\n";
-		sum += "Desk Login:\n" + deskJoin + "\n";
-		sum += "Check-In:\n" + checkedIn + "\n";
-		sum += "Flight Status:\n" + flightClosed + "\n";
+		sum += "Queue Join:\n" + queueJoin + System.lineSeparator();
+		sum += "Desk Login:\n" + deskJoin + System.lineSeparator();
+		sum += "Check-In:\n" + checkedIn + System.lineSeparator();
+		sum += "Flight Status:\n" + flightClosed + System.lineSeparator();
 		
 		// flights and passengers
-		sum += "\nPassenger Details:\n" + passengerDetails + "\n";
+		sum += "\nPassenger Details:\n" + passengerDetails + System.lineSeparator();
 		sum += "Flight Details:\n" + flightDetails;
 		
 		return sum;

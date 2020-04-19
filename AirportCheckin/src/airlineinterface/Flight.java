@@ -67,7 +67,7 @@ public class Flight extends Observable implements Runnable  {
 	// prevents multiple threads from accessing the customers hashset at the same time - will cause ConcurrentModificationException without it
 	private void customerBlock(boolean mode)
 	{
-		while (mode && customerBlock) {}
+		if (mode) while (customerBlock) {}
 		customerBlock = mode;
 	}
 	
