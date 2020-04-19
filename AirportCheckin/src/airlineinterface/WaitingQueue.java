@@ -55,7 +55,7 @@ public class WaitingQueue extends Observable implements Runnable {
 	public synchronized Customer getNext() {	
 		Customer c;
 		if 		(standardWaiting.isEmpty()) { c = businessWaiting.poll(); justPulledBusinessClass = true; }
-		else if (standardWaiting.isEmpty()) { c = standardWaiting.poll(); justPulledBusinessClass = false; }
+		else if (businessWaiting.isEmpty()) { c = standardWaiting.poll(); justPulledBusinessClass = false; }
 		else
 		{
 			if (justPulledBusinessClass) c = standardWaiting.poll();
@@ -66,21 +66,26 @@ public class WaitingQueue extends Observable implements Runnable {
 		return c;
 	}
 	
-	public Customer nextCustomerArrived()
+	private Customer nextCustomerArrived()
 	{
 		Customer c = notArrived.remove(0);
-		if 		(c.getSeatingClass().equalsIgnoreCase("Standard")) standardWaiting.add(c);
-		else if (c.getSeatingClass().equalsIgnoreCase("Business")) businessWaiting.add(c);
-		else System.out.println("ERROR: known seating class detected: " + c.getSeatingClass());
+		if (c != null)
+		{
+			switch (c.getSeatingClass().toLowerCase())
+			{
+			case "standard":
+				standardWaiting.add(c);
+				break;
+			case "business":
+				businessWaiting.add(c);
+				break;
+			default:
+				System.out.println("ERROR: known seating class detected: " + c.getSeatingClass());
+				break;
+			}
+		}
 		return c;
 	}
-
-	// Get / Set methods TODO not referenced outside class, is it public for JUnit tests?
-	/*
-	public synchronized Queue<Customer> getWaiting() {
-		return waiting;
-	}
-	*/
 	
 	public Queue<Customer> getWaitingCopyStandard() {
 		return new LinkedList<Customer>(standardWaiting);
@@ -89,10 +94,6 @@ public class WaitingQueue extends Observable implements Runnable {
 	public Queue<Customer> getWaitingCopyBusiness() {
 		return new LinkedList<Customer>(businessWaiting);
 	}
-	/*// methods TODO not referenced outside class, is it public for JUnit tests?
-	public void setWaiting(Queue<Customer> waiting) {
-		this.waiting = waiting;
-	}*/
 
 	public List<Customer> getNotArrived() {
 		return notArrived;
