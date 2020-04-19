@@ -102,7 +102,7 @@ public class FlightDisplay extends Observer {
 
 	public synchronized void updateDisplay() {
 		float[] maxAttr = flight.getMaxAttributes();
-		float[] curAttr = flight.getCustomerSumAttributes();
+		float[] curAttr = flight.getCurrentAttributes();
 		lStatus.setText(flight.getCurrentState());
 		if (!flight.isFlightWaiting()) {
 			flightDeparted();
