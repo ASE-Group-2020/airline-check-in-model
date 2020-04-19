@@ -8,10 +8,7 @@ public class Logger {
 
 	// Statics
 	private static Logger instance = new Logger();
-
-	public static Logger instance() {
-		return instance;
-	}
+	public static Logger instance() { return instance; }
 
 	private long startMillis;
 	/*
@@ -20,7 +17,7 @@ public class Logger {
 	*/
 	
 	private String passengerDetails = "";
-	private String flightDetails = "";
+	private String flightDetails = "----" + System.lineSeparator();
 	private String queueJoin = "";
 	private String deskJoin = "";
 	private String checkedIn = "";
@@ -54,17 +51,18 @@ public class Logger {
 	
 	public synchronized void LogPassengerDetails(Customer c)
 	{
-		passengerDetails += GetTimeStamp() + c.toString() + System.lineSeparator();
+		passengerDetails += c.toString() + System.lineSeparator();
 	}
 	
 	public synchronized void LogFlightDetails(Flight f)
 	{
-		flightDetails += GetTimeStamp() + System.lineSeparator();
+		//flightDetails += GetTimeStamp() + System.lineSeparator();
 		String[] s = f.toString().split(System.lineSeparator());
 		for (String i : s)
 		{
-			flightDetails += "	" + i + System.lineSeparator();
+			flightDetails += i + System.lineSeparator();
 		}
+		flightDetails += "----" + System.lineSeparator();
 	}
 	
 	public synchronized void PassengerJoinedQueue(Customer c)
@@ -90,7 +88,7 @@ public class Logger {
 	
 	public synchronized void FlightClosed(Flight f)
 	{
-		String s = "Flight " + f.toString() + "is now closed" + System.lineSeparator();
+		String s = GetTimeStamp() + f.getFlightCode() + " is now closed" + System.lineSeparator();
 		flightClosed += s;
 		mainLog += s;
 	}
@@ -109,7 +107,7 @@ public class Logger {
 		sum += "Flight Status:" + System.lineSeparator() + flightClosed + System.lineSeparator();
 		
 		// flights and passengers
-		sum += "\nPassenger Details:" + System.lineSeparator() + passengerDetails + System.lineSeparator();
+		sum += "Passenger Details:" + System.lineSeparator() + passengerDetails + System.lineSeparator();
 		sum += "Flight Details:" + System.lineSeparator() + flightDetails;
 		
 		return sum;

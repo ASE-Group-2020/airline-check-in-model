@@ -82,6 +82,7 @@ public class Flight extends Observable implements Runnable  {
 	
 	public void flightDeparting() { 
 		flightState = DepartureState.check_in_closed;
+		Logger.instance().FlightClosed(this);
 		notifyObservers();
 	}
 	

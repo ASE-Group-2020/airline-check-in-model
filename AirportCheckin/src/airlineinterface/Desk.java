@@ -58,7 +58,10 @@ public class Desk extends Observable implements Runnable {
 		Simulator.get().sleep(1000);
 		currCustomer = queue.getNext();										// Customer joins from queue
 		if (currCustomer != null)											// If the customer is null don't change stage
+		{
+			Logger.instance().PassengerMovedToDesk(currCustomer, deskName);
 			currentStage = Stage.CHECKING_CUSTOMER_DETAILS;
+		}
 	}
 	private void stageCheckCustomerDetails() {
 		Simulator.get().sleep(2000);

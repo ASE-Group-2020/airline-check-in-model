@@ -149,12 +149,8 @@ public class Simulator extends Observable {
 		this.randomness = randomness;
 		
 		guiView.setVisible(true);
-		try {
-			Thread.sleep(50);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		try { Thread.sleep(50); }
+		catch (InterruptedException e) { e.printStackTrace(); }
 
 		List<Thread> allDeskThreads = new ArrayList<Thread>();
 		Thread threadQueue = new Thread(queue);								// Start threads
@@ -355,8 +351,8 @@ public class Simulator extends Observable {
 		Simulator sim = Simulator.get();								// Only one Simulator can exist at a time
 		sim.addDesks(3);												// No desks are added by default - specify the number here
 
-		sim.addFlightsFromFile("dataFlight-40c.csv");
-		sim.addCustomersFromFile("dataCustomer-40c.csv");
+		sim.addFlightsFromFile("dataFlight-20c.csv");
+		sim.addCustomersFromFile("dataCustomer-20c.csv");
 
 		//sim.makeCustomersArrive(5);									// Immediate arrival of customers
 		
