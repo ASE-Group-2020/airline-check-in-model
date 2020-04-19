@@ -20,8 +20,6 @@ public class Flight extends Observable implements Runnable  {
 	private enum DepartureState {waiting,check_in_closed}
 	private DepartureState flightState = DepartureState.waiting;
 	
-	private boolean customerBlock = false;
-	
 	@SuppressWarnings("unused")
 	private Flight() {}
 	
@@ -135,7 +133,7 @@ public class Flight extends Observable implements Runnable  {
 	public float[] getMaxAttributes() { return new float[] {capacity, maxWeight, maxVolume} ; }
 	
 	/**@return the flight's current flight attributes of all the customers in the following order: current number of passengers, the total weight of luggage, and the total volume of luggage*/
-	public synchronized float[] getCurrentAttributes()
+	public float[] getCurrentAttributes()
 	{
 		return new float[] {this.currentCapacity, this.currentWeight, this.currentVolume};
 	}
