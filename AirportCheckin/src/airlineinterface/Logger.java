@@ -69,7 +69,7 @@ public class Logger {
 	
 	public synchronized void PassengerJoinedQueue(Customer c)
 	{
-		String s = GetTimeStamp() + "\"" + c.toString() + "\" " + "has entered the queue\n";
+		String s = GetTimeStamp() + "\"" + c.toString() + "\" " + "has entered the queue" + System.lineSeparator();
 		queueJoin += s;
 		mainLog += s;
 	}
@@ -90,27 +90,27 @@ public class Logger {
 	
 	public synchronized void FlightClosed(Flight f)
 	{
-		String s = "Flight " + f.toString() + "is now closed\n";
+		String s = "Flight " + f.toString() + "is now closed" + System.lineSeparator();
 		flightClosed += s;
 		mainLog += s;
 	}
 	
 	public String GetSummary()
 	{
-		String sum = "Simulation Log:\n\n";
+		String sum = "Simulation Log:" + System.lineSeparator() + System.lineSeparator();
 		
 		// main log
-		sum += "Main Log:\n" + mainLog + System.lineSeparator();
+		sum += "Main Log:" + System.lineSeparator() + mainLog + System.lineSeparator();
 		
 		// additional information
-		sum += "Queue Join:\n" + queueJoin + System.lineSeparator();
-		sum += "Desk Login:\n" + deskJoin + System.lineSeparator();
-		sum += "Check-In:\n" + checkedIn + System.lineSeparator();
-		sum += "Flight Status:\n" + flightClosed + System.lineSeparator();
+		sum += "Queue Join:" + System.lineSeparator() + queueJoin + System.lineSeparator();
+		sum += "Desk Login:" + System.lineSeparator() + deskJoin + System.lineSeparator();
+		sum += "Check-In:" + System.lineSeparator() + checkedIn + System.lineSeparator();
+		sum += "Flight Status:" + System.lineSeparator() + flightClosed + System.lineSeparator();
 		
 		// flights and passengers
-		sum += "\nPassenger Details:\n" + passengerDetails + System.lineSeparator();
-		sum += "Flight Details:\n" + flightDetails;
+		sum += "\nPassenger Details:" + System.lineSeparator() + passengerDetails + System.lineSeparator();
+		sum += "Flight Details:" + System.lineSeparator() + flightDetails;
 		
 		return sum;
 	}
