@@ -1,7 +1,6 @@
 package airlineinterface;
 
 import java.util.HashSet;
-import java.util.Iterator;
 
 import exceptions.AlreadyCheckedInException;
 import exceptions.InvalidValueException;
