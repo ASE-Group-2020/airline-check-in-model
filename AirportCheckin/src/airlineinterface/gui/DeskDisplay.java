@@ -21,20 +21,25 @@ import exceptions.ObjectNotFoundException;
 
 public class DeskDisplay extends Observer {
 
-	private Desk desk;
+	private Desk desk;										// Keep track of desk so up-to-date data can be retrieved
 	
-	private JPanel panel;
+	private JPanel panel;									// Component to return to be displayed
 	private JTextField lCustomerName, lCustomerClass, lBaggage, lBookingRef, lFlightCode, lDeskStage;
-	private JLabel lDeskName;
-	private JButton bDeskToggle;
+															// No text entry is used - JTextFields are treated as labels. This was used to fix a bug relating to
+															// the QueueDisplay JTable not having enough room to display correctly JLabel text changed.
+	private JLabel lDeskName;								// Label still used for DeskName display as it never changes
+	private JButton bDeskToggle;							// Toggles the desk between enabled and disabled
 	
 	private String newButtonText = "";
 	
-	private static String WAITING_FOR_DESK = "Please Wait...";
-	private static String CLOSED_DESK_STAGE = "Desk action: Closed.";
-	private static String READY_TO_OPEN = "Open";
-	private static String READY_TO_CLOSE = "Close";
+	/* Set text the desk toggle button can have */
+	private final static String WAITING_FOR_DESK = "Please Wait...";
+	private final static String READY_TO_OPEN = "Open";
+	private final static String READY_TO_CLOSE = "Close";
+	// Return from Desk.getCurrentStage if the desk is closed - used when changing button text
+	private final static String CLOSED_DESK_STAGE = "Desk action: Closed.";
 	
+	/* ActionListener called when desk toggle button is pressed */
 	private ActionListener openCloseDesk = new ActionListener()
 	{
 		@Override
@@ -58,16 +63,17 @@ public class DeskDisplay extends Observer {
 		}
 	};
 
+	/* Constructor */
 	public DeskDisplay(Desk desk) {
 		panel = new JPanel(new GridBagLayout());
 
 		Border black = BorderFactory.createLineBorder(Color.DARK_GRAY);
-		panel.setBorder(black);
+		panel.setBorder(black);								// Put a nice border around the display
 
 		this.desk = desk;
-		desk.addObserver(this);
+		desk.addObserver(this);								// Observer pattern - each Desk updates its DeskDisplay
 
-		lCustomerName = new JTextField("", 20);
+		lCustomerName = new JTextField("", 20);				// Initialise all JTextField 'labels' with the same width and blank text - updated in updateDisplay
 		lCustomerClass = new JTextField("", 20);
 		lBaggage = new JTextField("", 20);
 		lBookingRef = new JTextField("", 20);
@@ -77,7 +83,7 @@ public class DeskDisplay extends Observer {
 		bDeskToggle = new JButton("Close");
 		bDeskToggle.addActionListener(openCloseDesk);
 		
-		lCustomerName.setEditable(false);
+		lCustomerName.setEditable(false);					// None of the JTextField "labels" should be focusable or editable
 		lCustomerName.setFocusable(false);
 		lCustomerClass.setEditable(false);
 		lCustomerClass.setFocusable(false);
@@ -91,7 +97,7 @@ public class DeskDisplay extends Observer {
 		lDeskStage.setFocusable(false);
 		lDeskName.setFocusable(false);
 
-		GridBagConstraints c = new GridBagConstraints();
+		GridBagConstraints c = new GridBagConstraints();	// All components added with GridBagLayout
 		c.ipadx = 5;
 		c.ipady = 7;
 		c.gridwidth = 2;
@@ -115,26 +121,28 @@ public class DeskDisplay extends Observer {
 		c.gridx = 1;
 		panel.add(bDeskToggle, c);
 		
-		updateDisplay();
+		updateDisplay();									// Update text in the "labels"
 	}
 
+	/* Updates JTextField 'labels' to show up-to-date information */
 	public void updateDisplay() {
 		try {
-			Customer c = desk.getCurrentCustomer();
-			if (c == null) NoCustomer();
+			Customer c = desk.getCurrentCustomer();			// Exception called if no customer is available
+			if (c == null) NoCustomer();					// Extra catch in case that callback changes
 			else
 			{
+				// Customer exists, get their details and display them in the labels
 				lCustomerName.setText(c.getFirstName() + " " + c.getLastName());
 				lCustomerClass.setText(c.getSeatingClass() + " Class");
 				float[] bd = c.getBaggageDetails();
-				lBaggage.setText("Baggage: " + bd[0] + "kg, " + bd[1] + "l");
+				lBaggage.setText("Baggage: " + String.format("%.2f", bd[0]) + " kg, " + String.format("%.0fx%.0fx%.0f cm", bd[1]+0.5, bd[2]+0.5, bd[3]+0.5));
 				lBookingRef.setText("Booking code: " + c.getRefCode());
 				lFlightCode.setText("Flight code: " + c.getFlightCode());
 				lDeskStage.setText(desk.getCurrentStage());
 			}
 		} catch (ObjectNotFoundException e) { NoCustomer(); }
 		
-		if (bDeskToggle.getText().equals(WAITING_FOR_DESK))
+		if (bDeskToggle.getText().equals(WAITING_FOR_DESK))	// Update button text if it was waiting
 		{
 			// if the desk is being opened
 			if (newButtonText.equals(READY_TO_CLOSE) && !desk.getCurrentStage().equals(CLOSED_DESK_STAGE))
@@ -149,11 +157,12 @@ public class DeskDisplay extends Observer {
 				newButtonText = "";
 			}
 		}
-		
+		// Update panel display
 		panel.revalidate();
 		panel.repaint();
 	}
 	
+	/* Clear display labels */
 	private void NoCustomer()
 	{
 		lCustomerName.setText("");
@@ -164,13 +173,15 @@ public class DeskDisplay extends Observer {
 		lDeskStage.setText(desk.getCurrentStage());
 	}
 	
+	/* Returns the component displayed in the GUI */
 	public JComponent getComponent() {
 		return panel;
 	}
 
+	/* Callback when Desk internal data is updated - Observer pattern */
 	@Override
 	public void onNotify() {
-		updateDisplay();
+		updateDisplay();		// Update the display when data changes
 	}
 
 }

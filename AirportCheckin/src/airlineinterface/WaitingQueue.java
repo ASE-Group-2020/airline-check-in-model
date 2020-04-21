@@ -41,7 +41,7 @@ public class WaitingQueue extends Observable implements Runnable {
 		Logger.instance().MainLog("Adding customers to notArrived");
 		notArrived.addAll(customers);
 		Collections.shuffle(notArrived);
-		Logger.instance().MainLog("notArrives length: " + notArrived.size());
+		Logger.instance().MainLog("notArrived length: " + notArrived.size());
 		notifyObservers();
 	}
 	

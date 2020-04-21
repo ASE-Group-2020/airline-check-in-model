@@ -20,47 +20,50 @@ import airlineinterface.Simulator;
 
 public class SpeedDisplay extends Observer {
 	
-	private JPanel panel, subPanel;
-	private JTextField lSimTime, lSimEnd, lBlank, lSimSpeed, lNewSpeed;
-	private JButton enterSpeed, stopButton;
+	private JPanel panel, subPanel;											// Panel to be returned and entered into GUI
+	private JTextField lSimTime, lSimEnd, lBlank, lSimSpeed, tfNewSpeed;	// "labels" for updating information, tfNewSpeed to enter simulation speed
+	private JButton enterSpeed, stopButton;									// Buttons to change simulation speed and stop simulation entirely
 	
-	private ActionListener updateSpeed = new ActionListener()
+	private ActionListener updateSpeed = new ActionListener()				// Speed change ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{																	// If parsing succeeds change Simulator speed
+			try { Simulator.get().setSimulationSpeed(Math.max(0, Float.parseFloat(tfNewSpeed.getText()))); }
+			catch (NumberFormatException nfe) {}							// Otherwise clear speed text
+			tfNewSpeed.setText("");											// Clear text
+		}
+	};
+	
+	private ActionListener stopSimulation = new ActionListener()			// Simulation-stopping ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			try { Simulator.get().setSimulationSpeed(Math.max(0, Float.parseFloat(lNewSpeed.getText()))); }
-			catch (NumberFormatException nfe) {}
-			lNewSpeed.setText("");
+			Simulator.get().stopSimulation();								// Call Simulator-stopping method
 		}
 	};
 	
-	private ActionListener stopSimulation = new ActionListener()
-	{
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			Simulator.get().stopSimulation();
-		}
-	};
-	
+	/* Constructor */
+	// SpeedDisplay shows information relating to the Simulator, so it doesn't need to store a reference to any model objects
 	public SpeedDisplay()
 	{
 		panel = new JPanel(new GridBagLayout());
-		panel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+		panel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));	// Add a border around the display
 		
-		lSimTime = new JTextField("", 20);
+		lSimTime = new JTextField("", 20);									// Set up 'labels' to be updated
 		lSimEnd = new JTextField("", 20);
 		lBlank = new JTextField("", 20);
 		lSimSpeed = new JTextField("", 20);
-		lNewSpeed = new JTextField("", 10);
+		tfNewSpeed = new JTextField("", 10);
 		
+		// Create buttons and add ActionListeners
 		enterSpeed = new JButton("Set Speed");
 		enterSpeed.addActionListener(updateSpeed);
 		stopButton = new JButton("Stop Simulation");
 		stopButton.addActionListener(stopSimulation);
 		
-		lSimTime.setEditable(false);
+		lSimTime.setEditable(false);										// None of the JTextField "labels" should be focusable or editable
 		lSimTime.setFocusable(false);
 		lSimEnd.setEditable(false);
 		lSimEnd.setFocusable(false);
@@ -70,6 +73,7 @@ public class SpeedDisplay extends Observer {
 		lSimSpeed.setFocusable(false);
 		
 		GridBagConstraints c = new GridBagConstraints();
+		// Add components to the panel
 		c.ipadx = 5;
 		c.ipady = 6;
 		subPanel = new JPanel(new GridBagLayout());
@@ -97,21 +101,23 @@ public class SpeedDisplay extends Observer {
 		panel.add(lSimSpeed, c); 
 		c.gridx = 0;
 		c.gridy = 4;
-		panel.add(lNewSpeed, c); 
+		panel.add(tfNewSpeed, c); 
 	}
-	
-	// TODO get speed variables from Simulator
+
+	/* Updates JTextField 'labels' to show up-to-date information */
 	public void updateDisplay()
 	{
 		lSimTime.setText("Simulator Time: " + Simulator.get().getCurrentTime());
 		lSimEnd.setText("Simulator End: " + Simulator.get().getRealRunTime());
 		lSimSpeed.setText("Simulator Speed: " + Simulator.get().getSimSpeed());
 	}
-	
+
+	/* Returns the component displayed in the GUI */
 	public JComponent getComponent() {
 		return panel;
 	}
-	
+
+	/* Callback when Simulator speed or time data is updated - Observer pattern */
 	@Override
 	public void onNotify()
 	{
