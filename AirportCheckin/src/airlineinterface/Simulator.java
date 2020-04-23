@@ -49,7 +49,7 @@ public class Simulator extends Observable // Observable allows the speed display
 	private volatile boolean closeWindow = false;	// Volatile as otherwise the window refuses to close if simulation is saved to file through button
 	
 	private float minPossibleSpeed = 0;
-	private float maxPossibleSpeed = 1; 
+	private float maxPossibleSpeed; 
 	
 	private Simulator()
 	{
@@ -66,7 +66,7 @@ public class Simulator extends Observable // Observable allows the speed display
 		allCustomers = new ArrayList<Customer>();
 		
 		// calcluate max possible speed
-		maxPossibleSpeed = 1000 / sleepTimeStep; // 
+		maxPossibleSpeed = 1000 / sleepTimeStep; // the sleep method calls Thread.sleep(step) between steps - if the speed is above this maxPossibleSpeed value, the simulation will not speed up
 		
 		// allows the speed display to see the simulator's current run time
 		addObserver(guiController.addSpeed());
