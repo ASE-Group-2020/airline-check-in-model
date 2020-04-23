@@ -12,6 +12,13 @@ public class Desk extends Observable implements Runnable {
 	// Statics - each desk holds a static reference to all flights
 	private static HashMap<String, Flight> allFlights = new HashMap<String, Flight>();
 	
+	private int waitGetCustomer = 5000;
+	private int waitGetCustomerDetails = 100000;
+	private int waitMeasureBag = 100000;
+	private int waitPrintBoardingPass = 50000;
+	private int waitChargeFee = 100000;
+	private int waitRejectCustomer = 50000;
+	
 	// Instance-specific
 	public boolean enable = true;			// Connect to terminal to control opening/closing desks via setter method
 	private WaitingQueue queue;
@@ -56,7 +63,7 @@ public class Desk extends Observable implements Runnable {
 			currentStage = Stage.CLOSED;
 			return;
 		}
-		Simulator.get().sleep(1000);
+		Simulator.get().sleep(waitGetCustomer);
 		currCustomer = queue.getNext();										// Customer joins from queue
 		if (currCustomer != null)											// If the customer is null don't change stage
 		{
@@ -66,7 +73,7 @@ public class Desk extends Observable implements Runnable {
 	}
 	
 	private void stageCheckCustomerDetails() {
-		Simulator.get().sleep(2000);
+		Simulator.get().sleep(waitGetCustomerDetails);
 		currCustomerFlight = allFlights.get(currCustomer.getFlightCode());	// Get customer flight
 		if (currCustomerFlight == null) {									// Make sure flight exists
 			currentStage = Stage.REJECTING_CUSTOMER;						// Customer rejected
@@ -82,7 +89,7 @@ public class Desk extends Observable implements Runnable {
 	}
 	
 	private void stageMeasureBag() {
-		Simulator.get().sleep(4000);
+		Simulator.get().sleep(waitMeasureBag);
 		currCustomerFee = 0;												// Just in case some data is carried over
 		try {
 			currCustomerFee = getOversizeFee(currCustomer.getBaggageDetails());
@@ -95,7 +102,7 @@ public class Desk extends Observable implements Runnable {
 	}
 	
 	private void stagePrintBoardingPass() {
-		Simulator.get().sleep(4000);
+		Simulator.get().sleep(waitPrintBoardingPass);
 		try {
 			currCustomerFlight.addCustomer(currCustomer, currCustomerFee);
 			Logger.instance().PassengerCheckedIn(currCustomer, currCustomerFlight, deskName, currCustomerFee);
@@ -116,13 +123,13 @@ public class Desk extends Observable implements Runnable {
 	
 	private void stageChargeFee() {
 		// Fee is charged in stagePrintBoardingPass, just wait
-		Simulator.get().sleep(4000);
+		Simulator.get().sleep(waitChargeFee);
 		currentStage = Stage.PRINTING_BOARDING_PASS;
 	}
 	
 	private void stageRejectCustomer() {
 		// Customer is turned away, just wait
-		Simulator.get().sleep(1000);
+		Simulator.get().sleep(waitRejectCustomer);
 		currCustomer = null;
 		currentStage = Stage.GETTING_CUSTOMER;
 	}

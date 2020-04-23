@@ -4,16 +4,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.Assert.*;
 
-import airlineinterface.Desk;
 import airlineinterface.Logger;
 import airlineinterface.Simulator;
 import airlineinterface.Flight;
-/* This test unit will test a large chunk of code. The main purpose is to check if threading is working correctly. 
-*  However issues can arise if there are other mistakes in the code.
-*/
 
-
-
+/** 
+ * This test unit will test a large chunk of code. The main purpose is to check if threading is working correctly. 
+ *  However issues can arise if there are other mistakes in the code.
+ */
 public class ThreadingTest {
 
 	public Simulator sim;
@@ -49,8 +47,8 @@ public class ThreadingTest {
 		//for(Desk d : sim.allDesks) {		// Add all flights to guiController
 		int num = 20;
 		for(Flight f : sim.allFlights) {
-			System.out.println("the number of people in flight: " + f.customers.size());
-			assertEquals("The code has failed to correctly place the queing people into both flights.",f.customers.size(),num);
+			System.out.println("the number of people in flight: " + f.getNumberOfPassengers());
+			assertEquals("The code has failed to correctly place the queing people into both flights.",f.getNumberOfPassengers(),num);
 		}
 		
 	}

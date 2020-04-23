@@ -252,7 +252,7 @@ public class Simulator extends Observable // Observable allows the speed display
 			reader.close(); 											// close reader
 		} catch (Exception e) {
 			if (e instanceof FileNotFoundException) {
-				System.err.println("Error: Customer info file not found. Exiting...");
+				System.err.println("Error: Customer dataset " + filePath + " not found. Exiting...");
 				System.exit(0);
 			} else if (e instanceof IOException)
 				System.err.println("Error: I/O error.");
@@ -299,7 +299,7 @@ public class Simulator extends Observable // Observable allows the speed display
 			reader.close(); 											// close reader
 		} catch (Exception e) {
 			if (e instanceof FileNotFoundException) {
-				System.err.println("Error: Flight info file not found. Exiting...");
+				System.err.println("Error: Flight dataset " + filePath + " not found. Exiting...");
 				System.exit(0);
 			}
 			else if (e instanceof IOException)
@@ -334,27 +334,37 @@ public class Simulator extends Observable // Observable allows the speed display
 	public static void main(String[] args)
 	{
 		// default variables - can be overwritten through console arguments
-		String flights = "dataFlight-20c.csv";
-		String customers = "dataCustomer-20c.csv";
-		int desks = 3;
+		String flights = "dataFlight-100c.csv";
+		String customers = "dataCustomer-100c.csv";
+		int desks = 6;
 		float initialSimSpeed = 1;
-		float runTime = 120;
-		boolean randomness = false;
+		float runTime = 300;
+		boolean randomness = true;
+		
+		/*
+		String flights = "dataFlight-demo.csv";
+		String customers = "dataCustomer-demo.csv";
+		int desks = 6;
+		float initialSimSpeed = 1;
+		float runTime = 300;
+		boolean randomness = true;
+		*/
 		
 		Logger.instance().resetTimer();	// Start logger
 		
-		// Deals with the case of input arguments for different running parameters
+		// Deals with the case of input arguments via console for different running parameters
 		if (args.length > 0)
 		{
 			if (args[0].equalsIgnoreCase("-h") || args[0].equalsIgnoreCase("--help"))
 			{
-				System.out.println("Arguments Accepted:");
-				System.out.println("  Flight Dataset Path Address");
-				System.out.println("  Custoemr Dataset Path Address");
-				System.out.println("  Number of Desks");
-				System.out.println("  Initial Simulation Speed in Seconds");
-				System.out.println("  Simulation Runtime in Seconds");
-				System.out.println("  Include Randomness in Waiting Times?");
+				System.out.println("Please specify arguments for custom parameters:");
+				System.out.println("  1: Flight Dataset Path Address");
+				System.out.println("  2: Custoemr Dataset Path Address");
+				System.out.println("  3: Number of Desks");
+				System.out.println("  4: Initial Simulation Speed in Seconds");
+				System.out.println("  5: Simulation Runtime in Seconds");
+				System.out.println("  6: Include Randomness in Waiting Times?");
+				System.out.println("Otherwise, the default variables will be used.");
 				System.exit(1);
 			}
 			try

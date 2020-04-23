@@ -74,6 +74,8 @@ public class Flight extends Observable implements Runnable  {
 	
 	public boolean isFlightWaiting() { return flightState == DepartureState.Waiting; }
 	
+	public int getNumberOfPassengers() { return customers.size(); }
+	
 	public synchronized void flightDeparting() { 
 		if (flightState != DepartureState.CheckInClosed)
 		{
@@ -103,12 +105,12 @@ public class Flight extends Observable implements Runnable  {
 	public boolean addCustomer(Customer c, float oversizeFee) throws InvalidValueException, AlreadyCheckedInException
 	{
 		if (!c.getFlightCode().equals(flightCode)) throw new InvalidValueException("customer does not belong to this flight");
-		c.setCheckedIn();										//Set customer to being checked in, throwing exception if customer is already checked in
-		boolean b = customers.add(c);							//Add customer to TreeSet of customer on flight
-		currentCapacity = currentCapacity + 1;					//Add one additional passengers to the flight
-		float[] baggageDetails = c.getBaggageDetails();			//Get an array which holds the 2 values: checked in baggage weight and volume
-	    currentWeight = currentWeight + baggageDetails[0];		//Add baggage weight to the flight
-	    currentVolume = currentVolume + baggageDetails[1];		//Add baggage volume to the flight
+		c.setCheckedIn();															//Set customer to being checked in, throwing exception if customer is already checked in
+		boolean b = customers.add(c);												//Add customer to TreeSet of customer on flight
+		currentCapacity += 1;														//Add one additional passengers to the flight
+		float[] baggageDetails = c.getBaggageDetails();								//Get an array which holds the 2 values: checked in baggage weight and volume
+	    currentWeight += baggageDetails[0];											//Add baggage weight to the flight
+	    currentVolume += baggageDetails[1] * baggageDetails[2] * baggageDetails[3];	//Add baggage volume to the flight
 	    totalFee += oversizeFee;
 	    notifyObservers();
 	    return b;

@@ -2,7 +2,6 @@ package airlineinterface.gui;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.LinkedList;
 import java.util.Queue;
 
 import javax.swing.JComponent;
@@ -10,7 +9,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
