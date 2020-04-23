@@ -13,11 +13,11 @@ public class Desk extends Observable implements Runnable {
 	private static HashMap<String, Flight> allFlights = new HashMap<String, Flight>();
 	
 	// all times are in milliseconds
-	private int waitGetCustomer = 5000;			// 5 seconds
-	private int waitGetCustomerDetails = 10000; // 10 seconds
-	private int waitMeasureBag = 10000;			// 10 seconds
-	private int waitPrintBoardingPass = 5000;	// 5 seconds
-	private int waitChargeFee = 10000;			// 10 seconds
+	private int waitGetCustomer = 3000;			// 3 seconds
+	private int waitGetCustomerDetails = 5000;	// 5 seconds
+	private int waitMeasureBag = 5000;			// 10 seconds
+	private int waitPrintBoardingPass = 3000;	// 3 seconds
+	private int waitChargeFee = 5000;			// 5 seconds
 	private int waitRejectCustomer = 5000;		// 5 seconds
 	
 	// Instance-specific
