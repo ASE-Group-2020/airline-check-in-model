@@ -48,6 +48,9 @@ public class Simulator extends Observable // Observable allows the speed display
 	private boolean runSimulation = true;
 	private volatile boolean closeWindow = false;	// Volatile as otherwise the window refuses to close if simulation is saved to file through button
 	
+	private float minPossibleSpeed = 0;
+	private float maxPossibleSpeed = 1; 
+	
 	private Simulator()
 	{
 		// Build GUI.
@@ -61,8 +64,16 @@ public class Simulator extends Observable // Observable allows the speed display
 		// Create lists
 		allFlights = new ArrayList<Flight>();
 		allCustomers = new ArrayList<Customer>();
+		
+		// calcluate max possible speed
+		maxPossibleSpeed = 1000 / sleepTimeStep; // 
+		
 		// allows the speed display to see the simulator's current run time
 		addObserver(guiController.addSpeed());
+	}
+	
+	public float getMaxPossibleSpeed() {
+		return maxPossibleSpeed;
 	}
 	
 	public float getSimSpeed() {
@@ -88,8 +99,9 @@ public class Simulator extends Observable // Observable allows the speed display
     	closeWindow = true;
 	}
 	
-	public void setSimulationSpeed(float speed) {
-		simSpeed = speed;
+	public void setSimulationSpeed(float speed)
+	{
+		simSpeed = Math.max(Math.min(speed, maxPossibleSpeed), minPossibleSpeed);
 	}
 		
 	/* Reads flights from CSV file and adds them into flight list. */
@@ -390,7 +402,7 @@ public class Simulator extends Observable // Observable allows the speed display
 		sim.addFlightsFromFile(flights);					// import flights from specified file			
 		sim.addCustomersFromFile(customers);				// import customers from specified file
 
-		//sim.makeCustomersArrive(5);						// Immediate arrival of customers
+		sim.makeCustomersArrive(10);						// Immediate arrival of customers
 		
 		sim.start(initialSimSpeed, runTime, randomness);	// (simSpeed, runTime, randomness)
 	}

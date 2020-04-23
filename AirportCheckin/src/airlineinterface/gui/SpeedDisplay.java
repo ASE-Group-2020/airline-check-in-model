@@ -27,7 +27,7 @@ public class SpeedDisplay extends Observer {
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{																	// If parsing succeeds change Simulator speed
-			try { Simulator.get().setSimulationSpeed(Math.max(0, Float.parseFloat(tfNewSpeed.getText()))); }
+			try { Simulator.get().setSimulationSpeed(Float.parseFloat(tfNewSpeed.getText())); }
 			catch (NumberFormatException nfe) {}							// Otherwise clear speed text
 			tfNewSpeed.setText("");											// Clear text
 		}
@@ -107,7 +107,7 @@ public class SpeedDisplay extends Observer {
 	{
 		lSimTime.setText("Simulator Time: " + Simulator.get().getCurrentTime());
 		lSimEnd.setText("Simulator End: " + Simulator.get().getRealRunTime());
-		lSimSpeed.setText("Simulator Speed: " + Simulator.get().getSimSpeed());
+		lSimSpeed.setText("Simulator Speed (0-" + Simulator.get().getMaxPossibleSpeed() + "): " + Simulator.get().getSimSpeed());
 	}
 
 	/* Returns the component displayed in the GUI */

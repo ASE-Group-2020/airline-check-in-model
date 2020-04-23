@@ -12,6 +12,8 @@ public class WaitingQueue extends Observable implements Runnable {
 	private List<Customer> notArrived;
 	public boolean active = true;
 	
+	private int timeBetweenArrivals = 2000; // time in milliseconds
+	
 	private boolean justPulledBusinessClass = false;
 
 	public WaitingQueue() {
@@ -31,7 +33,7 @@ public class WaitingQueue extends Observable implements Runnable {
 			Customer c = nextCustomerArrived();
 			notifyObservers();
 			Logger.instance().PassengerJoinedQueue(c);
-			Simulator.get().sleep(1000);
+			Simulator.get().sleep(timeBetweenArrivals);
 		}
 		notifyObservers();
 		if (active) Logger.instance().MainLog("Everyone has arrived");
