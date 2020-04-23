@@ -15,25 +15,25 @@ import exceptions.AlreadyCheckedInException;
 import exceptions.InvalidValueException;
 
 // Runs main, sets up everything by loading in CSV files
-public class Simulator extends Observable {
-	
+public class Simulator extends Observable // Observable allows the speed display to see the simulator's current run time
+{	
+	// Singleton pattern for Simulator - Desk and WaitingQueue need to sleep so must have access to a single Simulator. Plus there will never be a need for more than 1 simulator here.
 	private static Simulator instance;
-	
-	/*
-	 * Singleton pattern for Simulator - Desk and WaitingQueue need to sleep so must have access to a single Simulator
-	 */
 	public static Simulator get() {
 		if (instance == null)
 			instance = new Simulator();
 		return instance;
 	}
-
+	
+	// data-sets of customers and flights
 	private List<Customer> allCustomers;	// All customers loaded into simulation
 	public List<Flight> allFlights;			// All flights loaded into simulation
+	
+	// structure of simulation
 	private List<Desk> allDesks;			// All desks in simulation
-	private WaitingQueue queue;
-	private GUIView guiView;
-	private GUIController guiController;
+	private WaitingQueue queue;				// waiting queues before the check-in desks
+	private GUIView guiView;				// main GUI class
+	private GUIController guiController;	// gui controller
 	private int deskCount;					// Used for naming desks 
 	
 	/* Time and sleep-related variables */
@@ -61,7 +61,7 @@ public class Simulator extends Observable {
 		// Create lists
 		allFlights = new ArrayList<Flight>();
 		allCustomers = new ArrayList<Customer>();
-		
+		// allows the speed display to see the simulator's current run time
 		addObserver(guiController.addSpeed());
 	}
 	
@@ -92,8 +92,7 @@ public class Simulator extends Observable {
 		simSpeed = speed;
 	}
 		
-	/* Reads flights from CSV file and adds them into flight list.
-	*/
+	/* Reads flights from CSV file and adds them into flight list. */
 	public void addFlightsFromFile(String filepath) {
 		List<Flight> flightsFromFile = getFlightsFromFile(filepath);
 
@@ -105,8 +104,7 @@ public class Simulator extends Observable {
 		}
     }
 	
-	/* Reads customers from CSV file and adds them into customer lists.
-	*/
+	/* Reads customers from CSV file and adds them into customer lists. */
 	public void addCustomersFromFile(String filepath) {
 		List<List<Customer>> allFileCustomers = getCustomersFromFile(filepath);
 		// Separate customers to checked-in and not checked-in
@@ -142,34 +140,37 @@ public class Simulator extends Observable {
 	}
 	
 	// Starts Simulator. Handles time management and randomness setting of the simulation.
-	public void start(float simSpeed, float realRunTime, boolean randomness) {
+	public void start(float simSpeed, float realRunTime, boolean randomness)
+	{
+		// sets operation parameters
 		runSimulation = true;
 		this.realRunTime = realRunTime;
 		this.simSpeed = simSpeed;
 		this.randomness = randomness;
 		
+		// GUI setup and wait
 		guiView.setVisible(true);
 		try { Thread.sleep(50); }
 		catch (InterruptedException e) { e.printStackTrace(); }
-
+		
+		// thread setups
+		Thread threadQueue = new Thread(queue);
+		
 		List<Thread> allDeskThreads = new ArrayList<Thread>();
-		Thread threadQueue = new Thread(queue);								// Start threads
-		// threadQueue.start();
 		for(Desk d : allDesks) allDeskThreads.add(new Thread(d));
+		
+		List<Thread> allFlightThreads = new ArrayList<Thread>();
+		for(Flight f : allFlights) allFlightThreads.add(new Thread(f)); 
 		
 		Logger.instance().MainLog("---Starting simulation--"); //Start threads marks beginning of simulation
 		
-		// Start threads
+		// Starts queue and desk threads
 		for(Thread t : allDeskThreads) t.start();
+		for(Thread t : allFlightThreads) t.start();
 		threadQueue.start();
 		
-		
-		//Setting up flight threads
-		List<Thread> allFlightThreads = new ArrayList<Thread>();
-		for(Flight f : allFlights) allFlightThreads.add(new Thread(f));
-		// Start flight threads
-		for(Thread t : allFlightThreads) t.start();
-		
+		// main simulation loop
+		// ----
 		startTime = System.currentTimeMillis();
 		stopAtTime = startTime + (long)(this.realRunTime * 1000);
 		currentTime = 0;
@@ -181,43 +182,34 @@ public class Simulator extends Observable {
 		currentTime = (long) this.realRunTime;
 		notifyObservers();
 		if (runSimulation) stopSimulation();
+		// ----
 		
-		// Stop desks and queue
+		// Stop all desks and queue
 		for(Desk d : allDesks) d.enable = false;
 		queue.active = false;
-		
 		Logger.instance().MainLog("---Simulation Time Elapsed---");
 		
 		// halts code until all threads have been stopped
 		while (true)
 		{
-			if (threadQueue.isAlive()) continue;
+			if (threadQueue.isAlive()) continue; // checks if waiting queue is still running
 			boolean allThreadsStopped = true;
-			for(Thread t : allDeskThreads) 
-			{
-				if(t.isAlive()) { allThreadsStopped = false; break; }
-			}
+			for(Thread t : allDeskThreads) if(t.isAlive()) { allThreadsStopped = false; break; } // checks if any desks are still running
 			if (allThreadsStopped) break;
 		}
 		
-		for(Desk d : allDesks) d.notifyObservers();
+		for(Desk d : allDesks) d.notifyObservers(); // refreshes display one final time
+		for (Flight f : allFlights) Logger.instance().LogFlightDetails(f); // logs all flight details
 		
-		for (Flight f : allFlights)
-		{
-			Logger.instance().LogFlightDetails(f);
-		}
-		
+		// saves log
 		Logger.instance().MainLog("---Saving Log To File---");
-		
 		Logger.instance().WriteSummaryToFile("Summary.txt");
 		
 		while (!closeWindow) {try {Thread.sleep(100);} catch (InterruptedException e) {}}	// wait until window has been closed
 		guiController.closeGui();
 	}
 
-	/* 
-	 * getCustomersFromFile() - Helper function to read all customers from a CSV file
-	 */
+	/* getCustomersFromFile() - Helper function to read all customers from a CSV file */
 	private static List<List<Customer>> getCustomersFromFile(String filePath) {
 		ArrayList<Customer> fileCheckedInCustomers = new ArrayList<Customer>();
 		ArrayList<Customer> fileNotCheckedInCustomers = new ArrayList<Customer>();
@@ -275,9 +267,7 @@ public class Simulator extends Observable {
 		return rtrn;
 	}
 	
-	/*
-	 * addFlightsFromFile() - Helper function to read all flights from a CSV file
-	 */
+	/* addFlightsFromFile() - Helper function to read all flights from a CSV file */
 	private static List<Flight> getFlightsFromFile(String filePath) {
 		List<Flight> fileFlights = new ArrayList<Flight>();
 		try { 															// open input stream
@@ -322,18 +312,14 @@ public class Simulator extends Observable {
 		return fileFlights;
 	}
 	
-	/*
-	 * Public method that handles sleeping with potential randomness and different simulation speeds
-	 */
+	/* Public method that handles sleeping with potential randomness and different simulation speeds */
 	public void sleep(int millisec)
 	{
-		float sleepTimeRemaining = (float) (millisec * ( randomness ? 0.5f * r.nextFloat() : 1 ));	// Total time to sleep for (including randomness)
-	    while (sleepTimeRemaining > 0 && runSimulation) {											// If sleeping hasn't completed, keep looping
-	        try { Thread.sleep(sleepTimeStep); }													// Sleep for a set, small time - allows CPU to do other tasks
-	        catch (InterruptedException e) { Logger.instance().MainLog(e.getMessage() + " failed to interrupt thread for " + millisec + " milliseconds."); }
-	        sleepTimeRemaining -= sleepTimeStep * simSpeed;											// Update remaining time, considering simSpeed
-	    }
+		int sleepTimeRemaining = (int) ( (float) millisec * ( randomness ? 0.5f * r.nextFloat() : 1 ));	// Total time to sleep for (including randomness)	    
+	    nonRandomSleep(sleepTimeRemaining);
 	}
+	
+	/* Public method that handles sleeping with different simulation speeds */
 	public void nonRandomSleep(int millisec)
 	{
 		float sleepTimeRemaining = (float) millisec;												// Total time to sleep for
@@ -344,18 +330,67 @@ public class Simulator extends Observable {
 	    }
 	}
 	
-
-	public static void main(String[] args) {
-		Logger.instance().resetTimer();									// Start logger
+	/* Initialisation of simulation program */
+	public static void main(String[] args)
+	{
+		// default variables - can be overwritten through console arguments
+		String flights = "dataFlight-20c.csv";
+		String customers = "dataCustomer-20c.csv";
+		int desks = 3;
+		float initialSimSpeed = 1;
+		float runTime = 120;
+		boolean randomness = false;
 		
-		Simulator sim = Simulator.get();								// Only one Simulator can exist at a time
-		sim.addDesks(3);												// No desks are added by default - specify the number here
-
-		sim.addFlightsFromFile("dataFlight-20c.csv");
-		sim.addCustomersFromFile("dataCustomer-20c.csv");
-
-		//sim.makeCustomersArrive(5);									// Immediate arrival of customers
+		Logger.instance().resetTimer();	// Start logger
 		
-		sim.start(1, 120, false);										// (simSpeed, runTime, randomness)
+		// Deals with the case of input arguments for different running parameters
+		if (args.length > 0)
+		{
+			if (args[0].equalsIgnoreCase("-h") || args[0].equalsIgnoreCase("--help"))
+			{
+				System.out.println("Arguments Accepted:");
+				System.out.println("  Flight Dataset Path Address");
+				System.out.println("  Custoemr Dataset Path Address");
+				System.out.println("  Number of Desks");
+				System.out.println("  Initial Simulation Speed in Seconds");
+				System.out.println("  Simulation Runtime in Seconds");
+				System.out.println("  Include Randomness in Waiting Times?");
+				System.exit(1);
+			}
+			try
+			{
+				flights = args[0];
+				customers = args[1];
+				desks = Math.max(Integer.parseInt(args[2]), 1);
+				initialSimSpeed = Math.max(Float.parseFloat(args[3]), 0);
+				runTime = Math.max(Float.parseFloat(args[4]), 0);
+				randomness = Boolean.parseBoolean(args[5]);
+				Logger.instance().MainLog("Imported new parameters");
+			}
+			catch (IndexOutOfBoundsException e1)
+			{
+				Logger.instance().MainLog("ERROR: Not enough arguments given to import new settings");
+				e1.printStackTrace();
+				System.exit(-1);
+			}
+			catch (NumberFormatException e2)
+			{
+				Logger.instance().MainLog("ERROR: Invalid arguments given to import new settings");
+				e2.printStackTrace();
+				System.exit(-2);
+			}
+		}
+		else Logger.instance().MainLog("Using default parameters");
+		
+		// Simulation setup
+		Simulator sim = Simulator.get();					// Only one Simulator can exist at a time
+		sim.addDesks(desks);								// No desks are added by default - specify the number here
+
+		sim.addFlightsFromFile(flights);					// import flights from specified file			
+		sim.addCustomersFromFile(customers);				// import customers from specified file
+
+		//sim.makeCustomersArrive(5);						// Immediate arrival of customers
+		
+		sim.start(initialSimSpeed, runTime, randomness);	// (simSpeed, runTime, randomness)
 	}
 }

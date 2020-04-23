@@ -16,8 +16,8 @@ public class Flight extends Observable implements Runnable  {
 	private int currentCapacity;
 	private float currentWeight, currentVolume, totalFee;
 	
-	private enum DepartureState {waiting,check_in_closed}
-	private DepartureState flightState = DepartureState.waiting;
+	private enum DepartureState { Waiting, CheckInClosed }
+	private DepartureState flightState = DepartureState.Waiting;
 	
 	@SuppressWarnings("unused")
 	private Flight() {}
@@ -61,9 +61,10 @@ public class Flight extends Observable implements Runnable  {
 		customers = new HashSet<Customer>();
 	}
 	
+	// thread run method - waits for specified amount of time and then departs
 	public void run() {
 		checkInTimeRemaining = closeCheckInTime / 1000;
-		while (checkInTimeRemaining > 0) {
+		while (checkInTimeRemaining > 0 && flightState == DepartureState.Waiting) {
 			checkInTimeRemaining--;
 			notifyObservers();
 			Simulator.get().nonRandomSleep(1000);
@@ -71,28 +72,25 @@ public class Flight extends Observable implements Runnable  {
 		flightDeparting();
 	}
 	
-	public boolean isFlightWaiting() {
-		if(flightState == DepartureState.waiting) {
-			return true;
-		}else{
-			return false;
-		}
-	}
+	public boolean isFlightWaiting() { return flightState == DepartureState.Waiting; }
 	
-	public void flightDeparting() { 
-		flightState = DepartureState.check_in_closed;
-		Logger.instance().FlightClosed(this);
-		notifyObservers();
+	public synchronized void flightDeparting() { 
+		if (flightState != DepartureState.CheckInClosed)
+		{
+			flightState = DepartureState.CheckInClosed;
+			Logger.instance().FlightClosed(this);
+			notifyObservers();
+		}
 	}
 	
 	public String getCurrentState() {
 		switch(flightState) {
-			case waiting:
+			case Waiting:
 				return "Flight status: Check-in open (" + checkInTimeRemaining + "s).";
-			case check_in_closed:
+			case CheckInClosed:
 				return "Flight status: Check-in closed.";
 			default:
-				return "This shouldn't happen. Please advise technical team of the issue.";
+				return "This shouldn't happen. Please advise technical team of this issue.";
 		}
 	}
 	
@@ -162,7 +160,7 @@ public class Flight extends Observable implements Runnable  {
 				"Total oversize fee: " 			+ totalFee;
 	}
 	
-	/**@return a two-cell array for the traveling point of the flight: starting location, and finishing location*/
+	/**@return a two-cell array for the travelling point of the flight: starting location, and finishing location*/
 	public String[] getTravelPoints() { return new String[] {startLocation, endLocation}; }
 	
 	/**@return the name of the company providing the flight*/

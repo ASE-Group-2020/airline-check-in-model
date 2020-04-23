@@ -6,16 +6,12 @@ import java.io.IOException;
 
 public class Logger {
 
-	// Statics
+	// Singleton class
 	private static Logger instance = new Logger();
 	public static Logger instance() { return instance; }
-
-	private long startMillis;
-	/*
-	private String passengerDetails, flightDetails, queueJoin, 
-					deskJoin, checkedIn, flightClosed, mainLog = "";
-	*/
 	
+	// time-stamp and log variables
+	private long startMillis;
 	private String passengerDetails = "";
 	private String flightDetails = "----" + System.lineSeparator();
 	private String queueJoin = "";
@@ -24,23 +20,14 @@ public class Logger {
 	private String flightClosed = "";
 	private String mainLog = "";
 	
-	private Logger() {
-	}
-	/*
-	public void log(String s) {
-		long time = System.currentTimeMillis() - startMillis;
-		String timeString = "[" + String.format("%07d",  time) + "] ";
-		System.out.println(timeString + s);
-	}
-	*/
+	private Logger() {}
+	
 	public void resetTimer() {
 		startMillis = System.currentTimeMillis();
 	}
 	
-	private String GetTimeStamp()
-	{
-		return "[" + String.format("%07d",  (System.currentTimeMillis() - startMillis)) + "] ";
-	}
+	// time stamps for all log entries
+	private String GetTimeStamp() {	return "[" + String.format("%07d",  (System.currentTimeMillis() - startMillis)) + "] ";	}
 	
 	public synchronized void MainLog(String s)
 	{
@@ -49,11 +36,13 @@ public class Logger {
 		System.out.print(t);
 	}
 	
+	// create a log of customer information
 	public synchronized void LogPassengerDetails(Customer c)
 	{
 		passengerDetails += c.toString() + System.lineSeparator();
 	}
 	
+	// create a log of flight information
 	public synchronized void LogFlightDetails(Flight f)
 	{
 		//flightDetails += GetTimeStamp() + System.lineSeparator();
@@ -65,6 +54,7 @@ public class Logger {
 		flightDetails += "----" + System.lineSeparator();
 	}
 	
+	// log entry of a passenger joining the queue
 	public synchronized void PassengerJoinedQueue(Customer c)
 	{
 		String s = GetTimeStamp() + "\"" + c.toString() + "\" " + "has entered the queue" + System.lineSeparator();
@@ -72,6 +62,7 @@ public class Logger {
 		mainLog += s;
 	}
 	
+	// log entry of a passenger moving to a desk
 	public synchronized void PassengerMovedToDesk(Customer c, String deskName)
 	{
 		String s = GetTimeStamp() + "\"" + c.toString() + "\" " + "has moved to " + deskName + System.lineSeparator();
@@ -79,6 +70,7 @@ public class Logger {
 		mainLog += s;
 	}
 	
+	// log entry of a passenger checking-in and leaving a desk
 	public synchronized void PassengerCheckedIn(Customer c, Flight f, String deskName, float baggageFee)
 	{
 		String s = GetTimeStamp() + "\"" + c.toString() + "\" " + "has been checked in at " + deskName + ". Baggage Fee: " + baggageFee + System.lineSeparator();
@@ -86,6 +78,7 @@ public class Logger {
 		mainLog += s;
 	}
 	
+	// log entry of a flight departing
 	public synchronized void FlightClosed(Flight f)
 	{
 		String s = GetTimeStamp() + f.getFlightCode() + " is now closed" + System.lineSeparator();
@@ -93,6 +86,7 @@ public class Logger {
 		mainLog += s;
 	}
 	
+	// summary of all logs
 	public String GetSummary()
 	{
 		String sum = "Simulation Log:" + System.lineSeparator() + System.lineSeparator();
@@ -113,6 +107,7 @@ public class Logger {
 		return sum;
 	}
 	
+	// print summary to file
 	public void WriteSummaryToFile(String filename)
 	{		
 		try 

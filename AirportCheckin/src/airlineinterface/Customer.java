@@ -7,6 +7,7 @@ import exceptions.*;
 
 public class Customer implements Comparable<Customer> {
 	
+	// customer details
 	private String refCode, firstName, lastName, flightCode;
 	private boolean isCheckedIn = false;
 	private float baggageWeight, volX, volY, volZ;
@@ -34,8 +35,8 @@ public class Customer implements Comparable<Customer> {
 		// ensures all input data is valid
 		if (_code == null)		  	throw new InvalidValueException("_code must not be null");
 		if (_firstName == null)    	throw new InvalidValueException("_firstName must not be null");
-		if ( _lastName == null)	   	throw new InvalidValueException("_lastName must not be null");
-		if ( _flightCode == null)  	throw new InvalidValueException("_flightCode must not be null");
+		if (_lastName == null)	   	throw new InvalidValueException("_lastName must not be null");
+		if (_flightCode == null)  	throw new InvalidValueException("_flightCode must not be null");
 		if (_code.equals(""))	   	throw new InvalidValueException("_code must not be empty");
 		if (_firstName.equals("")) 	throw new InvalidValueException("_firstName must not be empty");
 		if (_lastName.equals(""))  	throw new InvalidValueException("_lastName must not be empty");
@@ -45,6 +46,7 @@ public class Customer implements Comparable<Customer> {
 		if (_volumeY < 0) 			throw new InvalidValueException("_volumeY must not be null");
 		if (_volumeZ < 0) 			throw new InvalidValueException("_volumeZ must not be null");
 		
+		// iterates through list of boarding classes and finds the one specified in constructor argument
 		Iterator<BoardingClass> iter = EnumSet.allOf(BoardingClass.class).iterator();
 		while (iter.hasNext())
 		{
@@ -56,7 +58,7 @@ public class Customer implements Comparable<Customer> {
 				break;
 			}
 		}
-		if (this.customerClass == BoardingClass.Invalid) throw new InvalidValueException("boarding class is not valid");
+		if (this.customerClass == BoardingClass.Invalid) throw new InvalidValueException("unrecognised boarding class");
 		
 		refCode = _code;
 		firstName = _firstName;
@@ -68,6 +70,7 @@ public class Customer implements Comparable<Customer> {
 		volZ = _volumeZ;
 	}
 	
+	/**@return customer's seating class*/
 	public String getSeatingClass() { return customerClass.toString(); }
 	
 	/**

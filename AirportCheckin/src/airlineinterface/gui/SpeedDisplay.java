@@ -24,6 +24,7 @@ public class SpeedDisplay extends Observer {
 	private JTextField lSimTime, lSimEnd, lBlank, lSimSpeed, tfNewSpeed;	// "labels" for updating information, tfNewSpeed to enter simulation speed
 	private JButton enterSpeed, stopButton;									// Buttons to change simulation speed and stop simulation entirely
 	
+	// action listener for new simulation speed button
 	private ActionListener updateSpeed = new ActionListener()				// Speed change ActionListener
 	{
 		@Override
@@ -35,6 +36,7 @@ public class SpeedDisplay extends Observer {
 		}
 	};
 	
+	// action listener for stop simulation button
 	private ActionListener stopSimulation = new ActionListener()			// Simulation-stopping ActionListener
 	{
 		@Override
@@ -44,7 +46,6 @@ public class SpeedDisplay extends Observer {
 		}
 	};
 	
-	/* Constructor */
 	// SpeedDisplay shows information relating to the Simulator, so it doesn't need to store a reference to any model objects
 	public SpeedDisplay()
 	{
