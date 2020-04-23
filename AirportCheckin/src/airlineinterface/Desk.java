@@ -34,13 +34,11 @@ public class Desk extends Observable implements Runnable {
 	public void OpenDesk() { waitingToClose = false; if (currentStage == Stage.CLOSED) currentStage = Stage.GETTING_CUSTOMER; notifyObservers(); }
 	public void CloseDesk() { waitingToClose = true; }
 	
-	
 	/* No need to synchronize this, the HashMap will be made concurrent..? Doesn't need to be concurrent, just reading from it is a-okay. :)
 	 */
-	public static void addFlights(List<Flight> flights) {
-		for (Flight f : flights) {
-			allFlights.put(f.getFlightCode(), f);
-		}
+	public static void addFlights(List<Flight> flights)
+	{
+		for (Flight f : flights) allFlights.put(f.getFlightCode(), f);
 	}
 
 	/* Constructor that takes in a queue object and the string object is the desk identifier.
@@ -50,8 +48,11 @@ public class Desk extends Observable implements Runnable {
 		this.deskName = deskName;
 	}
 	
+	// methods for different desk stages
+	// ----
 	private void stageGetCustomer() {
-		if (waitingToClose) {												// First check if desk should close
+		if (waitingToClose)
+		{												// First check if desk should close
 			currentStage = Stage.CLOSED;
 			return;
 		}
@@ -63,6 +64,7 @@ public class Desk extends Observable implements Runnable {
 			currentStage = Stage.CHECKING_CUSTOMER_DETAILS;
 		}
 	}
+	
 	private void stageCheckCustomerDetails() {
 		Simulator.get().sleep(2000);
 		currCustomerFlight = allFlights.get(currCustomer.getFlightCode());	// Get customer flight
@@ -78,6 +80,7 @@ public class Desk extends Observable implements Runnable {
 		}
 		currentStage = Stage.MEASURING_BAG;
 	}
+	
 	private void stageMeasureBag() {
 		Simulator.get().sleep(4000);
 		currCustomerFee = 0;												// Just in case some data is carried over
@@ -90,6 +93,7 @@ public class Desk extends Observable implements Runnable {
 		}
 		currentStage = (currCustomerFee == 0) ? Stage.PRINTING_BOARDING_PASS : Stage.CHARGING_FEE;
 	}
+	
 	private void stagePrintBoardingPass() {
 		Simulator.get().sleep(4000);
 		try {
@@ -108,11 +112,14 @@ public class Desk extends Observable implements Runnable {
 		currCustomer = null;						// Shouldn't strictly be needed, here just in case
 		currentStage = Stage.GETTING_CUSTOMER;
 	}
+	// ----
+	
 	private void stageChargeFee() {
 		// Fee is charged in stagePrintBoardingPass, just wait
 		Simulator.get().sleep(4000);
 		currentStage = Stage.PRINTING_BOARDING_PASS;
 	}
+	
 	private void stageRejectCustomer() {
 		// Customer is turned away, just wait
 		Simulator.get().sleep(1000);
@@ -129,7 +136,6 @@ public class Desk extends Observable implements Runnable {
 	 * testing and patches. The potential speed-up from making synchronized calls to individual parts of the methods,
 	 * instead of the whole method is negligible.
 	 */ 
-	
 	public void run() {
 		Logger.instance().MainLog("Starting simulation of " + deskName);
 		while(enable || (currentStage != Stage.GETTING_CUSTOMER && currentStage != Stage.CLOSED)) {		// Only exit if not handling a customer
@@ -195,29 +201,18 @@ public class Desk extends Observable implements Runnable {
 		return deskName;
 	}
 	
-	/*	Customer baggage details takes a float array, the 0th element is the weight and 1,2,3 are the X,Y,Z for the volume
-	 */
+	/* Customer baggage details takes a float array, the 0th element is the weight and 1,2,3 are the X,Y,Z for the volume */
 	public static float getOversizeFee(float[] customerBaggage) throws InvalidValueException {
 		float weight = customerBaggage[0];
 		float volume = customerBaggage[1]*customerBaggage[2]*customerBaggage[3];
 		
-		if (weight < 15 && volume < 20) {
-			return 0;
-		} else if (weight < 25 && volume < 35) {
-			return 10;
-		} else if (weight < 45 && volume < 55) {
-			return 20;
-		} else if (weight < 70 && volume < 90) {
-			return 40;
-		} else if (weight < 100 && volume < 120) {
-			return 60;
-		} else if (weight < 150 && volume < 180) {
-			return 80;
-		} else if (weight <= 200 && volume <= 260) {
-			return 100;
-		}
-		// This is the maximum weight and volume an individual is allowed to possess, beyond 200kg
-
+		if 		(weight < 15 && volume < 20)	 return 0;
+		else if (weight < 25 && volume < 35)	 return 10;
+		else if (weight < 45 && volume < 55)	 return 20;
+		else if (weight < 70 && volume < 90)	 return 40;
+		else if (weight < 100 && volume < 120)	 return 60;
+		else if (weight < 150 && volume < 180) 	 return 80;
+		else if (weight <= 200 && volume <= 260) return 100; // This is the maximum weight and volume an individual is allowed to possess, beyond 200kg
 		else throw new InvalidValueException("the baggage shouldn't be more than 200kg in weight or 260 litres in volume.");
 	}
 	

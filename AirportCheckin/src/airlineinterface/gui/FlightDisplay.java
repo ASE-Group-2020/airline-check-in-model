@@ -25,7 +25,18 @@ public class FlightDisplay extends Observer {
 	private JTextField lStatus, lPassengerCapacity, lWeightCapacity, lVolumeCapacity;
 															// No text entry is used - JTextFields are treated as labels. This was used to fix a bug relating to
 															// the QueueDisplay JTable not having enough room to display correctly JLabel text changed.
-	private JButton bDepart;								// Forces check-in to be disabled for the observed flight
+	// Forces check-in to be disabled for the observed flight
+	private JButton bDepart;
+	
+	// ActionListener for the "Depart" button
+	private ActionListener departCommand = new ActionListener() {	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (bDepart.getText().equals("Depart")) {
+				flight.flightDeparting();				// Call flightDeparting on the flight it observes
+			}
+		}
+	};
 
 	/* Constructor */
 	public FlightDisplay(Flight flight) {
@@ -63,14 +74,7 @@ public class FlightDisplay extends Observer {
 		lWeightCapacity = new JTextField("", 20);
 		lVolumeCapacity = new JTextField("", 20);
 		bDepart = new JButton("Depart");
-		bDepart.addActionListener(new ActionListener() {	// ActionListener for the "Depart" button
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (bDepart.getText().equals("Depart")) {
-					flight.flightDeparting();				// Call flightDeparting on the flight it observes
-				}
-			}
-		});
+		bDepart.addActionListener(departCommand);
 
 		lStatus.setEditable(false);							// None of the JTextField "labels" should be focusable or editable
 		lStatus.setFocusable(false);
@@ -133,9 +137,5 @@ public class FlightDisplay extends Observer {
 	@Override
 	public void onNotify() {
 		updateDisplay();
-	}
-
-	public void disableButtons() {
-
 	}
 }

@@ -111,6 +111,7 @@ public class QueueDisplay extends Observer {
 		}
 
 		/* Below - methods used by JTable to display data */
+		// ----
 		@Override
 		public String getColumnName(int col) {
 			return columnNames[col];
@@ -130,6 +131,6 @@ public class QueueDisplay extends Observer {
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			return data[rowIndex][columnIndex];
 		}
-
+		// ----
 	}
 }

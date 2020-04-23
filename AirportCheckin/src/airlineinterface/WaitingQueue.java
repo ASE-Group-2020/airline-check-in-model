@@ -20,15 +20,16 @@ public class WaitingQueue extends Observable implements Runnable {
 		notArrived = new LinkedList<Customer>();
 	}
 
+	/* Thread run method - Gradually adds passengers to the waiting queue. Stops running once everyone's arrived or when the siumlation has stopped */
 	@Override
 	public void run() {
 		Logger.instance().MainLog("Starting queue simulation");
 		Simulator.get().sleep(3000);
 		Logger.instance().MainLog("People have started arriving at the airport");
-		while (!notArrived.isEmpty() && active) {
+		while (!notArrived.isEmpty() && active)
+		{
 			Customer c = nextCustomerArrived();
 			notifyObservers();
-			// Logging
 			Logger.instance().PassengerJoinedQueue(c);
 			Simulator.get().sleep(1000);
 		}
@@ -45,6 +46,7 @@ public class WaitingQueue extends Observable implements Runnable {
 		notifyObservers();
 	}
 	
+	// forces a number of passengers to arrive and wait in the queue
 	public void makeCustomersArrive(int numberToArrive) {
 		for (int i = 0; i < numberToArrive && notArrived.size() > 0; i++)
 			nextCustomerArrived();
@@ -66,6 +68,7 @@ public class WaitingQueue extends Observable implements Runnable {
 		return c;
 	}
 	
+	// makes a customer arrive at the airport
 	private Customer nextCustomerArrived()
 	{
 		Customer c = notArrived.remove(0);
