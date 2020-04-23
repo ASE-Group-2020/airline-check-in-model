@@ -51,7 +51,7 @@ public class DatasetCreator
 		/**Used to randomly generate the maximum storage volume of an airliner*/
 		FlightVolume(1500, 5000),
 		/**Used to create the departure delay*/
-		FlightDepartureTime(-2,2),
+		FlightDepartureTime(60000,300000),
 		/**Used to alter the percentage chance of a random boolean calculation for whether or not a passenger as checked into the airport*/
 		CheckIn(0.5f,1),
 		/**Used to randomly generate the weight of a passenger's baggage*/
@@ -81,7 +81,7 @@ public class DatasetCreator
 	
 	private static int RandomDepartureTime()
 	{
-		return (int) ((flightDelaySecondsPerCustomer + Spec.FlightDepartureTime.RandomMinMax()) * 1000 * (float)customerCount);
+		return (int) Spec.FlightDepartureTime.RandomMinMax();
 	}
 	
 	/**Resets the DatasetCreator object with specified default variables*/
