@@ -63,7 +63,7 @@ public class Flight extends Observable implements Runnable  {
 	
 	// thread run method - waits for specified amount of time and then departs
 	public void run() {
-		checkInTimeRemaining = closeCheckInTime / 1000;
+		checkInTimeRemaining = closeCheckInTime;
 		while (checkInTimeRemaining > 0 && flightState == DepartureState.Waiting) {
 			checkInTimeRemaining--;
 			notifyObservers();

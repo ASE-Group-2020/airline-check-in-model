@@ -12,12 +12,13 @@ public class Desk extends Observable implements Runnable {
 	// Statics - each desk holds a static reference to all flights
 	private static HashMap<String, Flight> allFlights = new HashMap<String, Flight>();
 	
-	private int waitGetCustomer = 5000;
-	private int waitGetCustomerDetails = 100000;
-	private int waitMeasureBag = 100000;
-	private int waitPrintBoardingPass = 50000;
-	private int waitChargeFee = 100000;
-	private int waitRejectCustomer = 50000;
+	// all times are in milliseconds
+	private int waitGetCustomer = 5000;			// 5 seconds
+	private int waitGetCustomerDetails = 10000; // 10 seconds
+	private int waitMeasureBag = 10000;			// 10 seconds
+	private int waitPrintBoardingPass = 5000;	// 5 seconds
+	private int waitChargeFee = 10000;			// 10 seconds
+	private int waitRejectCustomer = 5000;		// 5 seconds
 	
 	// Instance-specific
 	public boolean enable = true;			// Connect to terminal to control opening/closing desks via setter method

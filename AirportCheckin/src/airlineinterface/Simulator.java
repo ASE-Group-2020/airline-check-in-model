@@ -334,21 +334,12 @@ public class Simulator extends Observable // Observable allows the speed display
 	public static void main(String[] args)
 	{
 		// default variables - can be overwritten through console arguments
-		String flights = "dataFlight-100c.csv";
-		String customers = "dataCustomer-100c.csv";
-		int desks = 6;
-		float initialSimSpeed = 1;
-		float runTime = 300;
-		boolean randomness = true;
-		
-		/*
 		String flights = "dataFlight-demo.csv";
 		String customers = "dataCustomer-demo.csv";
-		int desks = 6;
+		int desks = 5;
 		float initialSimSpeed = 1;
-		float runTime = 300;
+		float runTime = 360;
 		boolean randomness = true;
-		*/
 		
 		Logger.instance().resetTimer();	// Start logger
 		
