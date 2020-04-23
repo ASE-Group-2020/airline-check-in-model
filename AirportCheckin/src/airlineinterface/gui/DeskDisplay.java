@@ -134,8 +134,7 @@ public class DeskDisplay extends Observer {
 				// Customer exists, get their details and display them in the labels
 				lCustomerName.setText(c.getFirstName() + " " + c.getLastName());
 				lCustomerClass.setText(c.getSeatingClass() + " Class");
-				float[] bd = c.getBaggageDetails();
-				lBaggage.setText("Baggage: " + String.format("%.2f", bd[0]) + " kg, " + String.format("%.0fx%.0fx%.0f cm", bd[1]+0.5, bd[2]+0.5, bd[3]+0.5));
+				lBaggage.setText("Baggage: " + c.getBaggageWeightString() + ", " + c.getBaggageDimensionString());
 				lBookingRef.setText("Booking code: " + c.getRefCode());
 				lFlightCode.setText("Flight code: " + c.getFlightCode());
 				lDeskStage.setText(desk.getCurrentStage());

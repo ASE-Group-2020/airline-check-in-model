@@ -104,9 +104,8 @@ public class QueueDisplay extends Observer {
 				if (c == null) continue;
 				data[index][0] = c.getFirstName() + " " + c.getLastName();
 				data[index][1] = c.getRefCode();
-				float[] bd = c.getBaggageDetails();
-				data[index][2] = String.format("%.2f", bd[0]);										// Format bag weight to 2 decimal places
-				data[index][3] = String.format("%.0fx%.0fx%.0f", bd[1]+0.5, bd[2]+0.5, bd[3]+0.5);	// Format bag dimensions to 0 decimal places
+				data[index][2] = c.getBaggageWeightString();
+				data[index][3] = c.getBaggageDimensionString();
 				index++;
 			}
 		}

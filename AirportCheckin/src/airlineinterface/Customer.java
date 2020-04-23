@@ -101,6 +101,16 @@ public class Customer implements Comparable<Customer> {
 	
 	/**@return a string representation of the customer's ref code and names*/
 	public String toString() {return refCode + " " + firstName + " " + lastName;}
+
+	/**@return a string describing the customer's baggage dimensions*/
+	public String getBaggageDimensionString() {
+		// Volumes are stored in decimetres instead of centimetres
+		// Convert to cm for display
+		return String.format("%.0fx%.0fx%.0f cm", volX*10+0.5, volY*10+0.5, volZ+0.5 );
+	}
+	
+	/**@return a string describing the customer's baggage weight*/
+	public String getBaggageWeightString() { return String.format("%.2f kg", baggageWeight); }
 	
 	/**@return an array of the following attributes (in order):
 	 * weight of customer's baggage
