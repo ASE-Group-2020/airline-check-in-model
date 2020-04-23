@@ -87,10 +87,10 @@ public class DatasetCreator
 	/**Resets the DatasetCreator object with specified default variables*/
 	public static void Reset()
 	{
-		customerCount = 1000;
+		customerCount = 10000;
 		flightClassPercentage = 0.7f; // between 0 and 1
 		
-		flightCount = Math.max(customerCount / 10, 1);
+		flightCount = 6;
 		
 		airportLocation = "Edinburgh";
 		
@@ -117,7 +117,7 @@ public class DatasetCreator
 		// generates and writes each new flight entry to file individually
 		try
 		{
-			FileWriter flightDataWriter = new FileWriter("dataFlight-" + customerCount + "c.csv");		
+			FileWriter flightDataWriter = new FileWriter("dataFlight-demo.csv");		
 			for (int I = 0; I < flightCount; I++)
 			{	
 				flightDataWriter.write(NewFlight() + "\n");
@@ -128,7 +128,7 @@ public class DatasetCreator
 		// generates and writes each new customer entry to file individually
 		try
 		{
-			FileWriter customerDataWriter = new FileWriter("dataCustomer-" + customerCount + "c.csv");
+			FileWriter customerDataWriter = new FileWriter("dataCustomer-demo.csv");
 			for (int I = 0; I < customerCount; I++)
 			{			
 				customerDataWriter.write(NewCustomer() + "\n");
@@ -153,8 +153,8 @@ public class DatasetCreator
 			FlightCode(end) + "," + 
 			RandomFromArray(carriers) + "," +
 			(int) Spec.Passengers.RandomMinMax() + "," + 
-			Spec.FlightWeight.RandomMinMax() + "," + 
-			Spec.FlightVolume.RandomMinMax() + "," +
+			(int) Spec.FlightWeight.RandomMinMax() + "," + 
+			(int) Spec.FlightVolume.RandomMinMax() + "," +
 			RandomDepartureTime()
 		;
 	}
